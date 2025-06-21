@@ -21,6 +21,8 @@ namespace Livesplit.Subnautica
         private Process game;
         private System.Threading.Timer debugWriteTimer;
         private GameVersion gameVersion;
+        private bool startedTimerBefore = false;
+        private bool isInMainMenu = false;
         private readonly Dictionary<SplitName, Func<bool>> splitConditions;
         private readonly HashSet<SplitName> alreadySplit = new HashSet<SplitName>();       
 
@@ -98,99 +100,109 @@ namespace Livesplit.Subnautica
 
         public void Update()
         {
+            if (game == null || game.HasExited || !pointersInitialized)
+                return;
+
+            // Detect Main Menu Change
+            if (posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f && posY.Old != posY.Current)
+                isInMainMenu = true;
+            if (posX.Old == 0 && posZ.Old == 0 && posY.Old == 1.75f && posY.Old != posY.Current)
+                isInMainMenu = false;
+
+            if (isInMainMenu)
+                startedTimerBefore = false;
+
             Debug.WriteLineIf(game == null, $"[Subnautica Autosplitter] game null");
             Debug.WriteLineIf(!pointersInitialized, $"[Subnautica Autosplitter] pointers not intialized");
 
-            if (game != null && pointersInitialized)
+            if (settings.introStart)
+                isIntroCinematicActive.Update(game);
+
+            if (Needs())
+                isLoadingScreen.Update(game);
+
+            if (Needs(SplitName.PCFTabletSplit,
+                      SplitName.GunDeactivationSplit,
+                      SplitName.SGLShallowsSplit,
+                      SplitName.IonUnstuckSplit,
+                      SplitName.HCGSparseSplit))
+                isAnimationPlaying.Update(game);
+
+            if (Needs(SplitName.PortalSplit))
+                isPortalLoading.Update(game);
+
+            if (Needs(SplitName.HatchSplit))
+                isEggsHatching.Update(game);
+
+            if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
+                isNotInWater.Update(game);
+
+            if (Needs(SplitName.BaseDeathSplit,
+                      SplitName.AuroraDeathSplit,
+                      SplitName.IonDeathSplit,
+                      SplitName.SparseDeathSplit,
+                      SplitName.GunDeathSplit))
+                isDying.Update(game);
+
+            if (Needs())
+                isFabiOpen.Update(game);
+
+            if (Needs())
+                isPDAOpen.Update(game);
+
+            if (Needs(SplitName.RocketSplit))
+                isRocketLaunching.Update(game);
+
+            if (Needs())
+                oxygen.Update(game);
+
+            if (Needs(SplitName.CureSplit))
+                timeCured.Update(game);
+
+            if (Needs())
             {
-                if (settings.introStart)
-                    isIntroCinematicActive.Update(game);
-
-                if (Needs())
-                    isLoadingScreen.Update(game);
-
-                if (Needs(SplitName.PCFTabletSplit, 
-                          SplitName.GunDeactivationSplit,
-                          SplitName.SGLShallowsSplit,
-                          SplitName.IonUnstuckSplit,
-                          SplitName.HCGSparseSplit))
-                    isAnimationPlaying.Update(game);
-
-                if (Needs(SplitName.PortalSplit))
-                    isPortalLoading.Update(game);
-
-                if (Needs(SplitName.HatchSplit))
-                    isEggsHatching.Update(game);
-
-                if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
-                    isNotInWater.Update(game);
-
-                if (Needs(SplitName.BaseDeathSplit,
-                          SplitName.AuroraDeathSplit,
-                          SplitName.IonDeathSplit,
-                          SplitName.SparseDeathSplit,
-                          SplitName.GunDeathSplit))
-                    isDying.Update(game);
-
-                if (Needs())
-                    isFabiOpen.Update(game);
-
-                if (Needs())
-                    isPDAOpen.Update(game);
-
-                if (Needs(SplitName.RocketSplit))
-                    isRocketLaunching.Update(game);
-
-                if (Needs())
-                    oxygen.Update(game);
-
-                if (Needs(SplitName.CureSplit))
-                    timeCured.Update(game);
-
-                if (Needs())
-                {
-                    walkDir.Update(game);
-                    strafeDir.Update(game);
-                }
-
-                if (Needs(SplitName.PCFTabletSplit, 
-                          SplitName.GunDeactivationSplit,
-                          SplitName.BaseDeathSplit,
-                          SplitName.LeaveKelpForestSplit,
-                          SplitName.MountainDescendSplit,
-                          SplitName.SGLBaseSplit,
-                          SplitName.SGLShallowsSplit,
-                          SplitName.UpperTabletSplit,
-                          SplitName.AuroraExitSplit,
-                          SplitName.HCGSparseSplit))
-                    UpdatePosition();
-
-                if (Needs(SplitName.AuroraDeathSplit,
-                          SplitName.IonDeathSplit,
-                          SplitName.GunDeathSplit,
-                          SplitName.SparseDeathSplit,
-                          SplitName.IonUnlockSplit))
-                {
-                    biomePtr.Update(game);
-                    biomeStringOld = biomeString;
-                    biomeString = IntPtrToString(biomePtr.Current + 0x14, 64).Trim(' ');
-                }
-
-                if (Needs(SplitName.LeaveKelpForestSplit,
-                          SplitName.FourToothSplit,
-                          SplitName.HCGSparseSplit,
-                          SplitName.HCGSparseSplit,
-                          SplitName.SGLShallowsSplit,
-                          SplitName.HCGSparseSplit))
-                    UpdateInventory();
-
-                if (Needs(SplitName.BoostersSplit,
-                          SplitName.FuelReservesSplit,
-                          SplitName.RocketUnlockSplit,
-                          SplitName.UpperTabletSplit))
-                    UpdateBlueprints();
+                walkDir.Update(game);
+                strafeDir.Update(game);
             }
+
+            if (Needs(SplitName.PCFTabletSplit,
+                      SplitName.GunDeactivationSplit,
+                      SplitName.BaseDeathSplit,
+                      SplitName.LeaveKelpForestSplit,
+                      SplitName.MountainDescendSplit,
+                      SplitName.SGLBaseSplit,
+                      SplitName.SGLShallowsSplit,
+                      SplitName.UpperTabletSplit,
+                      SplitName.AuroraExitSplit,
+                      SplitName.HCGSparseSplit))
+                UpdatePosition();
+
+            if (Needs(SplitName.AuroraDeathSplit,
+                      SplitName.IonDeathSplit,
+                      SplitName.GunDeathSplit,
+                      SplitName.SparseDeathSplit,
+                      SplitName.IonUnlockSplit))
+            {
+                biomePtr.Update(game);
+                biomeStringOld = biomeString;
+                biomeString = IntPtrToString(biomePtr.Current + 0x14, 64).Trim(' ');
+            }
+
+            if (Needs(SplitName.LeaveKelpForestSplit,
+                      SplitName.FourToothSplit,
+                      SplitName.HCGSparseSplit,
+                      SplitName.HCGSparseSplit,
+                      SplitName.SGLShallowsSplit,
+                      SplitName.HCGSparseSplit))
+                UpdateInventory();
+
+            if (Needs(SplitName.BoostersSplit,
+                      SplitName.FuelReservesSplit,
+                      SplitName.RocketUnlockSplit,
+                      SplitName.UpperTabletSplit))
+                UpdateBlueprints();
         }
+        
         bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
 
         private void UpdatePosition() { posX.Update(game); posY.Update(game); posZ.Update(game); }
@@ -400,7 +412,15 @@ namespace Livesplit.Subnautica
             return false;
         }
 
-        public bool ShouldReset(LiveSplitState state) { return false; }
+        public bool ShouldReset(LiveSplitState state) 
+        {
+            if (game == null) return false;
+
+            if (settings.reset && posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f && posY.Old != posY.Current)
+                return true;
+            return false;
+        }
+
         public void OnReset(TimerPhase t) { alreadySplit.Clear(); }
         public bool IsGameTimePaused(LiveSplitState state) { return false; }
         public TimeSpan? GetGameTime(LiveSplitState state) { return null; }
