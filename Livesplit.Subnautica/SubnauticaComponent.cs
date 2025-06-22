@@ -37,6 +37,7 @@ namespace Livesplit.Subnautica
         {
             splitter.Update();
             settings.UpdateExploBtnContent();
+
             TryResetOnMainMenu();
             splitter.isInMainMenuOld = splitter.isInMainMenu;
             base.Update(invalidator, state, width, height, mode);

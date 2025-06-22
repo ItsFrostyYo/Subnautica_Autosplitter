@@ -20,7 +20,7 @@ namespace Livesplit.Subnautica
 
         public string UpdateName => ComponentName;
 
-        public string XMLURL => UpdateURL + "Subnautica.Updates.xml";
+        public string XMLURL => UpdateURL + "Components/Subnautica.Updates.xml";
 
         public string UpdateURL => "https://raw.githubusercontent.com/Sprinter31/Subnautica_Autosplitter/Livesplit.Subnautica/";
 
