@@ -2,7 +2,7 @@
 <updates>
  <update version="2.0.1">
         <files>
-            <file path="LiveSplit.Subnautica.dll" status="changed"/>
+            <file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
         </files>
         <changelog>
             <change>test</change>
@@ -10,7 +10,7 @@
     </update>
     <update version="2.0.0">
         <files>
-            <file path="LiveSplit.Subnautica.dll" status="changed"/>
+            <file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
         </files>
         <changelog>
             <change>Switch to new component autosplitter</change>
