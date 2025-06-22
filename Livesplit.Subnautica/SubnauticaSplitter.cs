@@ -115,11 +115,20 @@ namespace Livesplit.Subnautica
             {
                 #region Only update watchers when needed
                 if (settings.introStart)
+                {
+                    oxygen.Update(game);
                     isIntroCinematicActive.Update(game);
+                }                    
 
-                if (Needs())
+                if (settings.creativeStart)
+                {
+                    walkDir.Update(game);
+                    strafeDir.Update(game);
+                    isFabiOpen.Update(game);
+                    isPDAOpen.Update(game);
                     isLoadingScreen.Update(game);
-
+                }
+                    
                 if (Needs(SplitName.PCFTabletSplit,
                           SplitName.GunDeactivationSplit,
                           SplitName.SGLShallowsSplit,
@@ -141,28 +150,13 @@ namespace Livesplit.Subnautica
                           SplitName.IonDeathSplit,
                           SplitName.SparseDeathSplit,
                           SplitName.GunDeathSplit))
-                    isDying.Update(game);
-
-                if (Needs())
-                    isFabiOpen.Update(game);
-
-                if (Needs())
-                    isPDAOpen.Update(game);
+                    isDying.Update(game);                
 
                 if (Needs(SplitName.RocketSplit))
                     isRocketLaunching.Update(game);
 
-                if (Needs())
-                    oxygen.Update(game);
-
                 if (Needs(SplitName.CureSplit))
                     timeCured.Update(game);
-
-                if (Needs())
-                {
-                    walkDir.Update(game);
-                    strafeDir.Update(game);
-                }
 
                 if (Needs(SplitName.PCFTabletSplit,
                           SplitName.GunDeactivationSplit,
@@ -211,6 +205,7 @@ namespace Livesplit.Subnautica
                 if (isInMainMenu)
                     startedTimerBefore = false;
 
+                // manage IGT
                 state.IsGameTimePaused = ShouldPause();
             }
             catch (NullReferenceException ex)
@@ -445,11 +440,19 @@ namespace Livesplit.Subnautica
 
             if (settings.introStart)
             {
-                if (!isIntroCinematicActive.Current && isIntroCinematicActive.Old)
-                {
-                    startedTimerBefore = true;
-                    return true;
-                }
+                if (gameVersion == GameVersion.Sept2018 && oxygen.Current > 35 && oxygen.Old < 35) { WriteDebug("Start of oxygen"); startedTimerBefore = true; return true; }
+                if (!isIntroCinematicActive.Current && isIntroCinematicActive.Old) { WriteDebug("Start of introCinematic"); startedTimerBefore = true; return true; }
+            }
+            if(settings.creativeStart && !isLoadingScreen.Current && !isInMainMenu)
+            {
+                // Start of Move
+                if ((walkDir.Current != 0 && walkDir.Old == 0) || (strafeDir.Current != 0 && strafeDir.Old == 0)) { WriteDebug("Start of Move"); startedTimerBefore = true; return true; }
+
+                // Start of Fabricator
+                if (isFabiOpen.Current == 1 && isFabiOpen.Old == 0) { WriteDebug("Start of Fabricator"); startedTimerBefore = true; return true; }
+
+                // Start of PDA
+                if (isPDAOpen.Current == 1051931443 && isPDAOpen.Current != isPDAOpen.Old) { WriteDebug("Start of PDA"); startedTimerBefore = true; return true; }
             }
             return false;
         }

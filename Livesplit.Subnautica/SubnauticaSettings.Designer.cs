@@ -86,7 +86,7 @@
             this.flowMain.Location = new System.Drawing.Point(0, 0);
             this.flowMain.Margin = new System.Windows.Forms.Padding(0);
             this.flowMain.Name = "flowMain";
-            this.flowMain.Size = new System.Drawing.Size(630, 176);
+            this.flowMain.Size = new System.Drawing.Size(472, 142);
             this.flowMain.TabIndex = 0;
             this.flowMain.WrapContents = false;
             // 
@@ -98,7 +98,7 @@
             this.flowOptions.Location = new System.Drawing.Point(0, 0);
             this.flowOptions.Margin = new System.Windows.Forms.Padding(0);
             this.flowOptions.Name = "flowOptions";
-            this.flowOptions.Size = new System.Drawing.Size(630, 176);
+            this.flowOptions.Size = new System.Drawing.Size(472, 142);
             this.flowOptions.TabIndex = 2;
             // 
             // Options_GroupBox
@@ -108,11 +108,9 @@
             this.Options_GroupBox.Controls.Add(this.btnAddSplit);
             this.Options_GroupBox.Controls.Add(this.StartReset_GroupBox);
             this.Options_GroupBox.Controls.Add(this.SortBy_GroupBox);
-            this.Options_GroupBox.Location = new System.Drawing.Point(4, 4);
-            this.Options_GroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.Options_GroupBox.Location = new System.Drawing.Point(3, 3);
             this.Options_GroupBox.Name = "Options_GroupBox";
-            this.Options_GroupBox.Padding = new System.Windows.Forms.Padding(4);
-            this.Options_GroupBox.Size = new System.Drawing.Size(622, 168);
+            this.Options_GroupBox.Size = new System.Drawing.Size(466, 136);
             this.Options_GroupBox.TabIndex = 6;
             this.Options_GroupBox.TabStop = false;
             this.Options_GroupBox.Text = "Options";
@@ -124,9 +122,10 @@
             // 
             this.btnAddExplo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddExplo.AutoSize = true;
-            this.btnAddExplo.Location = new System.Drawing.Point(476, 126);
+            this.btnAddExplo.Location = new System.Drawing.Point(351, 102);
+            this.btnAddExplo.Margin = new System.Windows.Forms.Padding(2);
             this.btnAddExplo.Name = "btnAddExplo";
-            this.btnAddExplo.Size = new System.Drawing.Size(138, 26);
+            this.btnAddExplo.Size = new System.Drawing.Size(110, 23);
             this.btnAddExplo.TabIndex = 9;
             this.btnAddExplo.Text = "Add Explosion Time";
             this.ToolTips.SetToolTip(this.btnAddExplo, "This will add a text component to your layout which shows when the aurora is goin" +
@@ -137,11 +136,9 @@
             // 
             this.Other_GroupBox.Controls.Add(this.chkSRCLoadtimes);
             this.Other_GroupBox.Controls.Add(this.chkAskForGoldSave);
-            this.Other_GroupBox.Location = new System.Drawing.Point(415, 18);
-            this.Other_GroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.Other_GroupBox.Location = new System.Drawing.Point(311, 15);
             this.Other_GroupBox.Name = "Other_GroupBox";
-            this.Other_GroupBox.Padding = new System.Windows.Forms.Padding(4);
-            this.Other_GroupBox.Size = new System.Drawing.Size(199, 100);
+            this.Other_GroupBox.Size = new System.Drawing.Size(149, 81);
             this.Other_GroupBox.TabIndex = 8;
             this.Other_GroupBox.TabStop = false;
             this.Other_GroupBox.Text = "Others";
@@ -152,9 +149,10 @@
             this.chkSRCLoadtimes.AutoSize = true;
             this.chkSRCLoadtimes.Checked = true;
             this.chkSRCLoadtimes.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkSRCLoadtimes.Location = new System.Drawing.Point(7, 58);
+            this.chkSRCLoadtimes.Location = new System.Drawing.Point(5, 47);
+            this.chkSRCLoadtimes.Margin = new System.Windows.Forms.Padding(2);
             this.chkSRCLoadtimes.Name = "chkSRCLoadtimes";
-            this.chkSRCLoadtimes.Size = new System.Drawing.Size(120, 20);
+            this.chkSRCLoadtimes.Size = new System.Drawing.Size(99, 17);
             this.chkSRCLoadtimes.TabIndex = 1;
             this.chkSRCLoadtimes.Text = "SRC Loadtimes";
             this.ToolTips.SetToolTip(this.chkSRCLoadtimes, "This will add time to the actual load times to match the IGT shown on Speedrun.co" +
@@ -167,9 +165,10 @@
             // 
             this.chkAskForGoldSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chkAskForGoldSave.AutoSize = true;
-            this.chkAskForGoldSave.Location = new System.Drawing.Point(7, 28);
+            this.chkAskForGoldSave.Location = new System.Drawing.Point(5, 23);
+            this.chkAskForGoldSave.Margin = new System.Windows.Forms.Padding(2);
             this.chkAskForGoldSave.Name = "chkAskForGoldSave";
-            this.chkAskForGoldSave.Size = new System.Drawing.Size(171, 20);
+            this.chkAskForGoldSave.Size = new System.Drawing.Size(139, 17);
             this.chkAskForGoldSave.TabIndex = 0;
             this.chkAskForGoldSave.Text = "Ask before saving golds";
             this.ToolTips.SetToolTip(this.chkAskForGoldSave, "Ask to save golds when the timer auto resets");
@@ -178,10 +177,9 @@
             // 
             // btnAddSplit
             // 
-            this.btnAddSplit.Location = new System.Drawing.Point(8, 126);
-            this.btnAddSplit.Margin = new System.Windows.Forms.Padding(4);
+            this.btnAddSplit.Location = new System.Drawing.Point(6, 102);
             this.btnAddSplit.Name = "btnAddSplit";
-            this.btnAddSplit.Size = new System.Drawing.Size(76, 26);
+            this.btnAddSplit.Size = new System.Drawing.Size(57, 21);
             this.btnAddSplit.TabIndex = 0;
             this.btnAddSplit.Text = "Add Split";
             this.btnAddSplit.UseVisualStyleBackColor = true;
@@ -192,11 +190,9 @@
             this.StartReset_GroupBox.Controls.Add(this.chkReset);
             this.StartReset_GroupBox.Controls.Add(this.chkCreativeStart);
             this.StartReset_GroupBox.Controls.Add(this.chkIntroStart);
-            this.StartReset_GroupBox.Location = new System.Drawing.Point(191, 18);
-            this.StartReset_GroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.StartReset_GroupBox.Location = new System.Drawing.Point(143, 15);
             this.StartReset_GroupBox.Name = "StartReset_GroupBox";
-            this.StartReset_GroupBox.Padding = new System.Windows.Forms.Padding(4);
-            this.StartReset_GroupBox.Size = new System.Drawing.Size(216, 100);
+            this.StartReset_GroupBox.Size = new System.Drawing.Size(162, 81);
             this.StartReset_GroupBox.TabIndex = 7;
             this.StartReset_GroupBox.TabStop = false;
             this.StartReset_GroupBox.Text = "Start / Reset";
@@ -204,9 +200,10 @@
             // chkReset
             // 
             this.chkReset.AutoSize = true;
-            this.chkReset.Location = new System.Drawing.Point(142, 28);
+            this.chkReset.Location = new System.Drawing.Point(106, 23);
+            this.chkReset.Margin = new System.Windows.Forms.Padding(2);
             this.chkReset.Name = "chkReset";
-            this.chkReset.Size = new System.Drawing.Size(62, 20);
+            this.chkReset.Size = new System.Drawing.Size(54, 17);
             this.chkReset.TabIndex = 2;
             this.chkReset.Text = "Reset";
             this.ToolTips.SetToolTip(this.chkReset, "Resets the timer when you come back to the main menu");
@@ -219,12 +216,14 @@
             this.chkCreativeStart.AutoSize = true;
             this.chkCreativeStart.Checked = true;
             this.chkCreativeStart.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCreativeStart.Location = new System.Drawing.Point(7, 58);
+            this.chkCreativeStart.Location = new System.Drawing.Point(5, 47);
+            this.chkCreativeStart.Margin = new System.Windows.Forms.Padding(2);
             this.chkCreativeStart.Name = "chkCreativeStart";
-            this.chkCreativeStart.Size = new System.Drawing.Size(106, 20);
+            this.chkCreativeStart.Size = new System.Drawing.Size(90, 17);
             this.chkCreativeStart.TabIndex = 1;
             this.chkCreativeStart.Text = "Creative Start";
-            this.ToolTips.SetToolTip(this.chkCreativeStart, "Starts the timer when you move or interact");
+            this.ToolTips.SetToolTip(this.chkCreativeStart, "Starts the timer when you move horizontally, open your PDA or interact with the f" +
+        "abricator");
             this.chkCreativeStart.UseVisualStyleBackColor = true;
             this.chkCreativeStart.CheckedChanged += new System.EventHandler(this.ControlChanged);
             // 
@@ -234,9 +233,10 @@
             this.chkIntroStart.AutoSize = true;
             this.chkIntroStart.Checked = true;
             this.chkIntroStart.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkIntroStart.Location = new System.Drawing.Point(7, 28);
+            this.chkIntroStart.Location = new System.Drawing.Point(5, 23);
+            this.chkIntroStart.Margin = new System.Windows.Forms.Padding(2);
             this.chkIntroStart.Name = "chkIntroStart";
-            this.chkIntroStart.Size = new System.Drawing.Size(110, 20);
+            this.chkIntroStart.Size = new System.Drawing.Size(96, 17);
             this.chkIntroStart.TabIndex = 0;
             this.chkIntroStart.Text = "Start after Intro";
             this.ToolTips.SetToolTip(this.chkIntroStart, "Starts the timer after the intro animation");
@@ -247,11 +247,9 @@
             // 
             this.SortBy_GroupBox.Controls.Add(this.rdAlpha);
             this.SortBy_GroupBox.Controls.Add(this.rdType);
-            this.SortBy_GroupBox.Location = new System.Drawing.Point(8, 18);
-            this.SortBy_GroupBox.Margin = new System.Windows.Forms.Padding(4);
+            this.SortBy_GroupBox.Location = new System.Drawing.Point(6, 15);
             this.SortBy_GroupBox.Name = "SortBy_GroupBox";
-            this.SortBy_GroupBox.Padding = new System.Windows.Forms.Padding(4);
-            this.SortBy_GroupBox.Size = new System.Drawing.Size(175, 100);
+            this.SortBy_GroupBox.Size = new System.Drawing.Size(131, 81);
             this.SortBy_GroupBox.TabIndex = 6;
             this.SortBy_GroupBox.TabStop = false;
             this.SortBy_GroupBox.Text = "Sort Split Selects By";
@@ -259,11 +257,12 @@
             // rdAlpha
             // 
             this.rdAlpha.AutoSize = true;
-            this.rdAlpha.Location = new System.Drawing.Point(8, 52);
-            this.rdAlpha.Margin = new System.Windows.Forms.Padding(4);
+            this.rdAlpha.Checked = true;
+            this.rdAlpha.Location = new System.Drawing.Point(6, 42);
             this.rdAlpha.Name = "rdAlpha";
-            this.rdAlpha.Size = new System.Drawing.Size(100, 20);
+            this.rdAlpha.Size = new System.Drawing.Size(83, 17);
             this.rdAlpha.TabIndex = 3;
+            this.rdAlpha.TabStop = true;
             this.rdAlpha.Text = "Alphabetical";
             this.rdAlpha.UseVisualStyleBackColor = true;
             this.rdAlpha.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
@@ -271,13 +270,10 @@
             // rdType
             // 
             this.rdType.AutoSize = true;
-            this.rdType.Checked = true;
-            this.rdType.Location = new System.Drawing.Point(8, 23);
-            this.rdType.Margin = new System.Windows.Forms.Padding(4);
+            this.rdType.Location = new System.Drawing.Point(6, 19);
             this.rdType.Name = "rdType";
-            this.rdType.Size = new System.Drawing.Size(57, 20);
+            this.rdType.Size = new System.Drawing.Size(49, 17);
             this.rdType.TabIndex = 2;
-            this.rdType.TabStop = true;
             this.rdType.Text = "Type";
             this.rdType.UseVisualStyleBackColor = true;
             this.rdType.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
@@ -291,7 +287,7 @@
             // 
             // SubnauticaSettings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.AutoSize = true;
@@ -299,7 +295,7 @@
             this.Controls.Add(this.flowMain);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "SubnauticaSettings";
-            this.Size = new System.Drawing.Size(630, 176);
+            this.Size = new System.Drawing.Size(472, 142);
             this.Load += new System.EventHandler(this.Settings_Load);
             this.flowMain.ResumeLayout(false);
             this.flowMain.PerformLayout();
