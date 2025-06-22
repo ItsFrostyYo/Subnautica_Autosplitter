@@ -25,7 +25,8 @@ namespace Livesplit.Subnautica
         {
             state.OnReset += OnReset;
             settings.SetState(state);
-            _state = state;            
+            _state = state;
+            
         }       
 
         public override string ComponentName => "Subnautica Autosplitter";
@@ -44,6 +45,7 @@ namespace Livesplit.Subnautica
         }
 
         public void OnReset(object sender, TimerPhase t) => splitter.OnReset(t);
+
         private void TryResetOnMainMenu()
         {
             if (!settings.reset)
@@ -56,9 +58,18 @@ namespace Livesplit.Subnautica
             Form ui = _state.Form;
             Action doReset = () =>
             {
+                bool GoldSegment = false;
+                for (int index = 0; index < _state.Run.Count; index++)
+                {
+                    if (LiveSplitStateHelper.CheckBestSegment(_state, index, _state.CurrentTimingMethod))
+                    {
+                        GoldSegment = true;
+                        break;
+                    }
+                }
+
                 bool save = true;
-                bool warnOnReset = settings.askForGoldSave;
-                if (warnOnReset && _state.Run.HasChanged)
+                if (settings.askForGoldSave && GoldSegment)
                 {
                     DialogResult r = MessageBox.Show(
                         ui,
