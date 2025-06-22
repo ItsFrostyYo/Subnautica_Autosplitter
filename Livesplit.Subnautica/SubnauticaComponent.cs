@@ -57,7 +57,6 @@ namespace Livesplit.Subnautica
             Action doReset = () =>
             {
                 bool save = true;
-                WriteDebug(settings.askForGoldSave.ToString());
                 bool warnOnReset = settings.askForGoldSave;
                 if (warnOnReset && _state.Run.HasChanged)
                 {
