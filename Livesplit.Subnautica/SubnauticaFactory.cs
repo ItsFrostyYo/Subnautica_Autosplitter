@@ -1,11 +1,12 @@
-﻿using LiveSplit.UI.Components;
+﻿using Livesplit.Subnautica;
 using LiveSplit.Model;
+using LiveSplit.UI.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using Livesplit.Subnautica;
 
 namespace Livesplit.Subnautica
 {
@@ -19,11 +20,11 @@ namespace Livesplit.Subnautica
 
         public string UpdateName => ComponentName;
 
-        public string XMLURL => UpdateURL + "Subnautica.xml";
+        public string XMLURL => UpdateURL + "Subnautica.Updates.xml";
 
-        public string UpdateURL => "";
+        public string UpdateURL => "https://raw.githubusercontent.com/Sprinter31/Subnautica_Autosplitter/Livesplit.Subnautica/";
 
-        public Version Version => Version.Parse("1.0.0");
+        public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         public IComponent Create(LiveSplitState state) => new SubnauticaComponent(state);
     }
