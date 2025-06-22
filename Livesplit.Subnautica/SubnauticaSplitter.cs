@@ -207,6 +207,7 @@ namespace Livesplit.Subnautica
 
                 // manage IGT
                 state.IsGameTimePaused = ShouldPause();
+                WriteDebug(oxygen.Current.ToString());
             }
             catch (NullReferenceException ex)
             {
@@ -356,7 +357,8 @@ namespace Livesplit.Subnautica
                     dyingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x8, 0x10, 0x30, 0x318, 0x28, 0x50);
                     fabiPtr = new DeepPointer("UnityPlayer.dll", 0x183BF48, 0x8, 0x10, 0x30, 0x30, 0x28, 0x128);
                     PDAPtr = new DeepPointer("mono-2.0-bdwgc.dll", 0x499C40, 0xE84);
-                    rocketPtr = new DeepPointer("UnityPlayer.dll", 0x17FC238, 0x10, 0x3C);                    
+                    rocketPtr = new DeepPointer("UnityPlayer.dll", 0x17FC238, 0x10, 0x3C);    
+                    oxygenPtr = new DeepPointer(IntPtr.Zero);
                     timeCuredPtr = new DeepPointer("UnityPlayer.dll", 0x179B680, 0x88, 0xC0, 0x288, 0x30, 0x30, 0x38, 0x28, 0x18, 0x30C);
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x150);
@@ -379,6 +381,7 @@ namespace Livesplit.Subnautica
             isFabiOpen = new MemoryWatcher<int>(fabiPtr);
             isPDAOpen = new MemoryWatcher<int>(PDAPtr);
             timeCured = new MemoryWatcher<float>(timeCuredPtr);
+            oxygen = new MemoryWatcher<int>(oxygenPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
             this.posX = new MemoryWatcher<float>(posX);
