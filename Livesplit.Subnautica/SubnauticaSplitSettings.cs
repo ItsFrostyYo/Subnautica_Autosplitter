@@ -52,7 +52,7 @@ namespace Livesplit.Subnautica
         {
             [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
             RocketSplit,
-            [Description("Portal Split"), ToolTip("Splits when you enter a portal for the first time")]
+            [Description("Portal Split"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
             PortalSplit,
             [Description("Hatch Split"), ToolTip("Splits when you hatch the eggs in the prison aquarium")]
             HatchSplit,
