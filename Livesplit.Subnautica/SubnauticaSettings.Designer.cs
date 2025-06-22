@@ -131,6 +131,7 @@
             this.ToolTips.SetToolTip(this.btnAddExplo, "This will add a text component to your layout which shows when the aurora is goin" +
         "g to explode");
             this.btnAddExplo.UseVisualStyleBackColor = true;
+            this.btnAddExplo.Click += new System.EventHandler(this.btnAddExplo_Click);
             // 
             // Other_GroupBox
             // 

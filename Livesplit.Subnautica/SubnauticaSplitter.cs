@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
 using static System.Windows.Forms.AxHost;
+using LiveSplit.Options;
+using LiveSplit.UI;
 
 namespace Livesplit.Subnautica
 {
@@ -22,7 +24,8 @@ namespace Livesplit.Subnautica
         private Process game;
         private GameVersion gameVersion;
         private bool startedTimerBefore = false;
-        private bool isInMainMenu = false;
+        public bool isInMainMenu = false;
+        public bool isInMainMenuOld = false;
         private bool fakePortalLoading = false;
         private int tickCounter = 0;
         private bool pointersInitialized;
@@ -100,16 +103,13 @@ namespace Livesplit.Subnautica
             };
         }
 
-        public void Update(LiveSplitState state)
+        public void Update()
         {
             if (game == null || game.HasExited || !pointersInitialized || game.Handle == IntPtr.Zero)
             {
                 GetGameProcess();
                 return;
             }
-                
-            Debug.WriteLineIf(game == null, $"[Subnautica Autosplitter] game null");
-            Debug.WriteLineIf(!pointersInitialized, $"[Subnautica Autosplitter] pointers not intialized");
 
             try
             {
@@ -167,7 +167,8 @@ namespace Livesplit.Subnautica
                           SplitName.SGLShallowsSplit,
                           SplitName.UpperTabletSplit,
                           SplitName.AuroraExitSplit,
-                          SplitName.HCGSparseSplit))
+                          SplitName.HCGSparseSplit) ||
+                          settings.reset)
                     UpdatePosition();
 
                 if (Needs(SplitName.AuroraDeathSplit,
@@ -196,18 +197,10 @@ namespace Livesplit.Subnautica
                     UpdateBlueprints();
                 #endregion
 
-                // Detect Main Menu Change
-                if (posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f && posY.Old != posY.Current)
-                    isInMainMenu = true;
-                if (posX.Old == 0 && posZ.Old == 0 && posY.Old == 1.75f && posY.Old != posY.Current)
-                    isInMainMenu = false;
+                isInMainMenu = IsInMainMenu();
 
                 if (isInMainMenu)
                     startedTimerBefore = false;
-
-                // manage IGT
-                state.IsGameTimePaused = ShouldPause();
-                WriteDebug(oxygen.Current.ToString());
             }
             catch (NullReferenceException ex)
             {
@@ -219,44 +212,7 @@ namespace Livesplit.Subnautica
             }
         }
         private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
-        private void UpdatePosition() { posX.Update(game); posY.Update(game); posZ.Update(game); }
-        private bool ShouldPause()
-        {
-            if (isInMainMenu)
-                return false;
-
-            if (settings.SRCLoadtimes)
-            {
-                // Start of portal load
-                if (isPortalLoading.Current && !isPortalLoading.Old)
-                {
-                    fakePortalLoading = true;
-                    tickCounter = gameVersion == GameVersion.Sept2018 ? 30 : 33;
-                }
-
-                // End of portal load
-                if (!isPortalLoading.Current && isPortalLoading.Old)
-                {
-                    fakePortalLoading = false;
-                    tickCounter = gameVersion == GameVersion.Sept2018 ? 21 : 0;
-                }
-
-                if (tickCounter > 0)
-                    tickCounter--;
-                else
-                {
-                    if (fakePortalLoading)
-                        return true;
-                    else
-                        return false;
-                }
-            }
-            else
-            {
-                return isPortalLoading.Current;
-            }
-            return false;
-        } 
+        private void UpdatePosition() { posX.Update(game); posY.Update(game); posZ.Update(game); }       
 
         #region Memory & Such
         private void GetGameProcess()
@@ -476,22 +432,10 @@ namespace Livesplit.Subnautica
             return false;
         }
 
-        public bool ShouldReset(LiveSplitState state) 
-        {
-            if (game == null) 
-                return false;
-
-            if (settings.reset && posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f && posY.Old != posY.Current)
-                return true;
-            return false;
-        }
-
+        public bool ShouldReset(LiveSplitState state) { return false; }
         public void OnReset(TimerPhase t) { alreadySplit.Clear(); }
-        public void OnStart(LiveSplitState state) 
-        {
-            //state.IsGameTimePaused = true;
-        }
-        public bool IsGameTimePaused(LiveSplitState state) { return state.IsGameTimePaused; }
+        public void OnStart(LiveSplitState state) { }
+        public bool IsGameTimePaused(LiveSplitState state) { return ShouldPause(); }
         public TimeSpan? GetGameTime(LiveSplitState state) { return null; }
 
         #endregion Logic
@@ -510,6 +454,46 @@ namespace Livesplit.Subnautica
             else
                 return false;
         }
+
+        private bool ShouldPause()
+        {
+            if (isInMainMenu)
+                return false;
+
+            if (settings.SRCLoadtimes)
+            {
+                // Start of portal load
+                if (isPortalLoading.Current && !isPortalLoading.Old)
+                {
+                    fakePortalLoading = true;
+                    tickCounter = gameVersion == GameVersion.Sept2018 ? 30 : 33;
+                }
+
+                // End of portal load
+                if (!isPortalLoading.Current && isPortalLoading.Old)
+                {
+                    fakePortalLoading = false;
+                    tickCounter = gameVersion == GameVersion.Sept2018 ? 21 : 0;
+                }
+
+                if (tickCounter > 0)
+                    tickCounter--;
+                else
+                {
+                    if (fakePortalLoading)
+                        return true;
+                    else
+                        return false;
+                }
+            }
+            else
+            {
+                return isPortalLoading.Current;
+            }
+            return false;
+        }
+
+        public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;
 
         private void UpdateInventory()
         {

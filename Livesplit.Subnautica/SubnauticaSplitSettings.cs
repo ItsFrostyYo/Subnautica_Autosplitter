@@ -12,6 +12,7 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Livesplit.Subnautica
 {
+    // TODO: Add tooltips to the items while in the dropdown menu
     public partial class SubnauticaSplitSettings : UserControl
     {
         public string Split { get; set; } = "";
@@ -45,7 +46,7 @@ namespace Livesplit.Subnautica
                     return split;
                 }
             }
-            return SplitName.RocketSplit;            
+            return SplitName.RocketSplit;
         }
 
         public enum SplitName
@@ -67,7 +68,7 @@ namespace Livesplit.Subnautica
             [Description("PCF Tablet Split"), ToolTip("Splits when you insert the tablet at the PCF entrance")]
             PCFTabletSplit,
             [Description("PCF Pool Split"), ToolTip("Splits when you enter the prison aquarium the normal way")]
-            PCFPoolSplit,            
+            PCFPoolSplit,
             [Description("Gun Deactivation Split"), ToolTip("Splits when you deactivate the gun")]
             GunDeactivationSplit,
             [Description("Glitchless Shallows Split"), ToolTip("Split when you exit the main base with an extra High Capacity O2 tank in your inventory")]
@@ -77,9 +78,9 @@ namespace Livesplit.Subnautica
             [Description("Base Death Split (includes Clip A and Clip C)"), ToolTip("Splits when you die next to the main base (includes Clip A and Clip C)")]
             BaseDeathSplit,
             [Description("Gun Death Split"), ToolTip("Splits when you die in the gun room")]
-            GunDeathSplit,           
+            GunDeathSplit,
             [Description("Aurora Death Split"), ToolTip("Splits when you die in the Aurora")]
-            AuroraDeathSplit,            
+            AuroraDeathSplit,
             [Description("Sparse Death Split"), ToolTip("Splits when you die in the biomes: Sea Treader Path or Sparse Reef")]
             SparseDeathSplit,
             [Description("Death Split"), ToolTip("Splits when you die")]
@@ -95,15 +96,15 @@ namespace Livesplit.Subnautica
             [Description("Leave Kelp Forest Split"), ToolTip("Splits when you leave the Kelp Forest with one or more Creepvine samples")]
             LeaveKelpForestSplit,
             [Description("4-Tooth Split"), ToolTip("Splits when you collect four Stalker teeth")]
-            FourToothSplit,                                                       
+            FourToothSplit,
             [Description("Upper Tablet Split"), ToolTip("Splits when you grab the purple tablet above the Alien Gun Entrence")]
-            UpperTabletSplit,            
+            UpperTabletSplit,
             [Description("Sparse Biome Change Split"), ToolTip("Splits when the biome changes from Sparse to Shallows or Kelp Forest")]
             SparseBiomeSplit,
             [Description("Aurora Biome Change Split"), ToolTip("Splits when the biome changes from Aurora to Shallows or Kelp Forest")]
             AuroraBiomeSplit,
             [Description("Eyestalk Split"), ToolTip("Splits when you collect an Eyestalk Sample")]
-            EyestalkSplit,            
+            EyestalkSplit,
             [Description("Aurora Exit Split"), ToolTip("Splits when you exit the Aurora through the old patch hole after unlocking the rocket")]
             AuroraExitSplit,
             [Description("HCG Sparse Split (includes clip A and C)"), ToolTip("Splits when you enter the main base with a ruby (includes clip A and C)")]
@@ -118,4 +119,4 @@ namespace Livesplit.Subnautica
             }
         }
     }
-    }
+}

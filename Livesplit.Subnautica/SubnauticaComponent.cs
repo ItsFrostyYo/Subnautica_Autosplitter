@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -19,13 +20,12 @@ namespace Livesplit.Subnautica
     {
         private static SubnauticaSettings settings = new SubnauticaSettings();
         static SubnauticaSplitter splitter = new SubnauticaSplitter(settings);
-        LiveSplitState _state;
-
+        private LiveSplitState _state;
         internal SubnauticaComponent(LiveSplitState state) : base(splitter, state)
         {
             state.OnReset += OnReset;
-            state.OnStart += OnStart;
-            _state = state;
+            settings.SetState(state);
+            _state = state;            
         }       
 
         public override string ComponentName => "Subnautica Autosplitter";
@@ -33,16 +33,54 @@ namespace Livesplit.Subnautica
         public override void Dispose()
         {
         }
-
         public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode)
         {
-            splitter.Update(_state);
+            splitter.Update();
+            settings.UpdateExploBtnContent();
+            TryResetOnMainMenu();
+            splitter.isInMainMenuOld = splitter.isInMainMenu;
             base.Update(invalidator, state, width, height, mode);
         }
 
         public void OnReset(object sender, TimerPhase t) => splitter.OnReset(t);
-        public void OnStart(object sender, EventArgs e) => splitter.OnStart(_state);
+        private void TryResetOnMainMenu()
+        {
+            if (!settings.reset)
+                return;
+            if (!(splitter.isInMainMenu && !splitter.isInMainMenuOld))
+                return;
+            if (_state.CurrentPhase == TimerPhase.NotRunning)
+                return;
+            
+            Form ui = _state.Form;
+            Action doReset = () =>
+            {
+                bool save = true;
+                WriteDebug(settings.askForGoldSave.ToString());
+                bool warnOnReset = settings.askForGoldSave;
+                if (warnOnReset && _state.Run.HasChanged)
+                {
+                    DialogResult r = MessageBox.Show(
+                        ui,
+                        "Save splits before resetting?",
+                        "Reset",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Question);
 
+                    if (r == DialogResult.Cancel)
+                        return;
+
+                    save = (r == DialogResult.Yes);
+                }
+
+                Model.Reset(save);
+            };
+
+            if (ui.InvokeRequired)
+                ui.BeginInvoke(doReset);
+            else
+                doReset();
+        }
         public override XmlNode GetSettings(XmlDocument document) { return settings.UpdateSettings(document); }
         public override void SetSettings(XmlNode document) { settings.SetSettings(document); }
         public override Control GetSettingsControl(LayoutMode mode) { return settings; }

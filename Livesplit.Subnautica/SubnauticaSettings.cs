@@ -1,16 +1,27 @@
-﻿using System;
+﻿using Livesplit;
+using LiveSplit.ComponentUtil;
+using LiveSplit.Model;
+using LiveSplit.Options;
+using LiveSplit.UI;
+using LiveSplit.UI.Components.AutoSplit;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
+using static System.Windows.Forms.AxHost;
 
 namespace Livesplit.Subnautica
 {
@@ -22,6 +33,7 @@ namespace Livesplit.Subnautica
         public bool reset {  get; set; }
         public bool askForGoldSave { get; set; }
         public bool SRCLoadtimes { get; set; }
+        public LiveSplitState _state;
 
         private static ReaderWriterLockSlim isLoading = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
         private List<string> availableSplits = new List<string>();
@@ -98,7 +110,40 @@ namespace Livesplit.Subnautica
                 }
             }
         }
+
+        private void btnAddExplo_Click(object sender, EventArgs e)
+        {
+            if(_state == null)
+                return;
+
+            var componentPath = @"Components\\SubnauticaShipExplosionInfo.dll";
+            var exploTimeComponent = _state.Layout.LayoutComponents.Where(x => x.Component.GetType().FullName == "LiveSplit.UI.Components.Component").FirstOrDefault();
+
+            if (!File.Exists(componentPath)) { MessageBox.Show($"File does not exist: {componentPath}"); return; }
+
+            if (exploTimeComponent == null)
+            {
+                var asm = Assembly.LoadFrom(componentPath);
+                var componentType = asm.GetType("LiveSplit.UI.Components.Component");
+                var component = Activator.CreateInstance(componentType, _state);
+                _state.Layout.LayoutComponents.Add(new LiveSplit.UI.Components.LayoutComponent("SubnauticaShipExplosionInfo.dll", component as LiveSplit.UI.Components.IComponent));
+                UpdateExploBtnContent();
+            }
+            else
+            {
+                _state.Layout.LayoutComponents.Remove(exploTimeComponent);
+                UpdateExploBtnContent();
+            }
+        }
         #endregion
+        public void SetState(LiveSplitState state) => _state = state;
+        public void UpdateExploBtnContent()
+        {
+            if (_state?.Layout.LayoutComponents.Where(x => x.Component.GetType().FullName == "LiveSplit.UI.Components.Component").FirstOrDefault() != null)
+                btnAddExplo.Text = "Remove Explosion Time";
+            else
+                btnAddExplo.Text = "Add Explosion Time";
+        }
         private void addSplitAtIndex(int index)
         {
             SubnauticaSplitSettings setting = createSetting();
@@ -383,6 +428,6 @@ namespace Livesplit.Subnautica
             }
 
             isLoading.ExitWriteLock();
-        }
+        }   
     }
 }
