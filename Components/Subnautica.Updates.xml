@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+<update version="2.0.1">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+            <change>Fixed AskForGoldSave</change>
+            <change>Fixed blueprints</change>
+            <change>Fixed death split</change>
+            <change>Fixed Eyestalk split</change>
+            <change>Fixed Sparse splits overlapping</change>
+        </changelog>
+    </update>
     <update version="2.0.0">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
