@@ -8,15 +8,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Voxif.Helpers.Unity;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
-using static System.Windows.Forms.AxHost;
 
 namespace Livesplit.Subnautica
 {
@@ -201,9 +197,7 @@ namespace Livesplit.Subnautica
                 isInMainMenu = IsInMainMenu();
 
                 if (isInMainMenu)
-                    startedTimerBefore = false;
-
-               
+                    startedTimerBefore = false;              
             }
             catch (NullReferenceException ex)
             {
@@ -407,7 +401,7 @@ namespace Livesplit.Subnautica
 
             if (settings.introStart)
             {
-                if (gameVersion == GameVersion.Sept2018 && oxygen.Current > 35 && oxygen.Old < 35) { WriteDebug("Start of oxygen"); startedTimerBefore = true; return true; }
+                if (gameVersion == GameVersion.Sept2018 && oxygen.Current == 45 && oxygen.Old < 45) { WriteDebug("Start of oxygen"); startedTimerBefore = true; return true; }
                 if (!isIntroCinematicActive.Current && isIntroCinematicActive.Old) { WriteDebug("Start of introCinematic"); startedTimerBefore = true; return true; }
             }
             if(settings.creativeStart && !isLoadingScreen.Current && !isInMainMenu)
@@ -511,13 +505,13 @@ namespace Livesplit.Subnautica
 
             inventoryDictionaryPtr.Update(game);
             IntPtr startAddr = inventoryDictionaryPtr.Current;
-            WriteDebug("startAddr: " + startAddr.ToString("X"));
+            //WriteDebug("startAddr: " + startAddr.ToString("X"));
             IntPtr intPtr = game.ReadPointer(startAddr);
             
 
             int sizeOffset = gameVersion == GameVersion.Sept2018 ? 0xBBD4 : 0x94;
             int size = game.ReadValue<int>(startAddr + sizeOffset);
-            WriteDebug(size.ToString());
+            //WriteDebug(size.ToString());
             //for Dec2021 & Mar2023 patches, the items start at 0x30 after the ptr
             //                               and each take up 0x18.
             //for Sept2018 patch, the items start at 0x20 after the ptr
@@ -533,13 +527,12 @@ namespace Livesplit.Subnautica
 
                 if (itemGroup != IntPtr.Zero)
                 {
-                    WriteDebug(itemGroup.ToString("X"));
+                    //WriteDebug(itemGroup.ToString("X"));
                     TechType itemType = (TechType)game.ReadValue<int>(itemGroup + 0x18);
                     IntPtr list = game.ReadPointer(itemGroup + 0x10);
                     int itemCount = game.ReadValue<int>(list + 0x18);
-
-                    inv.Add(itemType, itemCount);
-                    
+                    if(!inv.ContainsKey(itemType))
+                        inv.Add(itemType, itemCount);                    
                 }
             }
             playerInventoryOld = playerInventory;
