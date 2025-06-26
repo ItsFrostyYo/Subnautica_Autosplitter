@@ -30,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="LiveSplit.Core">
       <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.29\LiveSplit.Core.dll</HintPath>
@@ -48,6 +49,12 @@
       <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.29\UpdateManager.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="External\Voxif.Memory\Voxif.Memory.csproj" />
+    <ProjectReference Include="External\Voxif.Helpers\Voxif.Helpers.UnityHelper\Voxif.Helpers.UnityHelper.csproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="SubnauticaComponent.cs" />
     <Compile Include="SubnauticaFactory.cs" />
@@ -67,6 +74,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TechType.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
@@ -75,5 +83,10 @@
       <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
+
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>

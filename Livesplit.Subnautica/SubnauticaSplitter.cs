@@ -1,5 +1,7 @@
 ﻿using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
+using LiveSplit.Options;
+using LiveSplit.UI;
 using LiveSplit.UI.Components.AutoSplit;
 using System;
 using System.Collections.Generic;
@@ -12,10 +14,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Voxif.Helpers.Unity;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
 using static System.Windows.Forms.AxHost;
-using LiveSplit.Options;
-using LiveSplit.UI;
 
 namespace Livesplit.Subnautica
 {
@@ -95,7 +96,7 @@ namespace Livesplit.Subnautica
                 { SplitName.IonUnstuckSplit,      () => isAnimationPlaying.Current && !isAnimationPlaying.Old && biomeString == "PrecursorThermalRoom" },
                 { SplitName.PCFPoolSplit,         () => !alreadySplit.Contains(SplitName.PCFPoolSplit) && biomeString == "Prison_Aquarium_Upper" && biomeStringOld == "Prison_Moonpool" },
                 { SplitName.SparseBiomeSplit,     () => !alreadySplit.Contains(SplitName.SparseBiomeSplit) && !alreadySplit.Contains(SplitName.SparseDeathSplit) && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(biomeStringOld) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(biomeString) },
-                { SplitName.AuroraBiomeSplit,     () => !alreadySplit.Contains(SplitName.AuroraBiomeSplit) && !alreadySplit.Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(biomeStringOld) &&new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(biomeString) },
+                { SplitName.AuroraBiomeSplit,     () => !alreadySplit.Contains(SplitName.AuroraBiomeSplit) && !alreadySplit.Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(biomeStringOld) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(biomeString) },
                 { SplitName.EyestalkSplit,        () => !alreadySplit.Contains(SplitName.EyestalkSplit) && IsItemInInventory(playerInventory, TechType.EyesPlantSeed) && !IsItemInInventory(playerInventoryOld, TechType.EyesPlantSeed) },
                 { SplitName.IonUnlockSplit,       () => knownTech.Contains(TechType.PrecursorIonBattery) && !knownTechOld.Contains(TechType.PrecursorIonBattery) },
                 { SplitName.AuroraExitSplit,      () => !alreadySplit.Contains(SplitName.AuroraExitSplit) && IsWithinBounds(auroraExitBounds) && knownTech.Contains(TechType.RocketBase) },
@@ -202,8 +203,7 @@ namespace Livesplit.Subnautica
                 if (isInMainMenu)
                     startedTimerBefore = false;
 
-               /*foreach(var t in knownTech)
-                    WriteDebug(t.ToString());*/
+               
             }
             catch (NullReferenceException ex)
             {
@@ -310,7 +310,7 @@ namespace Livesplit.Subnautica
                     break;
 
                 default: // GameVersion.Mar2023
-                    introPtr = new DeepPointer("mono-2.0-bdwgc.dll", 0x499c78, 0x9d0, 0x130, 0x48, 0x250, 0x220, 0x28, 0x87);
+                    introPtr = new DeepPointer("UnityPlayer.dll", 0x179b680, 0x88, 0x198, 0x338, 0x30, 0x28, 0x28, 0x87);
                     loadingScreenPtr = new DeepPointer("UnityPlayer.dll", 0x18AB2E0, 0x430, 0x8, 0x10, 0x48, 0x30, 0x7AC);
                     animationPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x8, 0x10, 0x30, 0x58, 0x28, 0x284);
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x10, 0x10, 0x30, 0x1F8, 0x28, 0x28);
@@ -328,8 +328,8 @@ namespace Livesplit.Subnautica
                     posY = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA5C);
                     posZ = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA60);
                     biomePtr = new DeepPointer("UnityPlayer.dll", 0x17cfbe0, 0xbb0, 0xd0, 0x8, 0xd0, 0x774, 0x0, 0x1f0);
-                    inventoryPtr = new DeepPointer("UnityPlayer.dll", 0x17fbe70, 0x8, 0x10, 0x30, 0x678, 0x1b8, 0x28, 0x38, 0x58, 0x18);
-                    blueprintsPtr = new DeepPointer("UnityPlayer.dll", 0x179b780, 0x0, 0x20, 0x18, 0x198, 0x2b0, 0x1c0, 0xbb8);
+                    inventoryPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x8, 0x10, 0x30, 0x1A8, 0x28, 0x38);
+                    blueprintsPtr = new DeepPointer("UnityPlayer.dll", 0x17DB500, 0x8, 0x30, 0x30, 0x30, 0x28, 0x28, 0x28, 0xA0);
                     break;
             }
 
@@ -446,7 +446,7 @@ namespace Livesplit.Subnautica
         public bool IsGameTimePaused(LiveSplitState state) { return ShouldPause(); }
         public TimeSpan? GetGameTime(LiveSplitState state) { return null; }
 
-        #endregion Logic
+        #endregion
 
         #region World/Player Checks
 
@@ -511,26 +511,35 @@ namespace Livesplit.Subnautica
 
             inventoryDictionaryPtr.Update(game);
             IntPtr startAddr = inventoryDictionaryPtr.Current;
+            WriteDebug("startAddr: " + startAddr.ToString("X"));
+            IntPtr intPtr = game.ReadPointer(startAddr);
+            
 
-            int size = game.ReadValue<int>(startAddr + 0x18);
+            int sizeOffset = gameVersion == GameVersion.Sept2018 ? 0xBBD4 : 0x94;
+            int size = game.ReadValue<int>(startAddr + sizeOffset);
+            WriteDebug(size.ToString());
             //for Dec2021 & Mar2023 patches, the items start at 0x30 after the ptr
             //                               and each take up 0x18.
             //for Sept2018 patch, the items start at 0x20 after the ptr
             // 					 and each take up 0x8.
-            int startOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x20;
-            int itemOffset = gameVersion == GameVersion.Sept2018 ? 0x8 : 0x18;
+            int startOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x9C;
+            int itemOffset = gameVersion == GameVersion.Sept2018 ? 0x8 : 0x94;
+            
+
 
             for (int i = 0; i < size; i++)
             {
-                IntPtr itemGroup = game.ReadPointer(startAddr + startOffset + (itemOffset * i));
+                IntPtr itemGroup = game.ReadPointer(startAddr + startOffset + (itemOffset * i));                
 
                 if (itemGroup != IntPtr.Zero)
                 {
+                    WriteDebug(itemGroup.ToString("X"));
                     TechType itemType = (TechType)game.ReadValue<int>(itemGroup + 0x18);
                     IntPtr list = game.ReadPointer(itemGroup + 0x10);
                     int itemCount = game.ReadValue<int>(list + 0x18);
 
                     inv.Add(itemType, itemCount);
+                    
                 }
             }
             playerInventoryOld = playerInventory;
@@ -558,21 +567,21 @@ namespace Livesplit.Subnautica
             knownTechPtr.Update(game);
             IntPtr startAddr = knownTechPtr.Current;
 
-            int slotsOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x18;
+            int slotsOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x108;
             IntPtr slots = game.ReadPointer(startAddr + slotsOffset);
-            int countOffset = gameVersion == GameVersion.Sept2018 ? 0x40 : 0x30;           
+            int countOffset = gameVersion == GameVersion.Sept2018 ? 0x40 : 0x124;
             int count = game.ReadValue<int>(startAddr + countOffset);
-            
 
+            
             int slotBeginningOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x20;
             int slotSize = gameVersion == GameVersion.Sept2018 ? 0x4 : 0xC;
-            //WriteDebug((slots + slotBeginningOffset + slotSize).ToString("X"));
+
             for (int i = 0; i < count; i++)
             {
                 int tech = game.ReadValue<int>(slots + slotBeginningOffset + slotSize * i);
-                
                 if (tech > 0 && tech < 10005)
                 {
+                    //WriteDebug(((TechType)tech).ToString());
                     TechType type = (TechType)tech;
                     blueprints.Add(type);
                 }
@@ -586,7 +595,6 @@ namespace Livesplit.Subnautica
         // xmin, xmax, ymin, ymax, zmin, zmax
         private readonly float[] teethBounds = { -212f, 27f, -100f, 100f, 159f, 177f };
         private readonly float[] auroraExitBounds = { 545f, 550f, -10f, 10f, -265f, 256f };
-        private readonly float[] eyestalkBounds = { -200f, 130f, -100f, 50f, 477f, 479f };
         private readonly float[] mountainBounds = { 475f, 534f, -510f, -191f, 745f, 810f };
         private readonly float[] PCFEntrBounds = { 216f, 224f, -1453f, -1445f, -276f, -267f };
         private readonly float[] portalBounds = { 240f, 250f, -1590f, -1580f, -2000f, 2000f };

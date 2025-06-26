@@ -25,8 +25,7 @@ namespace Livesplit.Subnautica
         {
             state.OnReset += OnReset;
             settings.SetState(state);
-            _state = state;
-            
+            _state = state;           
         }       
 
         public override string ComponentName => "Subnautica Autosplitter";
