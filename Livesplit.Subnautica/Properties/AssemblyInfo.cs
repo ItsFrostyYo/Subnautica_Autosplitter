@@ -1,5 +1,6 @@
 ﻿using Livesplit.Subnautica;
 using LiveSplit.UI.Components;
+using LiveSplit.VoxSplitter;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -31,7 +32,7 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.0.1.0")]
-[assembly: AssemblyFileVersion("2.0.1.0")]
+[assembly: AssemblyVersion("2.1.0.0")]
+[assembly: AssemblyFileVersion("2.1.0.0")]
 
-[assembly: ComponentFactory(typeof(SubnauticaFactory))]
+[assembly: ComponentFactory(typeof(Factory))]

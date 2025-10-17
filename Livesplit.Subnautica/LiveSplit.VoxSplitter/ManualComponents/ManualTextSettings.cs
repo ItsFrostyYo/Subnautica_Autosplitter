@@ -150,14 +150,14 @@ namespace LiveSplit.VoxSplitter {
 
         private void BtnFont1_Click(object sender, EventArgs e) {
             var dialog = SettingsHelper.GetFontDialog(Font1, 7, 20);
-            dialog.FontChanged += (s, ev) => Font1 = ((CustomFontDialog.FontChangedEventArgs)ev).NewFont;
+            //dialog.FontChanged += (s, ev) => Font1 = ((CustomFontDialog.FontChangedEventArgs)ev).NewFont;
             dialog.ShowDialog(this);
             lblFont.Text = Font1String;
         }
 
         private void BtnFont2_Click(object sender, EventArgs e) {
             var dialog = SettingsHelper.GetFontDialog(Font2, 7, 20);
-            dialog.FontChanged += (s, ev) => Font2 = ((CustomFontDialog.FontChangedEventArgs)ev).NewFont;
+            //dialog.FontChanged += (s, ev) => Font2 = ((CustomFontDialog.FontChangedEventArgs)ev).NewFont;
             dialog.ShowDialog(this);
             lblFont.Text = Font2String;
         }
