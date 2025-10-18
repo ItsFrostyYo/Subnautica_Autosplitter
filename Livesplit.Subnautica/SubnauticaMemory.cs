@@ -398,78 +398,42 @@ namespace Livesplit.Subnautica
 
         void UpdateBlueprints()
         {
-            List<TechType> blueprints = new List<TechType>();
+            var blueprints = new List<TechType>();
 
+            // statisches KnownTech.knownTech-Objekt holen
             IntPtr hs = Game.Read<IntPtr>(mono.GetStaticData(ktStaticKlass) + ktStaticOffset);
-            if (hs == IntPtr.Zero)
-            {
-                knownTechOld = knownTech;
-                knownTech = blueprints;
-                return;
-            }
+            if (hs == IntPtr.Zero) { knownTechOld = knownTech; knownTech = new List<TechType>(); return; }
 
-            IntPtr slotsArr = IntPtr.Zero;
-            int slotsFieldOff = 0;
+            ResolveHashSetLayoutUsingMono(hs);
+            if (!hsLayoutReady) { knownTechOld = knownTech; knownTech = new List<TechType>(); return; }
 
-            for (int off = 0x10; off <= 0x80; off += mono.MonoInfo.pointer_size)
-            {
-                IntPtr cand = Game.Read<IntPtr>(hs + off);
-                if (cand == IntPtr.Zero) continue;
-
-                int len = 0;
-                try { len = Game.Read<int>(cand + 0x18); } catch { continue; }
-                if (len <= 0 || len > 50000) continue;
-
-                int hits = 0, tested = 0;
-                int probe = Math.Min(len, 128);
-                IntPtr dataBase = cand + 0x20;
-                for (int i = 0; i < probe; i++)
-                {
-                    int tech = 0;
-                    try { tech = Game.Read<int>(dataBase + i * 12 + 8); } catch { tech = 0; }
-                    if (tech != 0) tested++;
-                    if (tech > 0 && tech < 10005) hits++;
-                }
-
-                if (tested == 0 || (double)hits / Math.Max(1, tested) >= 0.60)
-                {
-                    slotsArr = cand;
-                    slotsFieldOff = off;
-                    break;
-                }
-            }
-
-            if (slotsArr == IntPtr.Zero)
-            {
-                Logger.Log("KnownTech: slots[] nicht gefunden – abort.");
-                knownTechOld = knownTech;
-                knownTech = blueprints;
-                return;
-            }
-
+            // ab hier direkt lesen:
+            IntPtr slotsArr = Game.Read<IntPtr>(hs + hsSlotsOff);
             int arrayLen = Game.Read<int>(slotsArr + 0x18);
-            if (arrayLen <= 0 || arrayLen > 50000)
+            IntPtr slotsData = slotsArr + hsArrayDataBase;
+            // Optional: stride-Autodetect 12/16
+            int stride = hsValueStride, voff = hsValueOff;
+            int probe = Math.Min(arrayLen, 64);
+            int hits12 = 0, hits16 = 0;
+            for (int i = 0; i < probe; i++)
             {
-                Logger.Log($"KnownTech: ungültige slots-Länge: {arrayLen}");
-                knownTechOld = knownTech;
-                knownTech = blueprints;
-                return;
+                int v12 = Game.Read<int>(slotsData + i * 12 + 8);
+                if (v12 > 0 && v12 < 10005) hits12++;
+                int v16 = Game.Read<int>(slotsData + i * 16 + 8);
+                if (v16 > 0 && v16 < 10005) hits16++;
             }
+            if (hits16 > hits12 * 2) { stride = 16; voff = 8; }
 
-            IntPtr slotsData = slotsArr + 0x20;
-            const int SlotStride = 12; 
-            const int ValueOffset = 8;
-
+            // Auslesen
             for (int i = 0; i < arrayLen; i++)
             {
-                int tech = Game.Read<int>(slotsData + i * SlotStride + ValueOffset);
+                int tech = Game.Read<int>(slotsData + i * stride + voff);
                 if (tech > 0 && tech < 10005)
                     blueprints.Add((TechType)tech);
             }
 
             var dedup = blueprints.Distinct().ToList();
-
-            Logger.Log($"KnownTech: hs={hs:X}, slotsOff=0x{slotsFieldOff:X}, len={arrayLen}, unique={dedup.Count}");
+            Logger.Log($"KnownTech: hs={hs:X}, slotsOff=+0x{hsSlotsOff:X}, len={arrayLen}, unique={dedup.Count}");
 
             knownTechOld = knownTech;
             knownTech = dedup;
@@ -592,80 +556,89 @@ namespace Livesplit.Subnautica
 
             Logger.Log($"itemsMap data base fallback: 0x{arrayDataBase:X}");
         }
-        IntPtr ReadKnownTechObject()
+        int PickSlotsOffset(IntPtr hs)
         {
-            return Game.Read<IntPtr>(mono.GetStaticData(knownTechStaticKlass) + knownTechStaticOffset);
-        }
+            int[] candidates = { 0x10, 0x18 }; // buckets vs. slots
+            int bestOff = 0; int bestScore = -1;
 
-        bool LooksLikeArray(IntPtr arr, out int length)
-        {
-            length = 0;
-            if (arr == IntPtr.Zero) return false;
-            // Mono-Arrays: length i.d.R. bei +0x18
-            length = Game.ReadValue<int>(arr + 0x18);
-            return length >= 0 && length < 200000; // großzügige Grenze
-        }
+            foreach (int off in candidates)
+            {
+                IntPtr arr = Game.Read<IntPtr>(hs + off);
+                int len = Game.Read<int>(arr + 0x18);
+                if (len <= 0 || len > 50000) continue;
 
-        // Ermittelt count/slots/stride/valueOff + validiert, cacht in Feldern
-        void ResolveHashSetLayout()
+                IntPtr data = arr + 0x20;
+                // teste Stride 12/16
+                int score12 = 0, score16 = 0, probe = Math.Min(len, 64);
+                for (int i = 0; i < probe; i++)
+                {
+                    int v12 = Game.Read<int>(data + i * 12 + 8);
+                    if (v12 > 0 && v12 < 10005) score12++;
+                    int v16 = Game.Read<int>(data + i * 16 + 8);
+                    if (v16 > 0 && v16 < 10005) score16++;
+                }
+                int score = Math.Max(score12, score16);
+                if (score > bestScore) { bestScore = score; bestOff = off; hsValueStride = (score16 > score12) ? 16 : 12; hsValueOff = 8; }
+            }
+            return bestOff; // 0 = fail
+        }
+        // Felder einmalig ermitteln (z.B. in OnHook nach ktStaticKlass/ktStaticOffset)
+        void ResolveHashSetLayoutUsingMono(IntPtr hs)
         {
             if (hsLayoutReady) return;
-
-            IntPtr hs = ReadKnownTechObject();
             if (hs == IntPtr.Zero) return;
 
-            // Kandidaten für mögliche Offsets (Mono variiert zwischen Versionen)
-            int[] countCandidates = Enumerable.Range(0x20 / 4, 0x150 / 4).Select(i => i * 4).ToArray();
-            int[] slotsCandidates = Enumerable.Range(0x20 / 8, 0x150 / 8).Select(i => i * 8).ToArray();
-
-            foreach (int cOff in countCandidates)
+            IntPtr sysImg = IntPtr.Zero;
+            foreach (var name in new[] {
+        "mscorlib", "mscorlib.dll",
+        "System.Private.CoreLib", "System.Private.CoreLib.dll",
+        "netstandard", "netstandard.dll"
+    })
             {
-                int cVal = Game.ReadValue<int>(hs + cOff);
-                if (cVal < 0 || cVal > 10000) continue;
-
-                foreach (int sOff in slotsCandidates)
-                {
-                    IntPtr slots = Game.ReadPointer(hs + sOff);
-                    if (!LooksLikeArray(slots, out int len)) continue;
-                    if (len == 0) continue;
-
-                    // Datenbasis der Array-Elemente validieren (typisch 0x20)
-                    int[] baseCandidates = { 0x20, 0x18, 0x28 };
-                    int[] strideCandidates = { 4, 8, 12, 16 };
-                    int[] valueOffCandidates = { 0, 8, 0x10 };
-
-                    foreach (int baseOff in baseCandidates)
-                        foreach (int stride in strideCandidates)
-                            foreach (int voff in valueOffCandidates)
-                            {
-                                int hits = 0;
-                                int probe = Math.Min(len, Math.Max(8, cVal)); // einige Slots prüfen
-
-                                for (int i = 0; i < probe; i++)
-                                {
-                                    // Lies potenziellen TechType
-                                    int tech = Game.ReadValue<int>(slots + baseOff + i * stride + voff);
-                                    if (tech >= 1 && tech <= 10005) hits++;
-                                }
-
-                                // simple Plausibilitätsgrenze
-                                if (hits >= Math.Max(2, probe / 3))
-                                {
-                                    hsCountOff = cOff;
-                                    hsSlotsOff = sOff;
-                                    hsArrayDataBase = baseOff;
-                                    hsValueStride = stride;
-                                    hsValueOff = voff;
-                                    hsLayoutReady = true;
-
-                                    Logger.Log($"KnownTech HashSet layout => count@+{hsCountOff:X}, slots@+{hsSlotsOff:X}, base=0x{hsArrayDataBase:X}, stride={hsValueStride}, voff=0x{hsValueOff:X}");
-                                    return;
-                                }
-                            }
-                }
+                sysImg = mono.GetModuleImage(name);
+                if (sysImg != IntPtr.Zero) break;
             }
 
-            Logger.Log("KnownTech HashSet layout: NOT resolved yet (will retry).");
+            if (sysImg == IntPtr.Zero)
+            {
+                Logger.Log("Could not find any CoreLib image -> using picker fallback");
+                // --- Fallback: einmalig Buckets(+0x10) vs. Slots(+0x18) erkennen und CACHEN ---
+                hsSlotsOff = PickSlotsOffset(hs);   // setzt nebenbei hsValueStride/hsValueOff
+                hsArrayDataBase = 0x20;
+                hsLayoutReady = hsSlotsOff != 0;
+                Logger.Log($"KnownTech HashSet picked slots@+{hsSlotsOff:X}, stride={hsValueStride}");
+                return; // <<< GANZ WICHTIG
+            }
+
+            // HashSet`1 als einfacher Klassenname (MonoHelper vergleicht ohne Namespace!)
+            IntPtr hsKlass = mono.GetClass(sysImg, "HashSet`1");
+            if (hsKlass == IntPtr.Zero)
+            {
+                Logger.Log("HashSet`1 class not found in CoreLib image -> using picker fallback");
+                hsSlotsOff = PickSlotsOffset(hs);
+                hsArrayDataBase = 0x20;
+                hsLayoutReady = hsSlotsOff != 0;
+                Logger.Log($"KnownTech HashSet picked slots@+{hsSlotsOff:X}, stride={hsValueStride}");
+                return;
+            }
+
+            // Feld-Offsets sauber per Namen
+            hsCountOff = ResolveFieldOffsetByNameOrPredicate(
+                hsKlass, new[] { "m_count", "count" },
+                (n, t) => n.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0);
+
+            hsSlotsOff = ResolveFieldOffsetByNameOrPredicate(
+                hsKlass, new[] { "m_slots", "slots" },
+                (n, t) => n.IndexOf("slot", StringComparison.OrdinalIgnoreCase) >= 0);
+
+            // Mono-Array Layout (64-bit)
+            hsArrayDataBase = 0x20;
+            // Standard-Layout HashSet<T>.Slot: {int hashCode; int next; T value}
+            hsValueStride = 12;
+            hsValueOff = 8;
+
+            hsLayoutReady = hsCountOff != 0 && hsSlotsOff != 0;
+            Logger.Log($"KnownTech HashSet fixed: count@+{hsCountOff:X}, slots@+{hsSlotsOff:X}");
         }
         #endregion
     }
