@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -78,28 +78,18 @@
     <Compile Include="LiveSplit.VoxSplitter\Memory\SignatureMemory.cs" />
     <Compile Include="LiveSplit.VoxSplitter\MonoHelper\MonoHelper.cs" />
     <Compile Include="LiveSplit.VoxSplitter\NativeMethods.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Settings\Settings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\Settings.Designer.cs" />
     <Compile Include="LiveSplit.VoxSplitter\Settings\SplitGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\SplitGenerator.Designer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Settings\TooltipSettings.cs">
-      <SubType>UserControl</SubType>
+    <Compile Include="LiveSplit.VoxSplitter\Settings\SplitGenerator.Designer.cs">
+      <DependentUpon>SplitGenerator.cs</DependentUpon>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\TooltipSettings.Designer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Settings\TreeSettings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\TreeSettings.Designer.cs" />
     <Compile Include="SubnauticaComponent.cs" />
     <Compile Include="SubnauticaMemory.cs" />
-    <Compile Include="SubnauticaSettings.cs">
+    <Compile Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SubnauticaSettings.Designer.cs">
+    <Compile Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.Designer.cs">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="SubnauticaSplitSettings.cs">
@@ -113,7 +103,7 @@
     <Compile Include="TechType.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SubnauticaSettings.resx">
+    <EmbeddedResource Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SubnauticaSplitSettings.resx">

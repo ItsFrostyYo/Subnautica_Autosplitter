@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static Livesplit.Subnautica.SubnauticaSplitSettings;
 
 namespace LiveSplit.VoxSplitter {
     public abstract class Memory : IDisposable {
@@ -65,12 +66,12 @@ namespace LiveSplit.VoxSplitter {
 
         protected virtual void OnHook() { }
         public virtual bool Update() => true;
-        public virtual bool Start(int start) => false;
+        public virtual bool Start() => false;
         public virtual bool Split() => false;
-        public virtual bool Reset(int reset) => false;
+        public virtual bool Reset() => false;
         public virtual bool Loading() => false;
         public virtual TimeSpan? GameTime() => null;
-        public virtual void OnStart(HashSet<string> splits) { }
+        public virtual void OnStart() { }
         public virtual void OnSplit() { }
         public virtual void OnReset() { }
         public virtual void OnExit() { }
@@ -99,21 +100,31 @@ namespace LiveSplit.VoxSplitter {
                 this.logger = logger;
             }
 
-            public void Setup(HashSet<string> splits) {
+            public void Setup(IEnumerable<SplitName> splits)
+            {
                 Clear();
 
-                foreach(string split in splits) {
+                foreach (var s in splits)
+                {
+                    string split = s.ToString();
                     int typeSeparator = split.IndexOf('_');
 
-                    if(typeSeparator != -1) {
+                    if (typeSeparator >= 0)
+                    {
                         string type = split.Substring(0, typeSeparator);
-                        if(!ContainsKey(type)) {
-                            Add(type, new HashSet<string>());
+                        if (!TryGetValue(type, out var set) || set == null)
+                        {
+                            set = new HashSet<string>(StringComparer.Ordinal);
+                            this[type] = set;
                         }
+
                         string setting = split.Substring(typeSeparator + 1);
-                        this[type].Add(setting);
-                    } else {
-                        Add(split, null);
+                        set.Add(setting);
+                    }
+                    else
+                    {
+                        if (!ContainsKey(split))
+                            Add(split, null);
                     }
                 }
             }

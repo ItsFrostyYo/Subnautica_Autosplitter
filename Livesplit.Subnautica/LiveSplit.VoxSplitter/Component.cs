@@ -1,4 +1,5 @@
-﻿using LiveSplit.Model;
+﻿using Livesplit.Subnautica;
+using LiveSplit.Model;
 using LiveSplit.UI;
 using LiveSplit.UI.Components;
 using System;
@@ -17,7 +18,7 @@ namespace LiveSplit.VoxSplitter {
             GameTime
         }
 
-        protected Settings settings;
+        protected SubnauticaSettings settings;
         protected TimerModel timer;
         protected Memory memory;
 
@@ -60,7 +61,7 @@ namespace LiveSplit.VoxSplitter {
 
         public override string ComponentName => Factory.ExAssembly.FullComponentName();
         public override Control GetSettingsControl(LayoutMode mode) => settings;
-        public override XmlNode GetSettings(XmlDocument document) => settings.GetSettings(document);
+        public override XmlNode GetSettings(XmlDocument document) => settings.UpdateSettings(document);
         public override void SetSettings(XmlNode settings) => this.settings.SetSettings(settings);
         public override void Update(IInvalidator invalidator, LiveSplitState state, float width, float height, LayoutMode mode) {
             if(!memory.IsReady()) {
@@ -78,16 +79,23 @@ namespace LiveSplit.VoxSplitter {
                 timer.CurrentState.SetGameTime(memory.GameTime());
             }
 
-            if(timer.CurrentState.CurrentSplitIndex < 0) {
-                if(settings.Start != 0 && memory.Start(settings.Start)) {
+            if(timer.CurrentState.CurrentSplitIndex < 0) 
+            {
+                if(memory.Start()) 
+                {
                     timer.Start();
                     logger.Log("Start");
                 }
-            } else {
-                if(settings.Reset != 0 && memory.Reset(settings.Reset)) {
+            } 
+            else 
+            {
+                if(memory.Reset()) 
+                {
                     timer.Reset();
                     logger.Log("Reset");
-                } else if(memory.Split()) {
+                } 
+                else if(memory.Split()) 
+                {
                     timer.Split();
                     logger.Log("Split");
                 }
@@ -99,7 +107,7 @@ namespace LiveSplit.VoxSplitter {
             if(GameTime == EGameTime.GameTime) {
                 timer.CurrentState.IsGameTimePaused = true;
             }
-            memory.OnStart(settings.Splits);
+            memory.OnStart();
         }
         protected virtual void OnSplit(object sender, EventArgs e) => memory.OnSplit();
         protected virtual void OnReset(object sender, TimerPhase e) => memory.OnReset();

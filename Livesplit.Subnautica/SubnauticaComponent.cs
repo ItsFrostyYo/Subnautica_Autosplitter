@@ -20,8 +20,8 @@ namespace Livesplit.Subnautica
     {
         public SubnauticaComponent(LiveSplitState state) : base(state)
         {
-            memory = new SubnauticaMemory(state, logger);
-            settings = new TreeSettings(state, Start, Reset, Options);
+            settings = new SubnauticaSettings(state);
+            memory = new SubnauticaMemory(state, logger, settings);           
         }
     }
 }
