@@ -76,12 +76,6 @@ namespace Livesplit.Subnautica
         IntPtr invStaticKlass;
         int invStaticOffset;
 
-
-
-        IntPtr knownTechKlass;
-        IntPtr knownTechStaticKlass;
-        int knownTechStaticOffset;
-
         IntPtr ktStaticKlass; 
         int ktStaticOffset;   
         int off_knownTech;
@@ -222,7 +216,9 @@ namespace Livesplit.Subnautica
         public override bool Update()
         {
             UpdateBlueprints();
-            Logger.Log(knownTechOld.Count.ToString());
+            foreach (var i in knownTech)
+                Logger.Log(i.ToString());
+            Logger.Log(knownTech.Count.ToString());
 
             return isReady;
         }
@@ -400,18 +396,15 @@ namespace Livesplit.Subnautica
         {
             var blueprints = new List<TechType>();
 
-            // statisches KnownTech.knownTech-Objekt holen
             IntPtr hs = Game.Read<IntPtr>(mono.GetStaticData(ktStaticKlass) + ktStaticOffset);
             if (hs == IntPtr.Zero) { knownTechOld = knownTech; knownTech = new List<TechType>(); return; }
 
             ResolveHashSetLayoutUsingMono(hs);
             if (!hsLayoutReady) { knownTechOld = knownTech; knownTech = new List<TechType>(); return; }
 
-            // ab hier direkt lesen:
             IntPtr slotsArr = Game.Read<IntPtr>(hs + hsSlotsOff);
             int arrayLen = Game.Read<int>(slotsArr + 0x18);
             IntPtr slotsData = slotsArr + hsArrayDataBase;
-            // Optional: stride-Autodetect 12/16
             int stride = hsValueStride, voff = hsValueOff;
             int probe = Math.Min(arrayLen, 64);
             int hits12 = 0, hits16 = 0;
@@ -582,7 +575,6 @@ namespace Livesplit.Subnautica
             }
             return bestOff; // 0 = fail
         }
-        // Felder einmalig ermitteln (z.B. in OnHook nach ktStaticKlass/ktStaticOffset)
         void ResolveHashSetLayoutUsingMono(IntPtr hs)
         {
             if (hsLayoutReady) return;
@@ -602,15 +594,13 @@ namespace Livesplit.Subnautica
             if (sysImg == IntPtr.Zero)
             {
                 Logger.Log("Could not find any CoreLib image -> using picker fallback");
-                // --- Fallback: einmalig Buckets(+0x10) vs. Slots(+0x18) erkennen und CACHEN ---
-                hsSlotsOff = PickSlotsOffset(hs);   // setzt nebenbei hsValueStride/hsValueOff
+                hsSlotsOff = PickSlotsOffset(hs);
                 hsArrayDataBase = 0x20;
                 hsLayoutReady = hsSlotsOff != 0;
                 Logger.Log($"KnownTech HashSet picked slots@+{hsSlotsOff:X}, stride={hsValueStride}");
-                return; // <<< GANZ WICHTIG
+                return;
             }
 
-            // HashSet`1 als einfacher Klassenname (MonoHelper vergleicht ohne Namespace!)
             IntPtr hsKlass = mono.GetClass(sysImg, "HashSet`1");
             if (hsKlass == IntPtr.Zero)
             {
@@ -622,7 +612,6 @@ namespace Livesplit.Subnautica
                 return;
             }
 
-            // Feld-Offsets sauber per Namen
             hsCountOff = ResolveFieldOffsetByNameOrPredicate(
                 hsKlass, new[] { "m_count", "count" },
                 (n, t) => n.IndexOf("count", StringComparison.OrdinalIgnoreCase) >= 0);
@@ -631,9 +620,7 @@ namespace Livesplit.Subnautica
                 hsKlass, new[] { "m_slots", "slots" },
                 (n, t) => n.IndexOf("slot", StringComparison.OrdinalIgnoreCase) >= 0);
 
-            // Mono-Array Layout (64-bit)
             hsArrayDataBase = 0x20;
-            // Standard-Layout HashSet<T>.Slot: {int hashCode; int next; T value}
             hsValueStride = 12;
             hsValueOff = 8;
 
