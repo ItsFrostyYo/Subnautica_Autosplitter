@@ -137,9 +137,9 @@
             // 
             this.Other_GroupBox.Controls.Add(this.chkSRCLoadtimes);
             this.Other_GroupBox.Controls.Add(this.chkAskForGoldSave);
-            this.Other_GroupBox.Location = new System.Drawing.Point(311, 15);
+            this.Other_GroupBox.Location = new System.Drawing.Point(296, 15);
             this.Other_GroupBox.Name = "Other_GroupBox";
-            this.Other_GroupBox.Size = new System.Drawing.Size(149, 81);
+            this.Other_GroupBox.Size = new System.Drawing.Size(164, 81);
             this.Other_GroupBox.TabIndex = 8;
             this.Other_GroupBox.TabStop = false;
             this.Other_GroupBox.Text = "Others";
@@ -169,9 +169,9 @@
             this.chkAskForGoldSave.Location = new System.Drawing.Point(5, 23);
             this.chkAskForGoldSave.Margin = new System.Windows.Forms.Padding(2);
             this.chkAskForGoldSave.Name = "chkAskForGoldSave";
-            this.chkAskForGoldSave.Size = new System.Drawing.Size(139, 17);
+            this.chkAskForGoldSave.Size = new System.Drawing.Size(157, 17);
             this.chkAskForGoldSave.TabIndex = 0;
-            this.chkAskForGoldSave.Text = "Ask before saving golds";
+            this.chkAskForGoldSave.Text = "Warn On Reset If Gold Split";
             this.ToolTips.SetToolTip(this.chkAskForGoldSave, "Ask to save golds when the timer auto resets");
             this.chkAskForGoldSave.UseVisualStyleBackColor = true;
             this.chkAskForGoldSave.CheckedChanged += new System.EventHandler(this.ControlChanged);
@@ -191,7 +191,7 @@
             this.StartReset_GroupBox.Controls.Add(this.chkReset);
             this.StartReset_GroupBox.Controls.Add(this.chkCreativeStart);
             this.StartReset_GroupBox.Controls.Add(this.chkIntroStart);
-            this.StartReset_GroupBox.Location = new System.Drawing.Point(143, 15);
+            this.StartReset_GroupBox.Location = new System.Drawing.Point(128, 15);
             this.StartReset_GroupBox.Name = "StartReset_GroupBox";
             this.StartReset_GroupBox.Size = new System.Drawing.Size(162, 81);
             this.StartReset_GroupBox.TabIndex = 7;
@@ -250,7 +250,7 @@
             this.SortBy_GroupBox.Controls.Add(this.rdType);
             this.SortBy_GroupBox.Location = new System.Drawing.Point(6, 15);
             this.SortBy_GroupBox.Name = "SortBy_GroupBox";
-            this.SortBy_GroupBox.Size = new System.Drawing.Size(131, 81);
+            this.SortBy_GroupBox.Size = new System.Drawing.Size(116, 81);
             this.SortBy_GroupBox.TabIndex = 6;
             this.SortBy_GroupBox.TabStop = false;
             this.SortBy_GroupBox.Text = "Sort Split Selects By";
