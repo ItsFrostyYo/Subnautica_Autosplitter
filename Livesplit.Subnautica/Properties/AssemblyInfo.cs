@@ -1,15 +1,16 @@
-﻿using Livesplit.Subnautica;
+﻿using LiveSplit.Subnautica;
 using LiveSplit.UI.Components;
-using LiveSplit.VoxSplitter;
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Livesplit.Subnautica")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Autosplitter for Subnautica")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Livesplit.Subnautica")]

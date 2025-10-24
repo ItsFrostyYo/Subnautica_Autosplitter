@@ -53,66 +53,78 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LiveSplit.VoxSplitter\Component.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ExtensionMethods.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Factory.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Logger.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\FontTextComponent.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualDoubleTimer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualDoubleTimerSettings.cs">
+    <Compile Include="GameVersion.cs" />
+    <Compile Include="ManualComponents\FontTextComponent.cs" />
+    <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualDoubleTimerSettings.Designer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTextComponent.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTextSettings.cs">
+    <Compile Include="ManualComponents\ManualDoubleTimerSettings.Designer.cs" />
+    <Compile Include="ManualComponents\ManualTextComponent.cs" />
+    <Compile Include="ManualComponents\ManualTextSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTextSettings.Designer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTimer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTimerSettings.cs">
+    <Compile Include="ManualComponents\ManualTextSettings.Designer.cs" />
+    <Compile Include="ManualComponents\ManualTimer.cs" />
+    <Compile Include="ManualComponents\ManualTimerSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\ManualComponents\ManualTimerSettings.Designer.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Memory\Memory.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Memory\NestedPointerFactory.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Memory\SignatureMemory.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\MonoHelper\MonoHelper.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\NativeMethods.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Settings\SplitGenerator.cs">
+    <Compile Include="ManualComponents\ManualTimerSettings.Designer.cs" />
+    <Compile Include="Settings\SplitGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\SplitGenerator.Designer.cs">
+    <Compile Include="Settings\SplitGenerator.Designer.cs">
       <DependentUpon>SplitGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\SubnauticaSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="SubnauticaComponent.cs" />
     <Compile Include="SubnauticaMemory.cs" />
-    <Compile Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.cs">
+    <Compile Include="Settings\SubnauticaSettings.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.Designer.cs">
+    <Compile Include="Settings\SubnauticaSettings.Designer.cs">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="SubnauticaSplitSettings.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="SubnauticaSplitSettings.Designer.cs">
-      <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="SubnauticaSplitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TechType.cs" />
+    <Compile Include="Voxif.AutoSplitter\Component.cs" />
+    <Compile Include="Voxif.AutoSplitter\ExtensionMethods.cs" />
+    <Compile Include="Voxif.AutoSplitter\Factory.cs" />
+    <Compile Include="Voxif.AutoSplitter\Memory.cs" />
+    <Compile Include="Voxif.AutoSplitter\NativeMethods.cs" />
+    <Compile Include="Voxif.Helpers\HelperTask.cs" />
+    <Compile Include="Voxif.Helpers\ScanHelper.cs" />
+    <Compile Include="Voxif.Helpers\Voxif.Helpers.MemoryHelper\MemoryHelper.cs" />
+    <Compile Include="Voxif.Helpers\Voxif.Helpers.StructReflector\StructReflector.cs" />
+    <Compile Include="Voxif.Helpers\Voxif.Helpers.Unity\MonoNestedPointer.cs" />
+    <Compile Include="Voxif.Helpers\Voxif.Helpers.Unity\UnityHelper.cs" />
+    <Compile Include="Voxif.IO\Logger.cs" />
+    <Compile Include="Voxif.Memory\NestedPointer.cs" />
+    <Compile Include="Voxif.Memory\ProcessMethods.cs" />
+    <Compile Include="Voxif.Memory\ProcessWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="LiveSplit.VoxSplitter\Settings\SubnauticaSettings.resx">
+    <EmbeddedResource Include="Settings\SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="SubnauticaSplitSettings.resx">
+    <EmbeddedResource Include="Settings\SubnauticaSplitSettings.resx">
       <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
     <Content Include="Components\ComponentsUpdate.xml" />
+    <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_2019.txt" />
+    <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_Base.txt" />
+    <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1.txt" />
+    <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1_cattrs.txt" />
+    <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v2.txt" />
     <Content Include="Resources\ResourcesUpdate.xml" />
     <Content Include="Splits\Presets.xml" />
     <Content Include="Splits\Splits.xml" />

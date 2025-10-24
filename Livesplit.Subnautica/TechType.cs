@@ -1,6 +1,6 @@
 ﻿namespace Livesplit.Subnautica
 {
-    internal enum TechType
+    public enum TechType
     {
         None = 0,
         Quartz = 1,
