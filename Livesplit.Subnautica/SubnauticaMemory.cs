@@ -37,11 +37,14 @@ namespace Livesplit.Subnautica
         private SubnauticaSettings settings;
 
         #region Pointer stuff
-        public Pointer<bool> isIntroCinematicActive;
+        public Pointer<bool> isIntroCinematicActive; // true in main menu sometimes
         public Pointer<bool> isAnimationPlaying;
+        public Pointer<bool> damageEffectsShowing;
         public Pointer<float> timeCured;
         public Pointer<float> health;
         public Pointer<IntPtr> mainMenu;
+        public Pointer<int> PDATab;
+        public Pointer<int> gameMode;
         public StringPointer biome;
 
         public Dictionary<TechType, int> playerInventory = new Dictionary<TechType, int>();
@@ -92,9 +95,7 @@ namespace Livesplit.Subnautica
         public MemoryWatcher<bool> isNotInWater = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isDying = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<int> isFabiOpen = new MemoryWatcher<int>(IntPtr.Zero); // 2 means that the esc menu is open
-        public MemoryWatcher<int> isPDAOpen = new MemoryWatcher<int>(IntPtr.Zero); // true = 1051931443, false = 1056964608
         public MemoryWatcher<int> isRocketLaunching = new MemoryWatcher<int>(IntPtr.Zero); // 2018 = 1, 2023 = 256
-        public MemoryWatcher<int> oxygen = new MemoryWatcher<int>(IntPtr.Zero);
         public MemoryWatcher<float> walkDir = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> strafeDir = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> posX = new MemoryWatcher<float>(IntPtr.Zero);
@@ -169,6 +170,8 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
+
+            logger.Log(gameMode.New);
 
             return base.Update();
         }
@@ -346,6 +349,15 @@ namespace Livesplit.Subnautica
             IntPtr hs = game.Read<IntPtr>(sgmInst + offCompleted);
             completedGoals = ((UnityHelperTask.UnityHelperBase)mono).ReadHashSetString(hs);
             #endregion
+            #region PDATab
+            PDATab = ptrFactory.Make<int>("uGUI_PDA", "<main>k__BackingField", "tabOpen");
+            #endregion PDATab
+            #region Damage Effects Showing
+            damageEffectsShowing = ptrFactory.Make<bool>("EscapePod", "main", "damageEffectsShowing");
+            #endregion Damage Effects Showing
+            #region Game Mode
+            gameMode = ptrFactory.Make<int>("GameModeUtils", "currentGameMode");
+            #endregion Game Mode
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
             DeepPointer portalLoadingPtr;
@@ -353,9 +365,7 @@ namespace Livesplit.Subnautica
             DeepPointer notInWaterPtr;
             DeepPointer dyingPtr;
             DeepPointer fabiPtr;
-            DeepPointer PDAPtr;
             DeepPointer rocketPtr;
-            DeepPointer oxygenPtr;
             DeepPointer walkDirPtr;
             DeepPointer strafePtr;
             DeepPointer posX;
@@ -371,9 +381,7 @@ namespace Livesplit.Subnautica
                     notInWaterPtr = new DeepPointer("Subnautica.exe", 0x14BC6A0, 0x7C);
                     dyingPtr = new DeepPointer("Subnautica.exe", 0x142B740, 0x8, 0x8, 0x10, 0x30, 0x2C8, 0x28, 0x20);
                     fabiPtr = new DeepPointer("mono.dll", 0x296BC8, 0x20, 0xA58, 0x20);
-                    PDAPtr = new DeepPointer("mono.dll", 0x2655E0, 0x40, 0x18, 0xA0, 0x920, 0x64);
                     rocketPtr = new DeepPointer("mono.dll", 0x27EAD8, 0x40, 0x70, 0x50, 0x90, 0x30, 0x8, 0x80);
-                    oxygenPtr = new DeepPointer("Subnautica.exe", 0x142ADA8, 0x8, 0x10, 0x30, 0x30, 0x18, 0x28, 0x70);
                     walkDirPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0xA0);
                     strafePtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0x160);
                     posX = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C0);
@@ -388,9 +396,7 @@ namespace Livesplit.Subnautica
                     notInWaterPtr = new DeepPointer("UnityPlayer.dll", 0x18AB130, 0x48, 0x0, 0x68);
                     dyingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x8, 0x10, 0x30, 0x318, 0x28, 0x50);
                     fabiPtr = new DeepPointer("UnityPlayer.dll", 0x183BF48, 0x8, 0x10, 0x30, 0x30, 0x28, 0x128);
-                    PDAPtr = new DeepPointer("mono-2.0-bdwgc.dll", 0x499C40, 0xE84);
                     rocketPtr = new DeepPointer("UnityPlayer.dll", 0x17FC238, 0x10, 0x3C);
-                    oxygenPtr = new DeepPointer(IntPtr.Zero);
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x150);
                     posX = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA58);
@@ -406,31 +412,24 @@ namespace Livesplit.Subnautica
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
             isDying = new MemoryWatcher<bool>(dyingPtr);
             isFabiOpen = new MemoryWatcher<int>(fabiPtr);
-            isPDAOpen = new MemoryWatcher<int>(PDAPtr);
-            oxygen = new MemoryWatcher<int>(oxygenPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
             this.posX = new MemoryWatcher<float>(posX);
             this.posY = new MemoryWatcher<float>(posY);
             this.posZ = new MemoryWatcher<float>(posZ);
-            #endregion Memory Watchers
+            #endregion Memory Watchers 
 
             logger.Log("Pointers initialized");
             pointersInitialized = true;
         }
 
-
         private void UpdateMemoryWatchers()
         {
-            if (settings.introStart && gameVersion == GameVersion.Sept2018)
-                oxygen.Update(game.Process);
-
             if (settings.creativeStart)
             {
                 walkDir.Update(game.Process);
                 strafeDir.Update(game.Process);
                 isFabiOpen.Update(game.Process);
-                isPDAOpen.Update(game.Process);
                 isLoadingScreen.Update(game.Process);
             }
 
@@ -471,14 +470,14 @@ namespace Livesplit.Subnautica
                       SplitName.HCGSparseSplit,
                       SplitName.SGLShallowsSplit,
                       SplitName.UpperTabletSplit))
-                UpdatePosition();//UpdateInventory();
+                UpdateInventory();
 
             if (Needs(SplitName.BoostersSplit,
                       SplitName.FuelReservesSplit,
                       SplitName.RocketUnlockSplit,
                       SplitName.AuroraExitSplit,
                       SplitName.IonUnlockSplit))
-                UpdatePosition();//UpdateBlueprints();
+                UpdateBlueprints();
         }
         private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
         private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
@@ -596,7 +595,6 @@ namespace Livesplit.Subnautica
 
                     const int stride = 24;
 
-                    int countHint = (dict_off_count != 0) ? game.Read<int>(dict + dict_off_count) : -1;
 
                     // [0x00]=hashCode(int), [0x04]=next(int), [0x08]=key(int), [0x10]=value(ref)
                     for (int i = 0; i < len; i++)
@@ -635,7 +633,7 @@ namespace Livesplit.Subnautica
             // legacy layout (Unity 2018 mscorlib: keySlots/valueSlots[/linkSlots])
             if (!useLegacyDict)
             {
-                logger.Log("[Unity] Falling back to legacy Dictionary<> read (entries array missing).");
+                //logger.Log("[Unity] Falling back to legacy Dictionary<> read (entries array missing).");
             }
 
             IntPtr keyArr = legacy_off.off_keySlots != 0 ? game.Read<IntPtr>(dict + legacy_off.off_keySlots) : IntPtr.Zero;

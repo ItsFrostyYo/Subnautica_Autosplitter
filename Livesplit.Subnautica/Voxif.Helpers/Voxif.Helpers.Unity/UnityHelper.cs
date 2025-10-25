@@ -563,8 +563,7 @@ namespace Voxif.Helpers.Unity {
                 var res = new List<string>();
                 if (hs == IntPtr.Zero) return res;
 
-                // Offsets aus CoreLib versuchen (non-blocking) – wenn fehlend, Picker nehmen
-                int offSlots = ResolveHashSetSlotsOffset(hs); // probiert m_slots/slots, sonst PickSlotsOffset(+0x10/+0x18)
+                int offSlots = ResolveHashSetSlotsOffset(hs);
                 if (offSlots == 0) return res;
 
                 IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
@@ -575,7 +574,6 @@ namespace Voxif.Helpers.Unity {
 
                 IntPtr basePtr = slotsArr + 0x20;
 
-                // Stride für Referenz-Slots wählen (16/24/32) – kurze Probe mit Plausibilitätscheck
                 int PickStride()
                 {
                     int[] candidates = { 16, 24, 32 };
@@ -589,7 +587,7 @@ namespace Voxif.Helpers.Unity {
                             IntPtr slot = basePtr + i * stride;
                             int hash = wrapper.Read<int>(slot + 0x0);
                             if (hash < 0) continue;
-                            IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10); // value ref
+                            IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10);
                             if (IsLikelyManagedString(strPtr)) hits++;
                         }
                         if (hits > bestHits) { bestHits = hits; best = stride; }
@@ -600,7 +598,6 @@ namespace Voxif.Helpers.Unity {
                 bool IsLikelyManagedString(IntPtr p)
                 {
                     if (p == IntPtr.Zero) return false;
-                    // sehr leichte Heuristik: Länge (int) an +0x10 liegt im plausiblen Bereich
                     int lenStr = wrapper.Read<int>(p + 0x10);
                     return lenStr >= 0 && lenStr <= 1024;
                 }
@@ -616,17 +613,14 @@ namespace Voxif.Helpers.Unity {
                     IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10);
                     if (strPtr == IntPtr.Zero) continue;
 
-                    string s = wrapper.ReadString(strPtr); // deine vorhandene String-Lesehilfe
+                    string s = wrapper.ReadString(strPtr);
                     if (!string.IsNullOrEmpty(s)) res.Add(s);
                 }
                 return res;
             }
 
-            // Minimaler Slots-Offset-Resolver: erst Felder versuchen, sonst heuristisch
             int ResolveHashSetSlotsOffset(IntPtr hs)
             {
-                // Wenn du schon einen CoreLib-Resolver hast, nutz den hier.
-                // Fallback: +0x10 und +0x18 untersuchen, welche Adresse wie ein Array wirkt (len an +0x18 plausibel)
                 foreach (int cand in new[] { 0x10, 0x18 })
                 {
                     IntPtr arr = wrapper.Read<IntPtr>(hs + cand);

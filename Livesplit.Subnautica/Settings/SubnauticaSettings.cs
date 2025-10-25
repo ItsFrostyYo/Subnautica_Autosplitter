@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Voxif.IO;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
 
 namespace Livesplit.Subnautica
@@ -40,9 +41,10 @@ namespace Livesplit.Subnautica
         private List<string> availableSplitsAlphaSorted = new List<string>();
         public SubnauticaSettings(LiveSplitState state)
         {
-            InitializeComponent();
+            InitializeComponent();            
             Splits = new List<SplitName>();
             _state = state;
+            UpdateExploBtnContent();
         }
 
         #region Buttons
@@ -120,7 +122,7 @@ namespace Livesplit.Subnautica
             var componentPath = @"Components\\SubnauticaShipExplosionInfo.dll";
             var exploTimeComponent = _state.Layout.LayoutComponents.Where(x => x.Component.GetType().FullName == "LiveSplit.UI.Components.Component").FirstOrDefault();
 
-            if (!File.Exists(componentPath)) { MessageBox.Show($"File does not exist: {componentPath}"); return; }
+            if (!File.Exists(componentPath)) { MessageBox.Show($"Could not find file: {componentPath}"); return; }
 
             if (exploTimeComponent == null)
             {
@@ -175,7 +177,9 @@ namespace Livesplit.Subnautica
         #endregion
         public void UpdateExploBtnContent()
         {
-            if (_state?.Layout.LayoutComponents.Where(x => x.Component.GetType().FullName == "LiveSplit.UI.Components.Component").FirstOrDefault() != null)
+            bool hasExplosionInfo = _state?.Layout?.LayoutComponents?.Any(x => x?.Component?.ComponentName == "Subnautica Ship Explosion Info") ?? false;
+
+            if (hasExplosionInfo)
                 btnAddExplo.Text = "Remove Explosion Time";
             else
                 btnAddExplo.Text = "Add Explosion Time";
@@ -464,6 +468,6 @@ namespace Livesplit.Subnautica
             }
 
             isLoading.ExitWriteLock();
-        }   
+        }
     }
 }

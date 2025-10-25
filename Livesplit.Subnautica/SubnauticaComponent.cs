@@ -31,6 +31,7 @@ namespace Livesplit.Subnautica
 
         public override bool Update()
         {
+            settings.UpdateExploBtnContent();
             if (!memory.Update() || !memory.pointersInitialized)
                 return false;
             TryResetOnMainMenu();
@@ -42,12 +43,12 @@ namespace Livesplit.Subnautica
             if (memory.startedTimerBefore || !memory.pointersInitialized)
                 return false;
 
-            if (settings.introStart)
+            // options: 100 -> 80 health
+            if (settings.introStart && (GameModeOption)memory.gameMode.New != GameModeOption.Creative)
             {
-                if (memory.gameVersion == GameVersion.Sept2018 && memory.oxygen.Current == 45 && memory.oxygen.Old < 45) { logger.Log("Start of oxygen"); memory.startedTimerBefore = true; return true; }
-                if (!memory.isIntroCinematicActive.New && memory.isIntroCinematicActive.Old) { logger.Log("Start of introCinematic"); memory.startedTimerBefore = true; return true; }
+                if (memory.damageEffectsShowing.New && !memory.damageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
             }
-            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu)
+            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu && (GameModeOption)memory.gameMode.New == GameModeOption.Creative)
             {
                 // Start of Move
                 if ((memory.walkDir.Current != 0 && memory.walkDir.Old == 0) || (memory.strafeDir.Current != 0 && memory.strafeDir.Old == 0)) { logger.Log("Start of Move"); memory.startedTimerBefore = true; return true; }
@@ -56,7 +57,7 @@ namespace Livesplit.Subnautica
                 if (memory.isFabiOpen.Current == 1 && memory.isFabiOpen.Old == 0) { logger.Log("Start of Fabricator"); memory.startedTimerBefore = true; return true; }
 
                 // Start of PDA
-                if (memory.isPDAOpen.Current == 1051931443 && memory.isPDAOpen.Current != memory.isPDAOpen.Old) { logger.Log("Start of PDA"); memory.startedTimerBefore = true; return true; }
+                if ((PDATab)memory.PDATab.New != PDATab.None && memory.PDATab.Changed) { logger.Log("Start of PDA"); memory.startedTimerBefore = true; return true; }
             }
             return false;
         }

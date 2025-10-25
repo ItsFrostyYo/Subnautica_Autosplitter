@@ -53,6 +53,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\GameModeOption.cs" />
+    <Compile Include="Enums\PDATab.cs" />
     <Compile Include="GameVersion.cs" />
     <Compile Include="ManualComponents\FontTextComponent.cs" />
     <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
@@ -92,7 +94,7 @@
     </Compile>
     <Compile Include="SubnauticaSplitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TechType.cs" />
+    <Compile Include="Enums\TechType.cs" />
     <Compile Include="Voxif.AutoSplitter\Component.cs" />
     <Compile Include="Voxif.AutoSplitter\ExtensionMethods.cs" />
     <Compile Include="Voxif.AutoSplitter\Factory.cs" />
