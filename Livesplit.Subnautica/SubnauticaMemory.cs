@@ -44,8 +44,8 @@ namespace Livesplit.Subnautica
         public Pointer<IntPtr> mainMenu;
         public StringPointer biome;
 
-        public List<TechType> playerInventory = new List<TechType>();
-        public List<TechType> playerInventoryOld = new List<TechType>();
+        public Dictionary<TechType, int> playerInventory = new Dictionary<TechType, int>();
+        public Dictionary<TechType, int> playerInventoryOld = new Dictionary<TechType, int>();
 
         public List<TechType> knownTech = new List<TechType>();
         public List<TechType> knownTechOld = new List<TechType>();
@@ -63,9 +63,23 @@ namespace Livesplit.Subnautica
         int dict_off_entries;
         int arr_off_len;
         int arr_data_base;
+        int off_itemGroup_id;
+        int dict_off_version;
+        int dict_off_count;
 
         IntPtr invStaticKlass;
         int invStaticOffset;
+
+        struct LegacyDictOffsets
+        {
+            public int off_table;
+            public int off_linkSlots;
+            public int off_keySlots;
+            public int off_valSlots;
+            public int off_touched;
+        }
+        bool useLegacyDict = false;
+        LegacyDictOffsets legacy_off;
 
         IntPtr ktStaticKlass;
         int ktStaticOffset;
@@ -121,8 +135,8 @@ namespace Livesplit.Subnautica
                 { SplitName.FuelReservesSplit,    () => knownTech.Contains(TechType.RocketStage3) && !knownTechOld.Contains(TechType.RocketStage3) },
                 { SplitName.GunDeactivationSplit, () => !alreadySplit.Contains(SplitName.GunDeactivationSplit) && isAnimationPlaying.New && !isAnimationPlaying.Old && IsWithinBounds(gunBounds) },
                 { SplitName.BaseDeathSplit,       () => health.New <= 0 && health.Old > 0 && (IsWithinBounds(deathClipABounds) || IsWithinBounds(deathClipCBounds)) },
-                { SplitName.LeaveKelpForestSplit, () => !alreadySplit.Contains(SplitName.LeaveKelpForestSplit) && IsWithinBounds(teethBounds) && playerInventory.Contains(TechType.CreepvinePiece) },
-                { SplitName.FourToothSplit,       () => !alreadySplit.Contains(SplitName.FourToothSplit) && playerInventory.Count(t => t == TechType.StalkerTooth) == 4 && playerInventoryOld.Count(t => t == TechType.StalkerTooth) != 4 },
+                { SplitName.LeaveKelpForestSplit, () => !alreadySplit.Contains(SplitName.LeaveKelpForestSplit) && IsWithinBounds(teethBounds) && playerInventory.Keys.Contains(TechType.CreepvinePiece) },
+                { SplitName.FourToothSplit,       () => !alreadySplit.Contains(SplitName.FourToothSplit) && playerInventory.GetCount(TechType.StalkerTooth) == 4 && playerInventoryOld.GetCount(TechType.StalkerTooth) != 4 },
                 { SplitName.AuroraDeathSplit,     () => !alreadySplit.Contains(SplitName.AuroraDeathSplit) && !alreadySplit.Contains(SplitName.AuroraBiomeSplit) && health.New <= 0 && health.Old > 0 && new[] { "crashedShip", "generatorRoom" }.Contains(biome.New)},
                 { SplitName.RocketUnlockSplit,    () => knownTech.Contains(TechType.RocketBase) && !knownTechOld.Contains(TechType.RocketBase) },
                 { SplitName.MountainDescendSplit, () => !alreadySplit.Contains(SplitName.MountainDescendSplit) && IsWithinBounds(mountainBounds) },
@@ -130,16 +144,16 @@ namespace Livesplit.Subnautica
                 { SplitName.GunDeathSplit,        () => health.New <= 0 && health.Old > 0 && biome.New == "Precursor_Gun_ControlRoom" },
                 { SplitName.SparseDeathSplit,     () => !alreadySplit.Contains(SplitName.SparseDeathSplit) && !alreadySplit.Contains(SplitName.SparseBiomeSplit) && health.New <= 0 && health.Old > 0 && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(biome.New) },
                 { SplitName.SGLBaseSplit,         () => !alreadySplit.Contains(SplitName.SGLBaseSplit) && isNotInWater.Current && !isNotInWater.Old && IsWithinBounds(SGLBaseBounds) },
-                { SplitName.SGLShallowsSplit,     () => !alreadySplit.Contains(SplitName.SGLShallowsSplit) && !isNotInWater.Current && isAnimationPlaying.New && IsWithinBounds(SGLBaseBounds) && playerInventory.Contains(TechType.DoubleTank) },
-                { SplitName.UpperTabletSplit,     () => playerInventory.Count(t => t == TechType.PrecursorKey_Purple) > playerInventoryOld.Count(t => t == TechType.PrecursorKey_Purple) && IsWithinBounds(upperTabletBounds) },
+                { SplitName.SGLShallowsSplit,     () => !alreadySplit.Contains(SplitName.SGLShallowsSplit) && !isNotInWater.Current && isAnimationPlaying.New && IsWithinBounds(SGLBaseBounds) && playerInventory.Keys.Contains(TechType.DoubleTank) },
+                { SplitName.UpperTabletSplit,     () => playerInventory.GetCount(TechType.PrecursorKey_Purple) > playerInventoryOld.GetCount(TechType.PrecursorKey_Purple) && IsWithinBounds(upperTabletBounds) },
                 { SplitName.IonUnstuckSplit,      () => isAnimationPlaying.New && !isAnimationPlaying.Old && biome.New == "PrecursorThermalRoom" },
                 { SplitName.PCFPoolSplit,         () => !alreadySplit.Contains(SplitName.PCFPoolSplit) && biome.New == "Prison_Aquarium_Upper" && biome.Old == "Prison_Moonpool" },
                 { SplitName.SparseBiomeSplit,     () => !alreadySplit.Contains(SplitName.SparseBiomeSplit) && !alreadySplit.Contains(SplitName.SparseDeathSplit) && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(biome.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(biome.New) },
                 { SplitName.AuroraBiomeSplit,     () => !alreadySplit.Contains(SplitName.AuroraBiomeSplit) && !alreadySplit.Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(biome.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(biome.New) },
-                { SplitName.EyestalkSplit,        () => !alreadySplit.Contains(SplitName.EyestalkSplit) && playerInventory.Contains(TechType.EyesPlantSeed) && !playerInventoryOld.Contains(TechType.EyesPlantSeed) },
+                { SplitName.EyestalkSplit,        () => !alreadySplit.Contains(SplitName.EyestalkSplit) && playerInventory.Keys.Contains(TechType.EyesPlantSeed) && !playerInventoryOld.Keys.Contains(TechType.EyesPlantSeed) },
                 { SplitName.IonUnlockSplit,       () => knownTech.Contains(TechType.PrecursorIonBattery) && !knownTechOld.Contains(TechType.PrecursorIonBattery) },
                 { SplitName.AuroraExitSplit,      () => !alreadySplit.Contains(SplitName.AuroraExitSplit) && IsWithinBounds(auroraExitBounds) && knownTech.Contains(TechType.RocketBase) },
-                { SplitName.HCGSparseSplit,       () => !alreadySplit.Contains(SplitName.HCGSparseSplit) && isAnimationPlaying.New && !isAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && playerInventory.Contains(TechType.AluminumOxide) },
+                { SplitName.HCGSparseSplit,       () => !alreadySplit.Contains(SplitName.HCGSparseSplit) && isAnimationPlaying.New && !isAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && playerInventory.Keys.Contains(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => health.New <= 0 && health.Old > 0 },
             };
         }
@@ -149,18 +163,13 @@ namespace Livesplit.Subnautica
                 return base.Update();
 
             UpdateMemoryWatchers();
+            UpdateBlueprints();
+            UpdateInventory();
 
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
 
-            //logger.Log($"New={playerInventory.Count}, Old={playerInventoryOld.Count}, items={t}");
-            var dict = ReadInventoryCounts();
-            foreach (var kv in dict)
-                logger.Log($"{kv.Key}: {kv.Value}");
-            UpdateBlueprints();
-            
-            
             return base.Update();
         }
 
@@ -231,14 +240,24 @@ namespace Livesplit.Subnautica
                     fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "items"));
 
             itemGroupKlass = mono.FindClass("ItemGroup", mono.MainImage);
+
             off_itemGroup_items = (itemGroupKlass != IntPtr.Zero)
                 ? mono.GetFieldOffset(itemGroupKlass, "items") : 0;
             if (off_itemGroup_items == 0 && itemGroupKlass != IntPtr.Zero)
-            {
                 off_itemGroup_items = ((UnityHelperTask.UnityHelperBase)mono)
                     .ResolveFieldOffsetByNameOrPredicate(itemGroupKlass, new[] { "items" },
                         fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "items"));
-            }
+
+            off_itemGroup_id = (itemGroupKlass != IntPtr.Zero)
+                ? mono.GetFieldOffset(itemGroupKlass, "id") : 0;
+            if (off_itemGroup_id == 0 && itemGroupKlass != IntPtr.Zero)
+                off_itemGroup_id = ((UnityHelperTask.UnityHelperBase)mono)
+                    .ResolveFieldOffsetByNameOrPredicate(itemGroupKlass, new[] { "id", "techType" },
+                        fname => {
+                            var f = fname.ToLowerInvariant();
+                            return f == "id" || f.Contains("techtype") || f.EndsWith("techtype");
+                        });
+
 
             // List<T>._size
             IntPtr core = ((UnityHelperTask.UnityHelperBase)mono).TryFindImageOnce(
@@ -251,18 +270,52 @@ namespace Livesplit.Subnautica
                 if (cand != 0) off_list_size = cand;
             }
 
+
             // Dictionary<>.entries, Array header
             dict_off_entries = 0x18;
             arr_off_len = 0x18;
             arr_data_base = 0x20;
+
             if (core != IntPtr.Zero)
             {
                 IntPtr dictKlass = ((UnityHelperTask.UnityHelperBase)mono).TryFindClassOnce("Dictionary`2", core);
                 if (dictKlass != IntPtr.Zero)
                 {
-                    int oe = mono.GetFieldOffset(dictKlass, "entries");
-                    if (oe == 0) oe = mono.GetFieldOffset(dictKlass, "_entries");
-                    if (oe != 0) dict_off_entries = oe;
+                    var unity = (UnityHelperTask.UnityHelperBase)mono;
+
+                    //  force legacy on 2018
+                    if (gameVersion == GameVersion.Sept2018)
+                    {
+                        // resolve legacy offsets and bail out of entries logic
+                        int off_table = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "table" }, s => s.IndexOf("table", StringComparison.OrdinalIgnoreCase) >= 0);
+                        int off_linkSlots = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "linkSlots" }, s => s.IndexOf("link", StringComparison.OrdinalIgnoreCase) >= 0);
+                        int off_keySlots = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "keySlots" }, s => s.IndexOf("key", StringComparison.OrdinalIgnoreCase) >= 0);
+                        int off_valSlots = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "valueSlots" }, s => s.IndexOf("value", StringComparison.OrdinalIgnoreCase) >= 0);
+                        int off_touched = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "touchedSlots", "count" }, s =>
+                        {
+                            var f = s.ToLowerInvariant();
+                            return f.Contains("touched") || f.Equals("count") || f.EndsWith("count");
+                        });
+
+                        legacy_off = new LegacyDictOffsets
+                        {
+                            off_table = off_table,
+                            off_linkSlots = off_linkSlots,
+                            off_keySlots = off_keySlots,
+                            off_valSlots = off_valSlots,
+                            off_touched = off_touched
+                        };
+                        useLegacyDict = true;
+                        logger.Log("[Unity] Forced legacy Dictionary<> layout for Sept 2018 (keySlots/valueSlots).");
+                    }
+                    else
+                    {
+                        // modern path only for 2023
+                        int oe = mono.GetFieldOffset(dictKlass, "entries");
+                        if (oe == 0) oe = mono.GetFieldOffset(dictKlass, "_entries");
+                        if (oe != 0) dict_off_entries = oe;
+                        useLegacyDict = false;
+                    }
                 }
             }
             #endregion Inventory
@@ -366,93 +419,6 @@ namespace Livesplit.Subnautica
             pointersInitialized = true;
         }
 
-        Dictionary<TechType, int> ReadInventoryCounts()
-        {
-            var result = new Dictionary<TechType, int>();
-
-            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
-            if (invMain == IntPtr.Zero) return result;
-
-            IntPtr container = game.Read<IntPtr>(invMain + off_container);
-            if (container == IntPtr.Zero) return result;
-
-            IntPtr dict = game.Read<IntPtr>(container + off_itemsDict);
-            if (dict == IntPtr.Zero) return result;
-
-            IntPtr entriesArr = game.Read<IntPtr>(dict + dict_off_entries);
-            if (entriesArr == IntPtr.Zero) return result;
-
-            int len = game.Read<int>(entriesArr + arr_off_len);
-            if (len <= 0 || len > 200000) return result;
-
-            IntPtr basePtr = entriesArr + arr_data_base;
-
-            int off_itemGroup_id = mono.GetFieldOffset(itemGroupKlass, "id");
-            int stride = PickDictStrideByKeyMatches(basePtr, len, off_itemGroup_id,
-                                                    addr => game.Read<int>((IntPtr)addr),
-                                                    addr => (long)game.Read<IntPtr>((IntPtr)addr));
-
-            for (int i = 0; i < len; i++)
-            {
-                IntPtr entry = basePtr + i * stride;
-                int hashCode = game.Read<int>(entry + 0x0);
-                if (hashCode < 0) continue;
-
-                int keyInt = game.Read<int>(entry + 0x8);
-                IntPtr pGroup = game.Read<IntPtr>(entry + 0x10);
-                if (pGroup == IntPtr.Zero) continue;
-
-                int id = game.Read<int>(pGroup + off_itemGroup_id);
-                if (id != keyInt) continue;
-
-                IntPtr pList = game.Read<IntPtr>(pGroup + off_itemGroup_items);
-                if (pList == IntPtr.Zero) continue;
-
-                int count = game.Read<int>(pList + off_list_size);
-                if ((uint)count > 100000) continue;
-
-                result[(TechType)keyInt] = count;
-            }
-
-            return result;
-        }
-
-        int PickDictStrideByKeyMatches(IntPtr basePtr, int length, int off_itemGroup_id, Func<long, int> ReadInt32, Func<long, long> ReadPtr)
-        {
-            int probe = Math.Min(length, 128);
-            int hits24 = 0, hits32 = 0;
-
-            for (int i = 0; i < probe; i++)
-            {
-                long e24 = (long)basePtr + i * 24;
-                int h24 = ReadInt32(e24 + 0x0);
-                if (h24 >= 0)
-                {
-                    int k24 = ReadInt32(e24 + 0x8);
-                    long g24 = ReadPtr(e24 + 0x10);
-                    if (g24 != 0)
-                    {
-                        int id24 = ReadInt32(g24 + off_itemGroup_id);
-                        if (id24 == k24) hits24++;
-                    }
-                }
-
-                long e32 = (long)basePtr + i * 32;
-                int h32 = ReadInt32(e32 + 0x0);
-                if (h32 >= 0)
-                {
-                    int k32 = ReadInt32(e32 + 0x8);
-                    long g32 = ReadPtr(e32 + 0x10);
-                    if (g32 != 0)
-                    {
-                        int id32 = ReadInt32(g32 + off_itemGroup_id);
-                        if (id32 == k32) hits32++;
-                    }
-                }
-            }
-
-            return (hits24 > hits32 * 2) ? 24 : 32;
-        }
 
         private void UpdateMemoryWatchers()
         {
@@ -519,7 +485,7 @@ namespace Livesplit.Subnautica
         #endregion Memory stuff
         #region World/Player Checks
         public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;
-
+        
         private void UpdateBlueprints()
         {
             IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
@@ -540,6 +506,12 @@ namespace Livesplit.Subnautica
 
             knownTechOld = knownTech;
             knownTech = current;
+        }
+
+        private void UpdateInventory()
+        {
+            playerInventoryOld = playerInventory;
+            playerInventory = ReadInventoryCounts();
         }
 
         private bool IsWithinBounds(float[] bounds)
@@ -593,6 +565,137 @@ namespace Livesplit.Subnautica
             return false;
         }
 
+        Dictionary<TechType, int> ReadInventoryCounts()
+        {
+            var result = new Dictionary<TechType, int>();
+
+            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
+            if (invMain == IntPtr.Zero) return result;
+
+            IntPtr container = game.Read<IntPtr>(invMain + off_container);
+            if (container == IntPtr.Zero) return result;
+
+            IntPtr dict = game.Read<IntPtr>(container + off_itemsDict);
+            if (dict == IntPtr.Zero) return result;
+
+            // modern layout (entries/_entries)
+            if (!useLegacyDict)
+            {
+                // up to 3 tries to get a consistent snapshot
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    int verBefore = (dict_off_version != 0) ? game.Read<int>(dict + dict_off_version) : 0;
+
+                    IntPtr entriesArr = game.Read<IntPtr>(dict + dict_off_entries);
+                    if (entriesArr == IntPtr.Zero) break;
+
+                    int len = game.Read<int>(entriesArr + arr_off_len);
+                    if (len <= 0 || len > 200000) break;
+
+                    IntPtr basePtr = entriesArr + arr_data_base;
+
+                    const int stride = 24;
+
+                    int countHint = (dict_off_count != 0) ? game.Read<int>(dict + dict_off_count) : -1;
+
+                    // [0x00]=hashCode(int), [0x04]=next(int), [0x08]=key(int), [0x10]=value(ref)
+                    for (int i = 0; i < len; i++)
+                    {
+                        IntPtr entry = basePtr + i * stride;
+
+                        int hashCode = game.Read<int>(entry + 0x00);
+                        if (hashCode < 0) continue;
+
+                        int keyInt = game.Read<int>(entry + 0x08);
+                        IntPtr pGroup = game.Read<IntPtr>(entry + 0x10);
+                        if (pGroup == IntPtr.Zero) continue;
+
+                        int id = (off_itemGroup_id != 0) ? game.Read<int>(pGroup + off_itemGroup_id) : keyInt;
+                        if (id != keyInt) continue;
+
+                        IntPtr pList = game.Read<IntPtr>(pGroup + off_itemGroup_items);
+                        if (pList == IntPtr.Zero) continue;
+
+                        int count = game.Read<int>(pList + off_list_size);
+                        if ((uint)count > 100000) continue;
+
+                        result[(TechType)keyInt] = count;
+                    }
+
+                    int verAfter = (dict_off_version != 0) ? game.Read<int>(dict + dict_off_version) : verBefore;
+                    if (verAfter == verBefore)
+                    {
+                        return result;
+                    }
+
+                    result.Clear();
+                }
+            }
+
+            // legacy layout (Unity 2018 mscorlib: keySlots/valueSlots[/linkSlots])
+            if (!useLegacyDict)
+            {
+                logger.Log("[Unity] Falling back to legacy Dictionary<> read (entries array missing).");
+            }
+
+            IntPtr keyArr = legacy_off.off_keySlots != 0 ? game.Read<IntPtr>(dict + legacy_off.off_keySlots) : IntPtr.Zero;
+            IntPtr valArr = legacy_off.off_valSlots != 0 ? game.Read<IntPtr>(dict + legacy_off.off_valSlots) : IntPtr.Zero;
+            if (valArr == IntPtr.Zero) return result;
+
+            IntPtr linkArr = IntPtr.Zero;
+            if (legacy_off.off_linkSlots != 0)
+                linkArr = game.Read<IntPtr>(dict + legacy_off.off_linkSlots);
+
+            // bounds
+            int touched = 0;
+            if (legacy_off.off_touched != 0)
+                touched = game.Read<int>(dict + legacy_off.off_touched);
+
+            int keyLen = keyArr != IntPtr.Zero ? game.Read<int>(keyArr + arr_off_len) : 0;
+            int valLen = game.Read<int>(valArr + arr_off_len);
+            int upper = valLen;
+
+            if (touched > 0 && touched <= valLen) upper = touched;
+            if (upper <= 0 || upper > 200000) return result;
+
+            IntPtr keyBase = keyArr != IntPtr.Zero ? keyArr + arr_data_base : IntPtr.Zero;
+            IntPtr valBase = valArr + arr_data_base;
+            IntPtr linkBase = linkArr != IntPtr.Zero ? linkArr + arr_data_base : IntPtr.Zero;
+
+            int ptrSize = IntPtr.Size;
+            const int linkStride = 8;
+
+            for (int i = 0; i < upper; i++)
+            {
+                if (linkBase != IntPtr.Zero)
+                {
+                    int h = game.Read<int>(linkBase + i * linkStride);
+                    if (h == 0) continue;
+                }
+
+                IntPtr pGroup = game.Read<IntPtr>(valBase + i * ptrSize);
+                if (pGroup == IntPtr.Zero) continue;
+
+                int id = (off_itemGroup_id != 0) ? game.Read<int>(pGroup + off_itemGroup_id) : 0;
+
+                int keyInt = id;
+                if (keyBase != IntPtr.Zero)
+                {
+                    int k = game.Read<int>(keyBase + i * 4);
+                    if (k == id) keyInt = k;
+                }
+
+                IntPtr pList = game.Read<IntPtr>(pGroup + off_itemGroup_items);
+                if (pList == IntPtr.Zero) continue;
+
+                int count = game.Read<int>(pList + off_list_size);
+                if ((uint)count > 100000) continue;
+
+                if (keyInt != 0)
+                    result[(TechType)keyInt] = count;
+            }
+            return result;
+        }
         #endregion
         #region Bounds
         // xmin, xmax, ymin, ymax, zmin, zmax
@@ -609,5 +712,9 @@ namespace Livesplit.Subnautica
         private readonly float[] enterClipABounds = { 48f, 55f, -20f, -5f, 106f, 111f };
         private readonly float[] enterClipCBounds = { -142f, -132f, -20f, -5f, 82f, 90f };
         #endregion
+    }
+
+    public static class DictionaryExtension {
+        public static int GetCount(this Dictionary<TechType, int> dict, TechType type) => dict.TryGetValue(type, out var count) ? count : 0;
     }
 }
