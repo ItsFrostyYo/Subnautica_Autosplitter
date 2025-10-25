@@ -461,7 +461,7 @@ namespace Voxif.Helpers.Unity {
                 return layout;
             }
 
-            private IntPtr TryFindImageOnce(params string[] names)
+            public IntPtr TryFindImageOnce(params string[] names)
             {
                 foreach (var image in ImageSequence())
                 {
@@ -477,7 +477,7 @@ namespace Voxif.Helpers.Unity {
                 return IntPtr.Zero;
             }
 
-            private IntPtr TryFindClassOnce(string className, IntPtr image)
+            public IntPtr TryFindClassOnce(string className, IntPtr image)
             {
                 int dot = className.LastIndexOf('.');
                 string ns = dot >= 0 ? className.Substring(0, dot) : null;
@@ -558,37 +558,83 @@ namespace Voxif.Helpers.Unity {
             }
 
 
-            public List<string> ReadHashSetString(IntPtr hs, in HashSetLayout layout)
+            public List<string> ReadHashSetString(IntPtr hs)
             {
-                var result = new List<string>();
-                if (hs == IntPtr.Zero) return result;
+                var res = new List<string>();
+                if (hs == IntPtr.Zero) return res;
 
-                int offSlots = layout.OffSlots != 0 ? layout.OffSlots : PickSlotsOffset(hs);
-                if (offSlots == 0) return result;
-
-                int stride = 16;        
-                int voff = 8;   
-                int arrBase = 0x20;
+                // Offsets aus CoreLib versuchen (non-blocking) – wenn fehlend, Picker nehmen
+                int offSlots = ResolveHashSetSlotsOffset(hs); // probiert m_slots/slots, sonst PickSlotsOffset(+0x10/+0x18)
+                if (offSlots == 0) return res;
 
                 IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
-                if (slotsArr == IntPtr.Zero) return result;
+                if (slotsArr == IntPtr.Zero) return res;
 
                 int len = wrapper.Read<int>(slotsArr + 0x18);
-                if (len <= 0 || len > 200000) return result;
+                if (len <= 0 || len > 200_000) return res;
 
-                IntPtr basePtr = slotsArr + arrBase;
+                IntPtr basePtr = slotsArr + 0x20;
+
+                // Stride für Referenz-Slots wählen (16/24/32) – kurze Probe mit Plausibilitätscheck
+                int PickStride()
+                {
+                    int[] candidates = { 16, 24, 32 };
+                    int best = 16, bestHits = -1, probe = Math.Min(len, 128);
+
+                    foreach (int stride in candidates)
+                    {
+                        int hits = 0;
+                        for (int i = 0; i < probe; i++)
+                        {
+                            IntPtr slot = basePtr + i * stride;
+                            int hash = wrapper.Read<int>(slot + 0x0);
+                            if (hash < 0) continue;
+                            IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10); // value ref
+                            if (IsLikelyManagedString(strPtr)) hits++;
+                        }
+                        if (hits > bestHits) { bestHits = hits; best = stride; }
+                    }
+                    return best;
+                }
+
+                bool IsLikelyManagedString(IntPtr p)
+                {
+                    if (p == IntPtr.Zero) return false;
+                    // sehr leichte Heuristik: Länge (int) an +0x10 liegt im plausiblen Bereich
+                    int lenStr = wrapper.Read<int>(p + 0x10);
+                    return lenStr >= 0 && lenStr <= 1024;
+                }
+
+                int strideChosen = PickStride();
+
                 for (int i = 0; i < len; i++)
                 {
-                    IntPtr slot = basePtr + i * stride;
+                    IntPtr slot = basePtr + i * strideChosen;
                     int hash = wrapper.Read<int>(slot + 0x0);
                     if (hash < 0) continue;
-                    IntPtr sptr = wrapper.Read<IntPtr>(slot + voff);
-                    if (sptr == IntPtr.Zero) continue;
-                    string s = wrapper.ReadString(sptr, EStringType.Auto);
-                    if (!string.IsNullOrEmpty(s))
-                        result.Add(s);
+
+                    IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10);
+                    if (strPtr == IntPtr.Zero) continue;
+
+                    string s = wrapper.ReadString(strPtr); // deine vorhandene String-Lesehilfe
+                    if (!string.IsNullOrEmpty(s)) res.Add(s);
                 }
-                return result;
+                return res;
+            }
+
+            // Minimaler Slots-Offset-Resolver: erst Felder versuchen, sonst heuristisch
+            int ResolveHashSetSlotsOffset(IntPtr hs)
+            {
+                // Wenn du schon einen CoreLib-Resolver hast, nutz den hier.
+                // Fallback: +0x10 und +0x18 untersuchen, welche Adresse wie ein Array wirkt (len an +0x18 plausibel)
+                foreach (int cand in new[] { 0x10, 0x18 })
+                {
+                    IntPtr arr = wrapper.Read<IntPtr>(hs + cand);
+                    if (arr == IntPtr.Zero) continue;
+                    int len = wrapper.Read<int>(arr + 0x18);
+                    if (len >= 0 && len <= 200_000) return cand;
+                }
+                return 0;
             }
 
 

@@ -2,15 +2,16 @@
 using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-using static Livesplit.Subnautica.SubnauticaSplitSettings;
+using Voxif.AutoSplitter;
 using Voxif.Helpers.Unity;
 using Voxif.IO;
 using Voxif.Memory;
-using Voxif.AutoSplitter;
+using static Livesplit.Subnautica.SubnauticaSplitSettings;
 using HSLayout = Voxif.Helpers.Unity.UnityHelperTask.HashSetLayout;
 
 namespace Livesplit.Subnautica
@@ -49,30 +50,27 @@ namespace Livesplit.Subnautica
         public List<TechType> knownTech = new List<TechType>();
         public List<TechType> knownTechOld = new List<TechType>();
 
-        IntPtr iiKlass;
-        IntPtr puKlass;
+        public List<string> completedGoals = new List<string>();
+        public List<string> completedGoalsOld = new List<string>();
 
-        int off_container, off_itemsMap, off_sizeX, off_sizeY;
-        int off_ii_techType, off_ii_item;
-        int off_pu_overrideUsed, off_pu_overrideTechType;
+        IntPtr invKlass;
+        IntPtr icKlass;
+        int off_container;
+        int off_itemsDict;
+        IntPtr itemGroupKlass;
+        int off_itemGroup_items;
+        int off_list_size;
+        int dict_off_entries;
+        int arr_off_len;
+        int arr_data_base;
 
         IntPtr invStaticKlass;
         int invStaticOffset;
 
         IntPtr ktStaticKlass;
         int ktStaticOffset;
-        HSLayout hsLayoutKnownTech;   // einmalig ermittelt
+        HSLayout hsLayoutKnownTech;
         bool hsLayoutKnownTechReady = false;
-
-        int hsCountOff = 0;
-        int hsSlotsOff = 0;
-        int hsArrayDataBase = 0x20; 
-        int hsValueStride = 0;     
-        int hsValueOff = 0;     
-        bool hsLayoutReady = false;
-
-        IntPtr sgmMainPtr;
-        int off_completedGoals;
 
         public MemoryWatcher<bool> isLoadingScreen = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isPortalLoading = new MemoryWatcher<bool>(IntPtr.Zero);
@@ -145,7 +143,6 @@ namespace Livesplit.Subnautica
                 { SplitName.DeathSplit,           () => health.New <= 0 && health.Old > 0 },
             };
         }
-
         public override bool Update()
         {           
             if(!pointersInitialized)
@@ -158,14 +155,14 @@ namespace Livesplit.Subnautica
                 startedTimerBefore = false;
 
             //logger.Log($"New={playerInventory.Count}, Old={playerInventoryOld.Count}, items={t}");
-            logger.Log($"New={knownTech.Count}");
+            var dict = ReadInventoryCounts();
+            foreach (var kv in dict)
+                logger.Log($"{kv.Key}: {kv.Value}");
             UpdateBlueprints();
             
             
             return base.Update();
         }
-        private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
-        private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
 
         #region Memory stuff
         private void GetGameVersion()
@@ -219,73 +216,60 @@ namespace Livesplit.Subnautica
             health = ptrFactory.Make<float>(liveMixingPtr, off_health);
             #endregion
             #region Inventory
-            /*var invKlass = mono.GetClass(mono.mainImage, "Inventory");
-            var icKlass = mono.GetClass(mono.mainImage, "ItemsContainer");
-            iiKlass = mono.GetClass(mono.mainImage, "InventoryItem");
-            puKlass = mono.GetClass(mono.mainImage, "Pickupable");
+            invKlass = mono.FindClass("Inventory", mono.MainImage);
+            icKlass = mono.FindClass("ItemsContainer", mono.MainImage);
 
-            invStaticKlass = mono.GetStaticField(mono.mainImage, "Inventory", "main", out _, out invStaticOffset);
-            IntPtr invMainPtr = IntPtr.Zero;
-            while (invMainPtr == IntPtr.Zero)
+            invStaticOffset = mono.GetFieldOffset(invKlass, "main");
+            invStaticKlass = invKlass;
+
+            off_container = ((UnityHelperTask.UnityHelperBase)mono)
+                .ResolveFieldOffsetByNameOrPredicate(invKlass, new[] { "_container" },
+                    fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "container"));
+
+            off_itemsDict = ((UnityHelperTask.UnityHelperBase)mono)
+                .ResolveFieldOffsetByNameOrPredicate(icKlass, new[] { "_items" },
+                    fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "items"));
+
+            itemGroupKlass = mono.FindClass("ItemGroup", mono.MainImage);
+            off_itemGroup_items = (itemGroupKlass != IntPtr.Zero)
+                ? mono.GetFieldOffset(itemGroupKlass, "items") : 0;
+            if (off_itemGroup_items == 0 && itemGroupKlass != IntPtr.Zero)
             {
-                invMainPtr = game.Read<IntPtr>(mono.GetStaticData(invStaticKlass) + invStaticOffset);
-                Thread.Sleep(50);
+                off_itemGroup_items = ((UnityHelperTask.UnityHelperBase)mono)
+                    .ResolveFieldOffsetByNameOrPredicate(itemGroupKlass, new[] { "items" },
+                        fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "items"));
             }
-            logger.Log($"Inventory.main -> {invMainPtr:X}");
 
-            off_container = ResolveFieldOffsetByNameOrPredicate(
-                invKlass,
-                new[] { "_container" },
-                (fname, ftype) => NameHas(fname, "container")
-            );
+            // List<T>._size
+            IntPtr core = ((UnityHelperTask.UnityHelperBase)mono).TryFindImageOnce(
+                "mscorlib", "mscorlib.dll", "System.Private.CoreLib", "System.Private.CoreLib.dll", "netstandard", "netstandard.dll");
+            IntPtr listKlass = core != IntPtr.Zero ? ((UnityHelperTask.UnityHelperBase)mono).TryFindClassOnce("List`1", core) : IntPtr.Zero;
+            off_list_size = 0x18;
+            if (listKlass != IntPtr.Zero)
+            {
+                int cand = mono.GetFieldOffset(listKlass, "_size");
+                if (cand != 0) off_list_size = cand;
+            }
 
-            off_itemsMap = ResolveFieldOffsetByNameOrPredicate(
-                icKlass,
-                new[] { "itemsMap" },
-                (fname, ftype) => NameHas(fname, "itemsmap")
-            );
-
-            off_sizeX = ResolveFieldOffsetByNameOrPredicate(
-                icKlass,
-                new[] { "<sizeX>k__BackingField", "sizeX" },
-                (fname, ftype) => NameHas(fname, "sizex")
-            );
-            off_sizeY = ResolveFieldOffsetByNameOrPredicate(
-                icKlass,
-                new[] { "<sizeY>k__BackingField", "sizeY" },
-                (fname, ftype) => NameHas(fname, "sizey")
-            );
-
-            off_ii_techType = ResolveFieldOffsetByNameOrPredicate(
-                iiKlass,
-                new[] { "_techType", "techType", "<TechType>k__BackingField", "m_TechType" },
-                (fname, ftype) => mono.GetClassName(ftype).EndsWith("TechType", StringComparison.Ordinal)
-            );
-
-            off_ii_item = ResolveFieldOffsetByNameOrPredicate(
-                iiKlass,
-                new[] { "<item>k__BackingField", "item", "m_Item" },
-                (fname, ftype) => mono.GetClassName(ftype).EndsWith("Pickupable", StringComparison.Ordinal)
-            );
-
-            off_pu_overrideUsed = ResolveFieldOffsetByNameOrPredicate(
-                puKlass,
-                new[] { "overrideTechUsed" },
-                (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "used")
-            );
-            off_pu_overrideTechType = ResolveFieldOffsetByNameOrPredicate(
-                puKlass,
-                new[] { "overrideTechType" },
-                (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "tech")
-            );
-            ResolveItemsMapDataBase();*/
+            // Dictionary<>.entries, Array header
+            dict_off_entries = 0x18;
+            arr_off_len = 0x18;
+            arr_data_base = 0x20;
+            if (core != IntPtr.Zero)
+            {
+                IntPtr dictKlass = ((UnityHelperTask.UnityHelperBase)mono).TryFindClassOnce("Dictionary`2", core);
+                if (dictKlass != IntPtr.Zero)
+                {
+                    int oe = mono.GetFieldOffset(dictKlass, "entries");
+                    if (oe == 0) oe = mono.GetFieldOffset(dictKlass, "_entries");
+                    if (oe != 0) dict_off_entries = oe;
+                }
+            }
             #endregion Inventory
             #region Known Tech
-            // 1) Static-Feld-Adressenhalter & Offset besorgen
             ktStaticKlass = mono.GetStaticField(mono.MainImage, "KnownTech", "knownTech", out _, out ktStaticOffset);
             logger.Log($"KnownTech static base={ktStaticKlass:X}, staticOffset={ktStaticOffset:X}");
 
-            // 2) HashSet-Layout für int einmalig aus CoreLib ziehen
             var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
             hsLayoutKnownTech = baseHelper.ResolveHashSetLayoutForInt();
             hsLayoutKnownTechReady = hsLayoutKnownTech.Ready || true;
@@ -296,7 +280,19 @@ namespace Livesplit.Subnautica
             #region Biome
             biome = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
             #endregion
+            #region Goals
+            var sgm = mono.FindClass("StoryGoalManager", mono.MainImage);
 
+            int offMain = mono.GetFieldOffset(sgm, "<main>k__BackingField");
+            int offCompleted = mono.GetFieldOffset(sgm, "completedGoals");
+
+            IntPtr statBase = mono.GetStaticAddress(sgm);
+            IntPtr sgmInst = game.Read<IntPtr>(statBase + offMain);
+            if (sgmInst == IntPtr.Zero) {  }
+
+            IntPtr hs = game.Read<IntPtr>(sgmInst + offCompleted);
+            completedGoals = ((UnityHelperTask.UnityHelperBase)mono).ReadHashSetString(hs);
+            #endregion
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
             DeepPointer portalLoadingPtr;
@@ -370,6 +366,94 @@ namespace Livesplit.Subnautica
             pointersInitialized = true;
         }
 
+        Dictionary<TechType, int> ReadInventoryCounts()
+        {
+            var result = new Dictionary<TechType, int>();
+
+            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
+            if (invMain == IntPtr.Zero) return result;
+
+            IntPtr container = game.Read<IntPtr>(invMain + off_container);
+            if (container == IntPtr.Zero) return result;
+
+            IntPtr dict = game.Read<IntPtr>(container + off_itemsDict);
+            if (dict == IntPtr.Zero) return result;
+
+            IntPtr entriesArr = game.Read<IntPtr>(dict + dict_off_entries);
+            if (entriesArr == IntPtr.Zero) return result;
+
+            int len = game.Read<int>(entriesArr + arr_off_len);
+            if (len <= 0 || len > 200000) return result;
+
+            IntPtr basePtr = entriesArr + arr_data_base;
+
+            int off_itemGroup_id = mono.GetFieldOffset(itemGroupKlass, "id");
+            int stride = PickDictStrideByKeyMatches(basePtr, len, off_itemGroup_id,
+                                                    addr => game.Read<int>((IntPtr)addr),
+                                                    addr => (long)game.Read<IntPtr>((IntPtr)addr));
+
+            for (int i = 0; i < len; i++)
+            {
+                IntPtr entry = basePtr + i * stride;
+                int hashCode = game.Read<int>(entry + 0x0);
+                if (hashCode < 0) continue;
+
+                int keyInt = game.Read<int>(entry + 0x8);
+                IntPtr pGroup = game.Read<IntPtr>(entry + 0x10);
+                if (pGroup == IntPtr.Zero) continue;
+
+                int id = game.Read<int>(pGroup + off_itemGroup_id);
+                if (id != keyInt) continue;
+
+                IntPtr pList = game.Read<IntPtr>(pGroup + off_itemGroup_items);
+                if (pList == IntPtr.Zero) continue;
+
+                int count = game.Read<int>(pList + off_list_size);
+                if ((uint)count > 100000) continue;
+
+                result[(TechType)keyInt] = count;
+            }
+
+            return result;
+        }
+
+        int PickDictStrideByKeyMatches(IntPtr basePtr, int length, int off_itemGroup_id, Func<long, int> ReadInt32, Func<long, long> ReadPtr)
+        {
+            int probe = Math.Min(length, 128);
+            int hits24 = 0, hits32 = 0;
+
+            for (int i = 0; i < probe; i++)
+            {
+                long e24 = (long)basePtr + i * 24;
+                int h24 = ReadInt32(e24 + 0x0);
+                if (h24 >= 0)
+                {
+                    int k24 = ReadInt32(e24 + 0x8);
+                    long g24 = ReadPtr(e24 + 0x10);
+                    if (g24 != 0)
+                    {
+                        int id24 = ReadInt32(g24 + off_itemGroup_id);
+                        if (id24 == k24) hits24++;
+                    }
+                }
+
+                long e32 = (long)basePtr + i * 32;
+                int h32 = ReadInt32(e32 + 0x0);
+                if (h32 >= 0)
+                {
+                    int k32 = ReadInt32(e32 + 0x8);
+                    long g32 = ReadPtr(e32 + 0x10);
+                    if (g32 != 0)
+                    {
+                        int id32 = ReadInt32(g32 + off_itemGroup_id);
+                        if (id32 == k32) hits32++;
+                    }
+                }
+            }
+
+            return (hits24 > hits32 * 2) ? 24 : 32;
+        }
+
         private void UpdateMemoryWatchers()
         {
             if (settings.introStart && gameVersion == GameVersion.Sept2018)
@@ -430,8 +514,13 @@ namespace Livesplit.Subnautica
                       SplitName.IonUnlockSplit))
                 UpdatePosition();//UpdateBlueprints();
         }
+        private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
+        private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
+        #endregion Memory stuff
+        #region World/Player Checks
+        public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;
 
-        void UpdateBlueprints()
+        private void UpdateBlueprints()
         {
             IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
 
@@ -452,10 +541,6 @@ namespace Livesplit.Subnautica
             knownTechOld = knownTech;
             knownTech = current;
         }
-        #endregion Memory stuff
-
-        #region World/Player Checks
-        public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;
 
         private bool IsWithinBounds(float[] bounds)
         {
