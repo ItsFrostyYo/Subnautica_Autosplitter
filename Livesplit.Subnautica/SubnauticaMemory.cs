@@ -11,6 +11,7 @@ using Voxif.Helpers.Unity;
 using Voxif.IO;
 using Voxif.Memory;
 using Voxif.AutoSplitter;
+using HSLayout = Voxif.Helpers.Unity.UnityHelperTask.HashSetLayout;
 
 namespace Livesplit.Subnautica
 {
@@ -19,6 +20,8 @@ namespace Livesplit.Subnautica
         protected override string[] ProcessNames => new string[] { "Subnautica" };
         
         LiveSplitState _state;
+
+        IMonoHelper mono;
 
         public bool startedTimerBefore = false;
         public bool isInMainMenu = false;
@@ -56,9 +59,10 @@ namespace Livesplit.Subnautica
         IntPtr invStaticKlass;
         int invStaticOffset;
 
-        IntPtr ktStaticKlass; 
-        int ktStaticOffset;   
-        int off_knownTech;
+        IntPtr ktStaticKlass;
+        int ktStaticOffset;
+        HSLayout hsLayoutKnownTech;   // einmalig ermittelt
+        bool hsLayoutKnownTechReady = false;
 
         int hsCountOff = 0;
         int hsSlotsOff = 0;
@@ -142,188 +146,23 @@ namespace Livesplit.Subnautica
             };
         }
 
-        /*protected override void OnHook()
-        {
-            GetGameVersion();
-            InitPointers();
-
-            logger.Log("Beginning mono run");
-            mono.Run(() =>
-            {
-                var ptrFactory = new MonoNestedPointerFactory(this, mono);
-                
-
-                   
-                #region Time Cured
-                timeCured = ptrFactory.Make<float>("Player", "main", "timePlayerInfectionCured");
-                #endregion
-                #region Health
-                Pointer<IntPtr> liveMixingPtr = ptrFactory.Make<IntPtr>("Player", "main", "liveMixin");
-                IntPtr lmKlass = mono.GetClass(mono.mainImage, "LiveMixin");
-                int off_health = mono.GetFieldOffset(lmKlass, "health");
-                health = ptrFactory.Make<float>(liveMixingPtr, off_health);
-                #endregion
-                #region Inventory
-                var invKlass = mono.GetClass(mono.mainImage, "Inventory");
-                var icKlass = mono.GetClass(mono.mainImage, "ItemsContainer");
-                iiKlass = mono.GetClass(mono.mainImage, "InventoryItem");
-                puKlass = mono.GetClass(mono.mainImage, "Pickupable");
-
-                invStaticKlass = mono.GetStaticField(mono.mainImage, "Inventory", "main", out _, out invStaticOffset);
-                IntPtr invMainPtr = IntPtr.Zero;
-                while (invMainPtr == IntPtr.Zero)
-                {
-                    invMainPtr = game.Read<IntPtr>(mono.GetStaticData(invStaticKlass) + invStaticOffset);
-                    Thread.Sleep(50);
-                }
-                logger.Log($"Inventory.main -> {invMainPtr:X}");
-
-                off_container = ResolveFieldOffsetByNameOrPredicate(
-                    invKlass,
-                    new[] { "_container" },
-                    (fname, ftype) => NameHas(fname, "container")
-                );
-
-                off_itemsMap = ResolveFieldOffsetByNameOrPredicate(
-                    icKlass,
-                    new[] { "itemsMap" },
-                    (fname, ftype) => NameHas(fname, "itemsmap")
-                );
-
-                off_sizeX = ResolveFieldOffsetByNameOrPredicate(
-                    icKlass,
-                    new[] { "<sizeX>k__BackingField", "sizeX" },
-                    (fname, ftype) => NameHas(fname, "sizex")
-                );
-                off_sizeY = ResolveFieldOffsetByNameOrPredicate(
-                    icKlass,
-                    new[] { "<sizeY>k__BackingField", "sizeY" },
-                    (fname, ftype) => NameHas(fname, "sizey")
-                );
-
-                off_ii_techType = ResolveFieldOffsetByNameOrPredicate(
-                    iiKlass,
-                    new[] { "_techType", "techType", "<TechType>k__BackingField", "m_TechType" },
-                    (fname, ftype) => mono.GetClassName(ftype).EndsWith("TechType", StringComparison.Ordinal)
-                );
-
-                off_ii_item = ResolveFieldOffsetByNameOrPredicate(
-                    iiKlass,
-                    new[] { "<item>k__BackingField", "item", "m_Item" },
-                    (fname, ftype) => mono.GetClassName(ftype).EndsWith("Pickupable", StringComparison.Ordinal)
-                );
-
-                off_pu_overrideUsed = ResolveFieldOffsetByNameOrPredicate(
-                    puKlass,
-                    new[] { "overrideTechUsed" },
-                    (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "used")
-                );
-                off_pu_overrideTechType = ResolveFieldOffsetByNameOrPredicate(
-                    puKlass,
-                    new[] { "overrideTechType" },
-                    (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "tech")
-                );
-                ResolveItemsMapDataBase();
-                #endregion
-                #region Known Tech
-                var ktKlass = mono.GetClass(mono.mainImage, "KnownTech");
-
-                off_knownTech = ResolveFieldOffsetByNameOrPredicate(
-                    ktKlass,
-                    new[] { "knownTech" },
-                    (fname, ftype) => NameHas(fname, "known") && NameHas(fname, "tech")
-                );
-
-                // sanity log
-                logger.Log($"off_container={off_container:X}, off_itemsMap={off_itemsMap:X}, off_sizeX={off_sizeX:X}, off_sizeY={off_sizeY:X}");
-                logger.Log($"off_ii_item={off_ii_item:X}, off_ii_techType={off_ii_techType:X}, off_pu_used={off_pu_overrideUsed:X}, off_pu_tt={off_pu_overrideTechType:X}");
-                ktStaticKlass = mono.GetStaticField(mono.mainImage, "KnownTech", "knownTech", out _, out ktStaticOffset);
-                logger.Log($"KnownTech static base={ktStaticKlass:X}, off_knownTech={off_knownTech:X}, staticOffset={ktStaticOffset:X}");
-                #endregion
-                #region Main Menu
-                mainMenu = ptrFactory.Make<IntPtr>("uGUI_MainMenu", "main");
-                #endregion
-                #region Biome
-                biome = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
-                #endregion
-                logger.Log("Pointers initialized");
-                pointersInitialized = true;
-            });
-        }*/
         public override bool Update()
         {           
             if(!pointersInitialized)
-                return base.Update() && unityTask == null;
+                return base.Update();
 
-            #region Only update watchers when needed
-            if (settings.introStart && gameVersion == GameVersion.Sept2018)
-                oxygen.Update(game.Process);
-
-            if (settings.creativeStart)
-            {
-                walkDir.Update(game.Process);
-                strafeDir.Update(game.Process);
-                isFabiOpen.Update(game.Process);
-                isPDAOpen.Update(game.Process);
-                isLoadingScreen.Update(game.Process);
-            }
-
-            if (Needs(SplitName.PortalSplit))
-                isPortalLoading.Update(game.Process);
-
-            if (Needs(SplitName.HatchSplit))
-                isEggsHatching.Update(game.Process);
-
-            if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
-                isNotInWater.Update(game.Process);
-
-            if (Needs(SplitName.BaseDeathSplit,
-                      SplitName.AuroraDeathSplit,
-                      SplitName.IonDeathSplit,
-                      SplitName.SparseDeathSplit,
-                      SplitName.GunDeathSplit))
-                isDying.Update(game.Process);
-
-            if (Needs(SplitName.RocketSplit))
-                isRocketLaunching.Update(game.Process);
-
-            if (Needs(SplitName.PCFTabletSplit,
-                      SplitName.GunDeactivationSplit,
-                      SplitName.BaseDeathSplit,
-                      SplitName.LeaveKelpForestSplit,
-                      SplitName.MountainDescendSplit,
-                      SplitName.SGLBaseSplit,
-                      SplitName.SGLShallowsSplit,
-                      SplitName.UpperTabletSplit,
-                      SplitName.AuroraExitSplit,
-                      SplitName.HCGSparseSplit) ||
-                      settings.reset)
-                UpdatePosition();
-
-            if (Needs(SplitName.LeaveKelpForestSplit,
-                      SplitName.FourToothSplit,
-                      SplitName.HCGSparseSplit,
-                      SplitName.SGLShallowsSplit,
-                      SplitName.UpperTabletSplit))
-                UpdatePosition();//UpdateInventory();
-
-            if (Needs(SplitName.BoostersSplit,
-                      SplitName.FuelReservesSplit,
-                      SplitName.RocketUnlockSplit,
-                      SplitName.AuroraExitSplit,
-                      SplitName.IonUnlockSplit))
-                UpdatePosition();//UpdateBlueprints();
-            #endregion
+            UpdateMemoryWatchers();
 
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-            
+
             //logger.Log($"New={playerInventory.Count}, Old={playerInventoryOld.Count}, items={t}");
-            //logger.Log($"New={isAnimationPlaying.New}");
+            logger.Log($"New={knownTech.Count}");
+            UpdateBlueprints();
             
             
-            return base.Update() && unityTask == null;
+            return base.Update();
         }
         private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Contains(r));
         private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
@@ -356,9 +195,107 @@ namespace Livesplit.Subnautica
             }
         }
 
-        private void InitPointers(IMonoHelper unity)
+        private void InitPointers(IMonoHelper mono)
         {
-            var ptrFactory = new MonoNestedPointerFactory(game, unity);
+            this.mono = mono;
+            var ptrFactory = new MonoNestedPointerFactory(game, mono);
+
+            #region Intro Cinematic
+            Pointer<IntPtr> introCinematicPtr = ptrFactory.Make<IntPtr>("EscapePod", "main", "introCinematic");
+            IntPtr pccKlass = mono.FindClass("PlayerCinematicController");
+            int off_cinematicModeActive = mono.GetFieldOffset(pccKlass, "cinematicModeActive");
+            isIntroCinematicActive = ptrFactory.Make<bool>(introCinematicPtr, off_cinematicModeActive);
+            #endregion Intro Cinematic
+            #region Is Animation Playing
+            isAnimationPlaying = ptrFactory.Make<bool>("Player", "main", "_cinematicModeActive");
+            #endregion Is Animation Playing
+            #region Time Cured
+            timeCured = ptrFactory.Make<float>("Player", "main", "timePlayerInfectionCured");
+            #endregion
+            #region Health
+            Pointer<IntPtr> liveMixingPtr = ptrFactory.Make<IntPtr>("Player", "main", "liveMixin");
+            IntPtr lmKlass = mono.FindClass("LiveMixin");
+            int off_health = mono.GetFieldOffset(lmKlass, "health");
+            health = ptrFactory.Make<float>(liveMixingPtr, off_health);
+            #endregion
+            #region Inventory
+            /*var invKlass = mono.GetClass(mono.mainImage, "Inventory");
+            var icKlass = mono.GetClass(mono.mainImage, "ItemsContainer");
+            iiKlass = mono.GetClass(mono.mainImage, "InventoryItem");
+            puKlass = mono.GetClass(mono.mainImage, "Pickupable");
+
+            invStaticKlass = mono.GetStaticField(mono.mainImage, "Inventory", "main", out _, out invStaticOffset);
+            IntPtr invMainPtr = IntPtr.Zero;
+            while (invMainPtr == IntPtr.Zero)
+            {
+                invMainPtr = game.Read<IntPtr>(mono.GetStaticData(invStaticKlass) + invStaticOffset);
+                Thread.Sleep(50);
+            }
+            logger.Log($"Inventory.main -> {invMainPtr:X}");
+
+            off_container = ResolveFieldOffsetByNameOrPredicate(
+                invKlass,
+                new[] { "_container" },
+                (fname, ftype) => NameHas(fname, "container")
+            );
+
+            off_itemsMap = ResolveFieldOffsetByNameOrPredicate(
+                icKlass,
+                new[] { "itemsMap" },
+                (fname, ftype) => NameHas(fname, "itemsmap")
+            );
+
+            off_sizeX = ResolveFieldOffsetByNameOrPredicate(
+                icKlass,
+                new[] { "<sizeX>k__BackingField", "sizeX" },
+                (fname, ftype) => NameHas(fname, "sizex")
+            );
+            off_sizeY = ResolveFieldOffsetByNameOrPredicate(
+                icKlass,
+                new[] { "<sizeY>k__BackingField", "sizeY" },
+                (fname, ftype) => NameHas(fname, "sizey")
+            );
+
+            off_ii_techType = ResolveFieldOffsetByNameOrPredicate(
+                iiKlass,
+                new[] { "_techType", "techType", "<TechType>k__BackingField", "m_TechType" },
+                (fname, ftype) => mono.GetClassName(ftype).EndsWith("TechType", StringComparison.Ordinal)
+            );
+
+            off_ii_item = ResolveFieldOffsetByNameOrPredicate(
+                iiKlass,
+                new[] { "<item>k__BackingField", "item", "m_Item" },
+                (fname, ftype) => mono.GetClassName(ftype).EndsWith("Pickupable", StringComparison.Ordinal)
+            );
+
+            off_pu_overrideUsed = ResolveFieldOffsetByNameOrPredicate(
+                puKlass,
+                new[] { "overrideTechUsed" },
+                (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "used")
+            );
+            off_pu_overrideTechType = ResolveFieldOffsetByNameOrPredicate(
+                puKlass,
+                new[] { "overrideTechType" },
+                (fname, ftype) => NameHas(fname, "override") && NameHas(fname, "tech")
+            );
+            ResolveItemsMapDataBase();*/
+            #endregion Inventory
+            #region Known Tech
+            // 1) Static-Feld-Adressenhalter & Offset besorgen
+            ktStaticKlass = mono.GetStaticField(mono.MainImage, "KnownTech", "knownTech", out _, out ktStaticOffset);
+            logger.Log($"KnownTech static base={ktStaticKlass:X}, staticOffset={ktStaticOffset:X}");
+
+            // 2) HashSet-Layout für int einmalig aus CoreLib ziehen
+            var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
+            hsLayoutKnownTech = baseHelper.ResolveHashSetLayoutForInt();
+            hsLayoutKnownTechReady = hsLayoutKnownTech.Ready || true;
+            #endregion Known Tech
+            #region Main Menu
+            mainMenu = ptrFactory.Make<IntPtr>("uGUI_MainMenu", "main");
+            #endregion
+            #region Biome
+            biome = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
+            #endregion
 
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
@@ -429,18 +366,91 @@ namespace Livesplit.Subnautica
             this.posZ = new MemoryWatcher<float>(posZ);
             #endregion Memory Watchers
 
-            #region Intro Cinematic
-            Pointer<IntPtr> introCinematicPtr = ptrFactory.Make<IntPtr>("EscapePod", "main", "introCinematic");
-            IntPtr pccKlass = unity.FindClass("PlayerCinematicController");
-            int off_cinematicModeActive = unity.GetFieldOffset(pccKlass, "cinematicModeActive");
-            isIntroCinematicActive = ptrFactory.Make<bool>(introCinematicPtr, off_cinematicModeActive);
-            #endregion Intro Cinematic
-            #region Is Animation Playing
-            isAnimationPlaying = ptrFactory.Make<bool>("Player", "main", "_cinematicModeActive");
-            #endregion Is Animation Playing
-            
-
+            logger.Log("Pointers initialized");
             pointersInitialized = true;
+        }
+
+        private void UpdateMemoryWatchers()
+        {
+            if (settings.introStart && gameVersion == GameVersion.Sept2018)
+                oxygen.Update(game.Process);
+
+            if (settings.creativeStart)
+            {
+                walkDir.Update(game.Process);
+                strafeDir.Update(game.Process);
+                isFabiOpen.Update(game.Process);
+                isPDAOpen.Update(game.Process);
+                isLoadingScreen.Update(game.Process);
+            }
+
+            if (Needs(SplitName.PortalSplit))
+                isPortalLoading.Update(game.Process);
+
+            if (Needs(SplitName.HatchSplit))
+                isEggsHatching.Update(game.Process);
+
+            if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
+                isNotInWater.Update(game.Process);
+
+            if (Needs(SplitName.BaseDeathSplit,
+                      SplitName.AuroraDeathSplit,
+                      SplitName.IonDeathSplit,
+                      SplitName.SparseDeathSplit,
+                      SplitName.GunDeathSplit))
+                isDying.Update(game.Process);
+
+            if (Needs(SplitName.RocketSplit))
+                isRocketLaunching.Update(game.Process);
+
+            if (Needs(SplitName.PCFTabletSplit,
+                      SplitName.GunDeactivationSplit,
+                      SplitName.BaseDeathSplit,
+                      SplitName.LeaveKelpForestSplit,
+                      SplitName.MountainDescendSplit,
+                      SplitName.SGLBaseSplit,
+                      SplitName.SGLShallowsSplit,
+                      SplitName.UpperTabletSplit,
+                      SplitName.AuroraExitSplit,
+                      SplitName.HCGSparseSplit) ||
+                      settings.reset)
+                UpdatePosition();
+
+            if (Needs(SplitName.LeaveKelpForestSplit,
+                      SplitName.FourToothSplit,
+                      SplitName.HCGSparseSplit,
+                      SplitName.SGLShallowsSplit,
+                      SplitName.UpperTabletSplit))
+                UpdatePosition();//UpdateInventory();
+
+            if (Needs(SplitName.BoostersSplit,
+                      SplitName.FuelReservesSplit,
+                      SplitName.RocketUnlockSplit,
+                      SplitName.AuroraExitSplit,
+                      SplitName.IonUnlockSplit))
+                UpdatePosition();//UpdateBlueprints();
+        }
+
+        void UpdateBlueprints()
+        {
+            IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
+
+            List<TechType> current = new List<TechType>();
+            if (hs != IntPtr.Zero)
+            {
+                var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
+
+                var ints = baseHelper.ReadHashSetInt(hs, hsLayoutKnownTech);
+
+                foreach (int v in ints)
+                {
+                    if (v > 0 && v < 10005)
+                        current.Add((TechType)v);
+                }
+            }
+
+            knownTechOld = knownTech;
+            knownTech = current;
         }
         #endregion Memory stuff
 
@@ -514,6 +524,5 @@ namespace Livesplit.Subnautica
         private readonly float[] enterClipABounds = { 48f, 55f, -20f, -5f, 106f, 111f };
         private readonly float[] enterClipCBounds = { -142f, -132f, -20f, -5f, 82f, 90f };
         #endregion
-        
     }
 }

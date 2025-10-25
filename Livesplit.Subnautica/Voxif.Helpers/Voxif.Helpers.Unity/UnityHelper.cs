@@ -15,6 +15,31 @@ namespace Voxif.Helpers.Unity {
 
         protected readonly ProcessWrapper wrapper;
 
+        public struct HashSetLayout
+        {
+            public int OffCount;
+            public int OffSlots;
+            public int ArrayDataBase;
+            public int SlotStride;
+            public int OffHash;
+            public int OffValue;
+            public bool Ready => OffSlots != 0 && OffValue != 0;
+        }
+
+        public static class UnityNameUtil
+        {
+            public static bool NameHas(string name, params string[] needles)
+            {
+                name = name ?? string.Empty;
+                foreach (var s in needles)
+                {
+                    if (name.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0)
+                        return true;
+                }
+                return false;
+            }
+        }
+
         public UnityHelperTask(ProcessWrapper wrapper, Logger logger = null) : base(logger) {
             this.wrapper = wrapper;
         }
@@ -161,7 +186,7 @@ namespace Voxif.Helpers.Unity {
             }
         }
 
-        private abstract class UnityHelperBase : IMonoHelper {
+        public abstract class UnityHelperBase : IMonoHelper {            
 
             public const string monoV1Assembly = "mono.dll";
             public const string monoV2Assembly = "mono-2.0-bdwgc.dll";
@@ -328,6 +353,244 @@ namespace Voxif.Helpers.Unity {
             protected string GetName(IntPtr ptr) {
                 return wrapper.ReadString(wrapper.Read<IntPtr>(ptr), EStringType.UTF8);
             }
+
+            private int PickStride12or16ForIntSlots(IntPtr slotsArr, int arrBase = 0x20)
+            {
+                if (slotsArr == IntPtr.Zero) return 12;
+                int len = wrapper.Read<int>(slotsArr + 0x18);
+                if (len <= 0 || len > 200000) return 12;
+
+                IntPtr basePtr = slotsArr + arrBase;
+                int probe = Math.Min(len, 128);
+                int hits12 = 0, hits16 = 0;
+
+                for (int i = 0; i < probe; i++)
+                {
+                    IntPtr s12 = basePtr + i * 12;
+                    IntPtr s16 = basePtr + i * 16;
+
+                    int h12 = wrapper.Read<int>(s12 + 0x0);
+                    if (h12 >= 0)
+                    {
+                        int v12 = wrapper.Read<int>(s12 + 0x8);
+                        if (v12 > 0 && v12 < 10005) hits12++;
+                    }
+
+                    int h16 = wrapper.Read<int>(s16 + 0x0);
+                    if (h16 >= 0)
+                    {
+                        int v16 = wrapper.Read<int>(s16 + 0x8);
+                        if (v16 > 0 && v16 < 10005) hits16++;
+                    }
+                }
+                return (hits16 > hits12 * 2) ? 16 : 12;
+            }
+
+            public int ResolveFieldOffsetByNameOrPredicate(
+                IntPtr klass,
+                IEnumerable<string> nameCandidates,
+                Func<string, bool> namePredicate,
+                bool includeParents = true)
+            {
+                if (nameCandidates != null)
+                {
+                    foreach (var n in nameCandidates)
+                    {
+                        if (string.IsNullOrEmpty(n)) continue;
+                        int off = GetFieldOffset(klass, n, includeParents);
+                        if (off != 0) return off;
+                    }
+                }
+
+                foreach (IntPtr field in FieldSequence(klass, includeParents))
+                {
+                    string fname = FieldName(field);
+                    if (namePredicate?.Invoke(fname) == true)
+                    {
+                        int off = FieldOffset(field);
+                        Log($"  -> predicate matched '{fname}', off {off:X}");
+                        return off;
+                    }
+                }
+
+                return 0;
+            }
+
+            public int ResolveFieldOffsetByNameOrPredicate(
+                IntPtr image,
+                string className,
+                IEnumerable<string> nameCandidates,
+                Func<string, bool> namePredicate,
+                bool includeParents = true)
+            {
+                var klass = FindClass(className, image);
+                return ResolveFieldOffsetByNameOrPredicate(klass, nameCandidates, namePredicate, includeParents);
+            }
+
+
+            public HashSetLayout ResolveHashSetLayoutForInt()
+            {
+                var layout = new HashSetLayout
+                {
+                    OffCount = 0,
+                    OffSlots = 0,
+                    ArrayDataBase = 0x20,
+                    SlotStride = 12,
+                    OffHash = 0x0,
+                    OffValue = 0x8
+                };
+
+                IntPtr core = TryFindImageOnce("mscorlib", "mscorlib.dll",
+                                               "System.Private.CoreLib", "System.Private.CoreLib.dll",
+                                               "netstandard", "netstandard.dll");
+
+                if (core != IntPtr.Zero)
+                {
+                    IntPtr hsKlass = TryFindClassOnce("HashSet`1", core);
+                    if (hsKlass != IntPtr.Zero)
+                    {
+                        layout.OffCount = ResolveFieldOffsetByNameOrPredicate(
+                            hsKlass, new[] { "m_count", "count" },
+                            fname => UnityNameUtil.NameHas(fname, "count"), includeParents: true);
+                        layout.OffSlots = ResolveFieldOffsetByNameOrPredicate(
+                            hsKlass, new[] { "m_slots", "slots" },
+                            fname => UnityNameUtil.NameHas(fname, "slot"), includeParents: true);
+                    }
+                }
+
+                return layout;
+            }
+
+            private IntPtr TryFindImageOnce(params string[] names)
+            {
+                foreach (var image in ImageSequence())
+                {
+                    var n = ImageName(image);
+                    foreach (var want in names)
+                    {
+                        if (string.Equals(n, want, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return image;
+                        }
+                    }
+                }
+                return IntPtr.Zero;
+            }
+
+            private IntPtr TryFindClassOnce(string className, IntPtr image)
+            {
+                int dot = className.LastIndexOf('.');
+                string ns = dot >= 0 ? className.Substring(0, dot) : null;
+                string simple = dot >= 0 ? className.Substring(dot + 1) : className;
+
+                foreach (var klass in ClassSequence(image))
+                {
+                    if (string.Equals(simple, ClassName(klass), StringComparison.Ordinal)
+                     && (ns == null || string.Equals(ns, ClassNamespace(klass), StringComparison.Ordinal)))
+                    {
+                        return klass;
+                    }
+                }
+                return IntPtr.Zero;
+            }
+
+            public int PickSlotsOffset(IntPtr hs)
+            {
+                int[] candidates = { 0x10, 0x18 };
+                int bestOff = 0; int bestScore = -1;
+
+                foreach (int off in candidates)
+                {
+                    IntPtr arr = wrapper.Read<IntPtr>(hs + off);
+                    if (arr == IntPtr.Zero) continue;
+
+                    int len = wrapper.Read<int>(arr + 0x18);
+                    if (len <= 0 || len > 50000) continue;
+
+                    IntPtr data = arr + 0x20;
+                    int score12 = 0, score16 = 0, probe = Math.Min(len, 64);
+                    for (int i = 0; i < probe; i++)
+                    {
+                        int v12 = wrapper.Read<int>(data + i * 12 + 8);
+                        if (v12 > 0 && v12 < 10005) score12++;
+                        int v16 = wrapper.Read<int>(data + i * 16 + 8);
+                        if (v16 > 0 && v16 < 10005) score16++;
+                    }
+                    int score = Math.Max(score12, score16);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestOff = off;
+                    }
+                }
+                return bestOff; // 0 = fail
+            }
+
+
+            public List<int> ReadHashSetInt(IntPtr hs, in HashSetLayout layout)
+            {
+                var result = new List<int>();
+                if (hs == IntPtr.Zero) return result;
+
+                int offSlots = layout.OffSlots != 0 ? layout.OffSlots : PickSlotsOffset(hs);
+                if (offSlots == 0) return result;
+
+                IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
+                if (slotsArr == IntPtr.Zero) return result;
+
+                int stride = (layout.SlotStride == 12 || layout.SlotStride == 16)
+                           ? layout.SlotStride
+                           : PickStride12or16ForIntSlots(slotsArr, 0x20);
+
+                int len = wrapper.Read<int>(slotsArr + 0x18);
+                if (len <= 0 || len > 200000) return result;
+
+                IntPtr basePtr = slotsArr + 0x20;
+                for (int i = 0; i < len; i++)
+                {
+                    IntPtr slot = basePtr + i * stride;
+                    int hash = wrapper.Read<int>(slot + 0x0);
+                    if (hash < 0) continue;
+                    int val = wrapper.Read<int>(slot + 0x8);
+                    result.Add(val);
+                }
+                return result;
+            }
+
+
+            public List<string> ReadHashSetString(IntPtr hs, in HashSetLayout layout)
+            {
+                var result = new List<string>();
+                if (hs == IntPtr.Zero) return result;
+
+                int offSlots = layout.OffSlots != 0 ? layout.OffSlots : PickSlotsOffset(hs);
+                if (offSlots == 0) return result;
+
+                int stride = 16;        
+                int voff = 8;   
+                int arrBase = 0x20;
+
+                IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
+                if (slotsArr == IntPtr.Zero) return result;
+
+                int len = wrapper.Read<int>(slotsArr + 0x18);
+                if (len <= 0 || len > 200000) return result;
+
+                IntPtr basePtr = slotsArr + arrBase;
+                for (int i = 0; i < len; i++)
+                {
+                    IntPtr slot = basePtr + i * stride;
+                    int hash = wrapper.Read<int>(slot + 0x0);
+                    if (hash < 0) continue;
+                    IntPtr sptr = wrapper.Read<IntPtr>(slot + voff);
+                    if (sptr == IntPtr.Zero) continue;
+                    string s = wrapper.ReadString(sptr, EStringType.Auto);
+                    if (!string.IsNullOrEmpty(s))
+                        result.Add(s);
+                }
+                return result;
+            }
+
 
             public void Log(string msg) => logger?.Log("[Unity] " + msg);
         }

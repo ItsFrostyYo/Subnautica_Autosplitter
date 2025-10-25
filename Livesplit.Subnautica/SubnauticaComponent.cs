@@ -31,15 +31,15 @@ namespace Livesplit.Subnautica
 
         public override bool Update()
         {
-            if (!memory.Update())
+            if (!memory.Update() || !memory.pointersInitialized)
                 return false;
             TryResetOnMainMenu();
-            return false;
+            return true;
         }
 
         public override bool Start()
         {
-            if (memory.startedTimerBefore)
+            if (memory.startedTimerBefore || !memory.pointersInitialized)
                 return false;
 
             if (settings.introStart)
@@ -84,7 +84,7 @@ namespace Livesplit.Subnautica
         {
             if (!settings.reset)
                 return;
-            if (memory.mainMenu.New == memory.mainMenu.Old && memory.mainMenu.New != IntPtr.Zero)
+            if (memory.mainMenu?.New == memory.mainMenu?.Old && memory.mainMenu?.New != IntPtr.Zero)
                 return;
             if (_state.CurrentPhase == TimerPhase.NotRunning)
                 return;
