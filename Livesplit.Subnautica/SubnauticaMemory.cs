@@ -29,7 +29,10 @@ namespace Livesplit.Subnautica
         public bool startedTimerBefore = false;
         public bool isInMainMenu = false;
         public bool fakePortalLoading = false;
-        private int tickCounter = 0;
+        private readonly Stopwatch _duringLoad = new Stopwatch();
+        private readonly Stopwatch _afterLoad = new Stopwatch();
+        private int prePortalDelayMs = 0;
+        private int postPortalDelayMs = 0;
         public bool pointersInitialized;
         public GameVersion gameVersion;
 
@@ -103,9 +106,12 @@ namespace Livesplit.Subnautica
         public SubnauticaMemory(LiveSplitState state, Logger logger, SubnauticaSettings settings) : base(logger)
         {
             Localization.Load();
+
             OnHook += () =>
             {
                 GetGameVersion();
+                prePortalDelayMs = gameVersion == GameVersion.Sept2018 ? 500 : 550;
+                postPortalDelayMs = gameVersion == GameVersion.Sept2018 ? 350 : 350;
                 unityTask = new UnityHelperTask(game, logger);
                 unityTask.Run(InitPointers);
             };
@@ -494,39 +500,46 @@ namespace Livesplit.Subnautica
         public bool ShouldPause()
         {
             if (isInMainMenu)
-                return false;
-
-            if (settings.SRCLoadtimes)
             {
-                // Start of portal load
-                if (isPortalLoading.Current && !isPortalLoading.Old)
-                {
-                    fakePortalLoading = true;
-                    tickCounter = gameVersion == GameVersion.Sept2018 ? 30 : 33;
-                }
+                _duringLoad.Reset();
+                _afterLoad.Reset();
+                return false;
+            }
 
-                // End of portal load
-                if (!isPortalLoading.Current && isPortalLoading.Old)
-                {
-                    fakePortalLoading = false;
-                    tickCounter = gameVersion == GameVersion.Sept2018 ? 21 : 0;
-                }
+            if (!settings.SRCLoadtimes)
+                return isPortalLoading.Current;
 
-                if (tickCounter > 0)
-                    tickCounter--;
-                else
-                {
-                    if (fakePortalLoading)
-                        return true;
-                    else
-                        return false;
-                }
+            if (isPortalLoading.Current && !isPortalLoading.Old)
+            {
+                _afterLoad.Reset();
+                _duringLoad.Restart();
+            }
+
+            if (!isPortalLoading.Current && isPortalLoading.Old)
+            {
+                _duringLoad.Reset();
+                _afterLoad.Restart();
+            }
+
+            if (isPortalLoading.Current)
+            {
+                if (!_duringLoad.IsRunning) _duringLoad.Restart();
+
+                return _duringLoad.ElapsedMilliseconds >= prePortalDelayMs;
             }
             else
             {
-                return isPortalLoading.Current;
+                if (_afterLoad.IsRunning)
+                {
+                    if (_afterLoad.ElapsedMilliseconds < postPortalDelayMs)
+                        return true;
+
+                    _afterLoad.Reset();
+                    return false;
+                }
+
+                return false;
             }
-            return false;
         }
 
         Dictionary<TechType, int> ReadInventoryCounts()
