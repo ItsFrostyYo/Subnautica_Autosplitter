@@ -44,11 +44,11 @@ namespace Livesplit.Subnautica
                 return false;
 
             // options: 100 -> 80 health
-            if (settings.introStart && (GameModeOption)memory.gameMode.New != GameModeOption.Creative)
+            if (settings.introStart && (GameModeOption)memory.GameMode.New != GameModeOption.Creative)
             {
-                if (memory.damageEffectsShowing.New && !memory.damageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
+                if (memory.DamageEffectsShowing.New && !memory.DamageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
             }
-            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu && (GameModeOption)memory.gameMode.New == GameModeOption.Creative)
+            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu && (GameModeOption)memory.GameMode.New == GameModeOption.Creative)
             {
                 // Start of Move
                 if ((memory.walkDir.Current != 0 && memory.walkDir.Old == 0) || (memory.strafeDir.Current != 0 && memory.strafeDir.Old == 0)) { logger.Log("Start of Move"); memory.startedTimerBefore = true; return true; }
@@ -85,7 +85,7 @@ namespace Livesplit.Subnautica
         {
             if (!settings.reset)
                 return;
-            if (memory.mainMenu?.New == memory.mainMenu?.Old && memory.mainMenu?.New != IntPtr.Zero)
+            if (memory.MainMenu?.New == memory.MainMenu?.Old && memory.MainMenu?.New != IntPtr.Zero)
                 return;
             if (_state.CurrentPhase == TimerPhase.NotRunning)
                 return;
