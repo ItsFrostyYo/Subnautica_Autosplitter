@@ -50,6 +50,7 @@ namespace Livesplit.Subnautica
         public Pointer<int> GameMode;
         public StringPointer Biome;
 
+
         public Dictionary<TechType, int> PlayerInventory = new Dictionary<TechType, int>();
         public Dictionary<TechType, int> PlayerInventoryOld = new Dictionary<TechType, int>();
 
@@ -88,7 +89,6 @@ namespace Livesplit.Subnautica
         public MemoryWatcher<bool> isPortalLoading = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isEggsHatching = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isNotInWater = new MemoryWatcher<bool>(IntPtr.Zero);
-        public MemoryWatcher<bool> isDying = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<int> isFabiOpen = new MemoryWatcher<int>(IntPtr.Zero); // 2 means that the esc menu is open
         public MemoryWatcher<float> walkDir = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> strafeDir = new MemoryWatcher<float>(IntPtr.Zero);
@@ -162,8 +162,6 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-
-            logger.Log(RocketLaunching.New);
 
             return base.Update();
         }
@@ -343,7 +341,6 @@ namespace Livesplit.Subnautica
             DeepPointer portalLoadingPtr;
             DeepPointer hatchPtr;
             DeepPointer notInWaterPtr;
-            DeepPointer dyingPtr;
             DeepPointer fabiPtr;
             DeepPointer walkDirPtr;
             DeepPointer strafePtr;
@@ -358,7 +355,6 @@ namespace Livesplit.Subnautica
                     portalLoadingPtr = new DeepPointer("Subnautica.exe", 0x142B740, 0x8, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x304A30, 0x88, 0x18, 0x158, 0x498, 0x108);
                     notInWaterPtr = new DeepPointer("Subnautica.exe", 0x14BC6A0, 0x7C);
-                    dyingPtr = new DeepPointer("Subnautica.exe", 0x142B740, 0x8, 0x8, 0x10, 0x30, 0x2C8, 0x28, 0x20);
                     fabiPtr = new DeepPointer("mono.dll", 0x296BC8, 0x20, 0xA58, 0x20);
                     walkDirPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0xA0);
                     strafePtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0x160);
@@ -372,7 +368,6 @@ namespace Livesplit.Subnautica
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x10, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x2CED70, 0x78, 0x18, 0x190, 0x4D8, 0xB0, 0x20, 0x28);
                     notInWaterPtr = new DeepPointer("UnityPlayer.dll", 0x18AB130, 0x48, 0x0, 0x68);
-                    dyingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x8, 0x10, 0x30, 0x318, 0x28, 0x50);
                     fabiPtr = new DeepPointer("UnityPlayer.dll", 0x183BF48, 0x8, 0x10, 0x30, 0x30, 0x28, 0x128);
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x150);
@@ -386,7 +381,6 @@ namespace Livesplit.Subnautica
             isPortalLoading = new MemoryWatcher<bool>(portalLoadingPtr);
             isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
-            isDying = new MemoryWatcher<bool>(dyingPtr);
             isFabiOpen = new MemoryWatcher<int>(fabiPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
@@ -417,13 +411,6 @@ namespace Livesplit.Subnautica
 
             if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
                 isNotInWater.Update(game.Process);
-
-            if (Needs(SplitName.BaseDeathSplit,
-                      SplitName.AuroraDeathSplit,
-                      SplitName.IonDeathSplit,
-                      SplitName.SparseDeathSplit,
-                      SplitName.GunDeathSplit))
-                isDying.Update(game.Process);
 
             if (Needs(SplitName.PCFTabletSplit,
                       SplitName.GunDeactivationSplit,

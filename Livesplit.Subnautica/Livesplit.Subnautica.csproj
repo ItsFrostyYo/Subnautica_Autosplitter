@@ -121,7 +121,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Components\ComponentsUpdate.xml" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_2019.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_Base.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1.txt" />
