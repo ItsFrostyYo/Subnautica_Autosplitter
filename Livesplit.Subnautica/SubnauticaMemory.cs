@@ -405,8 +405,7 @@ namespace Livesplit.Subnautica
                 isLoadingScreen.Update(game.Process);
             }
 
-            if (Needs(SplitName.PortalSplit))
-                isPortalLoading.Update(game.Process);
+            isPortalLoading.Update(game.Process);
 
             if (Needs(SplitName.HatchSplit))
                 isEggsHatching.Update(game.Process);
@@ -472,7 +471,6 @@ namespace Livesplit.Subnautica
             KnownTechOld = KnownTech;
             KnownTech = blueprints;
         }
-
 
         private void UpdateInventory()
         {

@@ -67,17 +67,17 @@ namespace Voxif.AutoSplitter {
                 return;
             }
 
-            if(timer.CurrentState.CurrentSplitIndex >= 0) {
-                if(GameTimeType == EGameTime.Loading) {
-                    timer.CurrentState.IsGameTimePaused = Loading();
-                } else if(GameTimeType == EGameTime.GameTime) {
-                    timer.CurrentState.SetGameTime(GameTime());
-                }
+            if (timer.CurrentState.CurrentSplitIndex >= 0)
+            {
+                timer.CurrentState.IsGameTimePaused = Loading();
 
-                if(settings.reset && Reset()) {
+                if (settings.reset && Reset())
+                {
                     timer.Reset();
                     logger?.Log("Reset");
-                } else if(Split()) {
+                }
+                else if (Split())
+                {
                     timer.Split();
                 }
             }
