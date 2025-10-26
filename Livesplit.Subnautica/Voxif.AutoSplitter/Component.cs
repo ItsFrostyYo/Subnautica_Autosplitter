@@ -79,7 +79,6 @@ namespace Voxif.AutoSplitter {
                     logger?.Log("Reset");
                 } else if(Split()) {
                     timer.Split();
-                    logger?.Log("Split");
                 }
             }
 

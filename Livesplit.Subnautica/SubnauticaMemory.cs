@@ -43,6 +43,7 @@ namespace Livesplit.Subnautica
         public Pointer<float> timeCured;
         public Pointer<float> health;
         public Pointer<IntPtr> mainMenu;
+        public Pointer<IntPtr> knowntechPtr;
         public Pointer<int> PDATab;
         public Pointer<int> gameMode;
         public StringPointer biome;
@@ -52,9 +53,6 @@ namespace Livesplit.Subnautica
 
         public List<TechType> knownTech = new List<TechType>();
         public List<TechType> knownTechOld = new List<TechType>();
-
-        public List<string> completedGoals = new List<string>();
-        public List<string> completedGoalsOld = new List<string>();
 
         IntPtr invKlass;
         IntPtr icKlass;
@@ -164,14 +162,13 @@ namespace Livesplit.Subnautica
                 return base.Update();
 
             UpdateMemoryWatchers();
-            UpdateBlueprints();
-            UpdateInventory();
 
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
 
-            logger.Log(gameMode.New);
+            foreach (var tech in knownTech)
+                logger.Log(tech);
 
             return base.Update();
         }
@@ -323,31 +320,19 @@ namespace Livesplit.Subnautica
             }
             #endregion Inventory
             #region Known Tech
+            knowntechPtr = ptrFactory.Make<IntPtr>("KnownTech", "knownTech");
             ktStaticKlass = mono.GetStaticField(mono.MainImage, "KnownTech", "knownTech", out _, out ktStaticOffset);
             logger.Log($"KnownTech static base={ktStaticKlass:X}, staticOffset={ktStaticOffset:X}");
 
             var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
             hsLayoutKnownTech = baseHelper.ResolveHashSetLayoutForInt();
-            hsLayoutKnownTechReady = hsLayoutKnownTech.Ready || true;
+            hsLayoutKnownTechReady = hsLayoutKnownTech.Ready;            
             #endregion Known Tech
             #region Main Menu
             mainMenu = ptrFactory.Make<IntPtr>("uGUI_MainMenu", "main");
             #endregion
             #region Biome
             biome = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
-            #endregion
-            #region Goals
-            var sgm = mono.FindClass("StoryGoalManager", mono.MainImage);
-
-            int offMain = mono.GetFieldOffset(sgm, "<main>k__BackingField");
-            int offCompleted = mono.GetFieldOffset(sgm, "completedGoals");
-
-            IntPtr statBase = mono.GetStaticAddress(sgm);
-            IntPtr sgmInst = game.Read<IntPtr>(statBase + offMain);
-            if (sgmInst == IntPtr.Zero) {  }
-
-            IntPtr hs = game.Read<IntPtr>(sgmInst + offCompleted);
-            completedGoals = ((UnityHelperTask.UnityHelperBase)mono).ReadHashSetString(hs);
             #endregion
             #region PDATab
             PDATab = ptrFactory.Make<int>("uGUI_PDA", "<main>k__BackingField", "tabOpen");
@@ -368,9 +353,9 @@ namespace Livesplit.Subnautica
             DeepPointer rocketPtr;
             DeepPointer walkDirPtr;
             DeepPointer strafePtr;
-            DeepPointer posX;
-            DeepPointer posY;
-            DeepPointer posZ;
+            DeepPointer posXPtr;
+            DeepPointer posYPtr;
+            DeepPointer posZPtr;
 
             switch (gameVersion)
             {
@@ -384,9 +369,9 @@ namespace Livesplit.Subnautica
                     rocketPtr = new DeepPointer("mono.dll", 0x27EAD8, 0x40, 0x70, 0x50, 0x90, 0x30, 0x8, 0x80);
                     walkDirPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0xA0);
                     strafePtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0x160);
-                    posX = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C0);
-                    posY = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C4);
-                    posZ = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C8);
+                    posXPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C0);
+                    posYPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C4);
+                    posZPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C8);                   
                     break;
 
                 default: // GameVersion.Mar2023
@@ -399,9 +384,9 @@ namespace Livesplit.Subnautica
                     rocketPtr = new DeepPointer("UnityPlayer.dll", 0x17FC238, 0x10, 0x3C);
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x150);
-                    posX = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA58);
-                    posY = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA5C);
-                    posZ = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA60);
+                    posXPtr = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA58);
+                    posYPtr = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA5C);
+                    posZPtr = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA60);
                     break;
             }
 
@@ -414,9 +399,9 @@ namespace Livesplit.Subnautica
             isFabiOpen = new MemoryWatcher<int>(fabiPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
-            this.posX = new MemoryWatcher<float>(posX);
-            this.posY = new MemoryWatcher<float>(posY);
-            this.posZ = new MemoryWatcher<float>(posZ);
+            posX = new MemoryWatcher<float>(posXPtr);
+            posY = new MemoryWatcher<float>(posYPtr);
+            posZ = new MemoryWatcher<float>(posZPtr);
             #endregion Memory Watchers 
 
             logger.Log("Pointers initialized");
@@ -487,24 +472,49 @@ namespace Livesplit.Subnautica
         
         private void UpdateBlueprints()
         {
-            IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
-
-            List<TechType> current = new List<TechType>();
-            if (hs != IntPtr.Zero)
+            List<TechType> blueprints = new List<TechType>();
+            if (gameVersion == GameVersion.Sept2018)
             {
-                var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
+                IntPtr startAddr = knowntechPtr.New;
 
-                var ints = baseHelper.ReadHashSetInt(hs, hsLayoutKnownTech);
+                int slotsOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x18;
+                IntPtr slots = game.Process.ReadPointer(startAddr + slotsOffset);
+                int countOffset = gameVersion == GameVersion.Sept2018 ? 0x40 : 0x30;
+                int count = game.Process.ReadValue<int>(startAddr + countOffset);
 
-                foreach (int v in ints)
+                int slotBeginningOffset = gameVersion == GameVersion.Sept2018 ? 0x0 : 0x20;
+                int slotSize = gameVersion == GameVersion.Sept2018 ? 0x4 : 0xC;
+                for (int i = 0; i < count; i++)
                 {
-                    if (v > 0 && v < 10005)
-                        current.Add((TechType)v);
+                    int tech = game.Process.ReadValue<int>(slots + slotBeginningOffset + slotSize * i);
+                    if (tech > 0 && tech < 10005)
+                    {
+                        TechType type = (TechType)tech;
+                        blueprints.Add(type);
+                    }
+                }
+            }
+            else
+            {
+                IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
+
+
+                if (hs != IntPtr.Zero)
+                {
+                    var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
+
+                    var ints = baseHelper.ReadHashSetInt(hs, hsLayoutKnownTech);
+
+                    foreach (int v in ints)
+                    {
+                        if (v > 0 && v < 10005)
+                            blueprints.Add((TechType)v);
+                    }
                 }
             }
 
             knownTechOld = knownTech;
-            knownTech = current;
+            knownTech = blueprints;
         }
 
         private void UpdateInventory()

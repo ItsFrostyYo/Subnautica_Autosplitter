@@ -354,7 +354,7 @@ namespace Voxif.Helpers.Unity {
                 return wrapper.ReadString(wrapper.Read<IntPtr>(ptr), EStringType.UTF8);
             }
 
-            private int PickStride12or16ForIntSlots(IntPtr slotsArr, int arrBase = 0x20)
+            public int PickStride12or16ForIntSlots(IntPtr slotsArr, int arrBase = 0x20)
             {
                 if (slotsArr == IntPtr.Zero) return 12;
                 int len = wrapper.Read<int>(slotsArr + 0x18);

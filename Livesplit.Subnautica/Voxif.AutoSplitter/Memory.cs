@@ -28,38 +28,50 @@ namespace Voxif.AutoSplitter {
 
         protected virtual bool IsHooked => (!game?.Process?.HasExited ?? false) || TryHookProcess();
 
-        protected virtual bool TryHookProcess() {
-            if(game != null) {
+        protected virtual bool TryHookProcess()
+        {
+            if (game != null)
+            {
                 game = null;
                 OnExit?.Invoke();
             }
 
-            if(DateTime.Now < hookTime) {
+            if (DateTime.Now < hookTime)
                 return false;
-            }
+            hookTime = DateTime.Now.AddSeconds(1);
 
-            hookTime = DateTime.Now.AddSeconds(1d);
+            foreach (string processName in ProcessNames)
+            {
+                foreach (var p in Process.GetProcessesByName(processName))
+                {
+                    try
+                    {
+                        if (p.HasExited)
+                            continue;
 
-            Process process = null;
-            foreach(Process p in Process.GetProcesses()) {
-                if(process == null) {
-                    foreach(string processName in ProcessNames) {
-                        if(p.ProcessName.StartsWith(processName, StringComparison.OrdinalIgnoreCase) && !p.HasExited) {
-                            process = p;
-                        }
+                        if (!p.MainModule.FileName.EndsWith("Subnautica.exe", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        var wrapper = new TickableProcessWrapper(p);
+                        if (!wrapper.Is64Bit)
+                            continue;
+
+                        if (p.Modules().Length == 0)
+                            continue;
+
+                        game = wrapper;
+                        logger?.Log($"Process Found. PID: {game.Process.Id}, {(game.Is64Bit ? "64" : "32")}bit");
+                        OnHook?.Invoke();
+                        return true;
                     }
-                } else {
-                    p.Dispose();
+                    catch (Exception ex)
+                    {
+                        logger?.Log("Failed to inspect process: " + ex.Message);
+                    }
                 }
             }
 
-            if(process == null || process.Modules().Length == 0) {
-                return false;
-            }
-            game = new TickableProcessWrapper(process);
-            logger?.Log($"Process Found. PID: {game.Process.Id}, {(game.Is64Bit ? "64" : "32")}bit");
-            OnHook?.Invoke();
-            return true;
+            return false;
         }
 
         public virtual void Dispose() {
