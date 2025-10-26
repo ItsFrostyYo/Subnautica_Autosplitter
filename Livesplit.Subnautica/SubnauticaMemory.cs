@@ -12,7 +12,6 @@ using Voxif.Helpers.Unity;
 using Voxif.IO;
 using Voxif.Memory;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
-using HSLayout = Voxif.Helpers.Unity.UnityHelperTask.HashSetLayout;
 
 namespace Livesplit.Subnautica
 {
@@ -81,11 +80,6 @@ namespace Livesplit.Subnautica
         }
         bool useLegacyDict = false;
         LegacyDictOffsets legacy_off;
-
-        IntPtr ktStaticKlass;
-        int ktStaticOffset;
-        HSLayout hsLayoutKnownTech;
-        bool hsLayoutKnownTechReady = false;
 
         public MemoryWatcher<bool> isLoadingScreen = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isPortalLoading = new MemoryWatcher<bool>(IntPtr.Zero);
@@ -166,9 +160,6 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-
-            foreach (var tech in knownTech)
-                logger.Log(tech);
 
             return base.Update();
         }
@@ -320,13 +311,7 @@ namespace Livesplit.Subnautica
             }
             #endregion Inventory
             #region Known Tech
-            knowntechPtr = ptrFactory.Make<IntPtr>("KnownTech", "knownTech");
-            ktStaticKlass = mono.GetStaticField(mono.MainImage, "KnownTech", "knownTech", out _, out ktStaticOffset);
-            logger.Log($"KnownTech static base={ktStaticKlass:X}, staticOffset={ktStaticOffset:X}");
-
-            var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
-            hsLayoutKnownTech = baseHelper.ResolveHashSetLayoutForInt();
-            hsLayoutKnownTechReady = hsLayoutKnownTech.Ready;            
+            knowntechPtr = ptrFactory.Make<IntPtr>("KnownTech", "knownTech");        
             #endregion Known Tech
             #region Main Menu
             mainMenu = ptrFactory.Make<IntPtr>("uGUI_MainMenu", "main");
@@ -469,47 +454,26 @@ namespace Livesplit.Subnautica
         #endregion Memory stuff
         #region World/Player Checks
         public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;
-        
+
         private void UpdateBlueprints()
         {
             List<TechType> blueprints = new List<TechType>();
-            if (gameVersion == GameVersion.Sept2018)
+            IntPtr startAddr = knowntechPtr.New;
+
+            int slotsOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x18;
+            IntPtr slots = game.Process.ReadPointer(startAddr + slotsOffset);
+            int countOffset = gameVersion == GameVersion.Sept2018 ? 0x40 : 0x30;
+            int count = game.Process.ReadValue<int>(startAddr + countOffset);
+
+            int slotBeginningOffset = 0x20;
+            int slotSize = gameVersion == GameVersion.Sept2018 ? 0x4 : 0xC;
+            for (int i = 0; i < count; i++)
             {
-                IntPtr startAddr = knowntechPtr.New;
-
-                int slotsOffset = gameVersion == GameVersion.Sept2018 ? 0x20 : 0x18;
-                IntPtr slots = game.Process.ReadPointer(startAddr + slotsOffset);
-                int countOffset = gameVersion == GameVersion.Sept2018 ? 0x40 : 0x30;
-                int count = game.Process.ReadValue<int>(startAddr + countOffset);
-
-                int slotBeginningOffset = gameVersion == GameVersion.Sept2018 ? 0x0 : 0x20;
-                int slotSize = gameVersion == GameVersion.Sept2018 ? 0x4 : 0xC;
-                for (int i = 0; i < count; i++)
+                int tech = game.Process.ReadValue<int>(slots + slotBeginningOffset + slotSize * i);
+                if (tech > 0 && tech < 10005)
                 {
-                    int tech = game.Process.ReadValue<int>(slots + slotBeginningOffset + slotSize * i);
-                    if (tech > 0 && tech < 10005)
-                    {
-                        TechType type = (TechType)tech;
-                        blueprints.Add(type);
-                    }
-                }
-            }
-            else
-            {
-                IntPtr hs = game.Read<IntPtr>(mono.GetStaticAddress(ktStaticKlass) + ktStaticOffset);
-
-
-                if (hs != IntPtr.Zero)
-                {
-                    var baseHelper = (UnityHelperTask.UnityHelperBase)mono;
-
-                    var ints = baseHelper.ReadHashSetInt(hs, hsLayoutKnownTech);
-
-                    foreach (int v in ints)
-                    {
-                        if (v > 0 && v < 10005)
-                            blueprints.Add((TechType)v);
-                    }
+                    TechType type = (TechType)tech;
+                    blueprints.Add(type);
                 }
             }
 

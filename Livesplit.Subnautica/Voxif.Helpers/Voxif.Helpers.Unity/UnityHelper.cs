@@ -15,17 +15,6 @@ namespace Voxif.Helpers.Unity {
 
         protected readonly ProcessWrapper wrapper;
 
-        public struct HashSetLayout
-        {
-            public int OffCount;
-            public int OffSlots;
-            public int ArrayDataBase;
-            public int SlotStride;
-            public int OffHash;
-            public int OffValue;
-            public bool Ready => OffSlots != 0 && OffValue != 0;
-        }
-
         public static class UnityNameUtil
         {
             public static bool NameHas(string name, params string[] needles)
@@ -346,44 +335,10 @@ namespace Voxif.Helpers.Unity {
                 }
             }
 
-
             public abstract IntPtr GetStaticAddress(IntPtr klass);
-
 
             protected string GetName(IntPtr ptr) {
                 return wrapper.ReadString(wrapper.Read<IntPtr>(ptr), EStringType.UTF8);
-            }
-
-            public int PickStride12or16ForIntSlots(IntPtr slotsArr, int arrBase = 0x20)
-            {
-                if (slotsArr == IntPtr.Zero) return 12;
-                int len = wrapper.Read<int>(slotsArr + 0x18);
-                if (len <= 0 || len > 200000) return 12;
-
-                IntPtr basePtr = slotsArr + arrBase;
-                int probe = Math.Min(len, 128);
-                int hits12 = 0, hits16 = 0;
-
-                for (int i = 0; i < probe; i++)
-                {
-                    IntPtr s12 = basePtr + i * 12;
-                    IntPtr s16 = basePtr + i * 16;
-
-                    int h12 = wrapper.Read<int>(s12 + 0x0);
-                    if (h12 >= 0)
-                    {
-                        int v12 = wrapper.Read<int>(s12 + 0x8);
-                        if (v12 > 0 && v12 < 10005) hits12++;
-                    }
-
-                    int h16 = wrapper.Read<int>(s16 + 0x0);
-                    if (h16 >= 0)
-                    {
-                        int v16 = wrapper.Read<int>(s16 + 0x8);
-                        if (v16 > 0 && v16 < 10005) hits16++;
-                    }
-                }
-                return (hits16 > hits12 * 2) ? 16 : 12;
             }
 
             public int ResolveFieldOffsetByNameOrPredicate(
@@ -415,52 +370,6 @@ namespace Voxif.Helpers.Unity {
 
                 return 0;
             }
-
-            public int ResolveFieldOffsetByNameOrPredicate(
-                IntPtr image,
-                string className,
-                IEnumerable<string> nameCandidates,
-                Func<string, bool> namePredicate,
-                bool includeParents = true)
-            {
-                var klass = FindClass(className, image);
-                return ResolveFieldOffsetByNameOrPredicate(klass, nameCandidates, namePredicate, includeParents);
-            }
-
-
-            public HashSetLayout ResolveHashSetLayoutForInt()
-            {
-                var layout = new HashSetLayout
-                {
-                    OffCount = 0,
-                    OffSlots = 0,
-                    ArrayDataBase = 0x20,
-                    SlotStride = 12,
-                    OffHash = 0x0,
-                    OffValue = 0x8
-                };
-
-                IntPtr core = TryFindImageOnce("mscorlib", "mscorlib.dll",
-                                               "System.Private.CoreLib", "System.Private.CoreLib.dll",
-                                               "netstandard", "netstandard.dll");
-
-                if (core != IntPtr.Zero)
-                {
-                    IntPtr hsKlass = TryFindClassOnce("HashSet`1", core);
-                    if (hsKlass != IntPtr.Zero)
-                    {
-                        layout.OffCount = ResolveFieldOffsetByNameOrPredicate(
-                            hsKlass, new[] { "m_count", "count" },
-                            fname => UnityNameUtil.NameHas(fname, "count"), includeParents: true);
-                        layout.OffSlots = ResolveFieldOffsetByNameOrPredicate(
-                            hsKlass, new[] { "m_slots", "slots" },
-                            fname => UnityNameUtil.NameHas(fname, "slot"), includeParents: true);
-                    }
-                }
-
-                return layout;
-            }
-
             public IntPtr TryFindImageOnce(params string[] names)
             {
                 foreach (var image in ImageSequence())
@@ -524,113 +433,7 @@ namespace Voxif.Helpers.Unity {
                     }
                 }
                 return bestOff; // 0 = fail
-            }
-
-
-            public List<int> ReadHashSetInt(IntPtr hs, in HashSetLayout layout)
-            {
-                var result = new List<int>();
-                if (hs == IntPtr.Zero) return result;
-
-                int offSlots = layout.OffSlots != 0 ? layout.OffSlots : PickSlotsOffset(hs);
-                if (offSlots == 0) return result;
-
-                IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
-                if (slotsArr == IntPtr.Zero) return result;
-
-                int stride = (layout.SlotStride == 12 || layout.SlotStride == 16)
-                           ? layout.SlotStride
-                           : PickStride12or16ForIntSlots(slotsArr, 0x20);
-
-                int len = wrapper.Read<int>(slotsArr + 0x18);
-                if (len <= 0 || len > 200000) return result;
-
-                IntPtr basePtr = slotsArr + 0x20;
-                for (int i = 0; i < len; i++)
-                {
-                    IntPtr slot = basePtr + i * stride;
-                    int hash = wrapper.Read<int>(slot + 0x0);
-                    if (hash < 0) continue;
-                    int val = wrapper.Read<int>(slot + 0x8);
-                    result.Add(val);
-                }
-                return result;
-            }
-
-
-            public List<string> ReadHashSetString(IntPtr hs)
-            {
-                var res = new List<string>();
-                if (hs == IntPtr.Zero) return res;
-
-                int offSlots = ResolveHashSetSlotsOffset(hs);
-                if (offSlots == 0) return res;
-
-                IntPtr slotsArr = wrapper.Read<IntPtr>(hs + offSlots);
-                if (slotsArr == IntPtr.Zero) return res;
-
-                int len = wrapper.Read<int>(slotsArr + 0x18);
-                if (len <= 0 || len > 200_000) return res;
-
-                IntPtr basePtr = slotsArr + 0x20;
-
-                int PickStride()
-                {
-                    int[] candidates = { 16, 24, 32 };
-                    int best = 16, bestHits = -1, probe = Math.Min(len, 128);
-
-                    foreach (int stride in candidates)
-                    {
-                        int hits = 0;
-                        for (int i = 0; i < probe; i++)
-                        {
-                            IntPtr slot = basePtr + i * stride;
-                            int hash = wrapper.Read<int>(slot + 0x0);
-                            if (hash < 0) continue;
-                            IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10);
-                            if (IsLikelyManagedString(strPtr)) hits++;
-                        }
-                        if (hits > bestHits) { bestHits = hits; best = stride; }
-                    }
-                    return best;
-                }
-
-                bool IsLikelyManagedString(IntPtr p)
-                {
-                    if (p == IntPtr.Zero) return false;
-                    int lenStr = wrapper.Read<int>(p + 0x10);
-                    return lenStr >= 0 && lenStr <= 1024;
-                }
-
-                int strideChosen = PickStride();
-
-                for (int i = 0; i < len; i++)
-                {
-                    IntPtr slot = basePtr + i * strideChosen;
-                    int hash = wrapper.Read<int>(slot + 0x0);
-                    if (hash < 0) continue;
-
-                    IntPtr strPtr = wrapper.Read<IntPtr>(slot + 0x10);
-                    if (strPtr == IntPtr.Zero) continue;
-
-                    string s = wrapper.ReadString(strPtr);
-                    if (!string.IsNullOrEmpty(s)) res.Add(s);
-                }
-                return res;
-            }
-
-            int ResolveHashSetSlotsOffset(IntPtr hs)
-            {
-                foreach (int cand in new[] { 0x10, 0x18 })
-                {
-                    IntPtr arr = wrapper.Read<IntPtr>(hs + cand);
-                    if (arr == IntPtr.Zero) continue;
-                    int len = wrapper.Read<int>(arr + 0x18);
-                    if (len >= 0 && len <= 200_000) return cand;
-                }
-                return 0;
-            }
-
+            }                   
 
             public void Log(string msg) => logger?.Log("[Unity] " + msg);
         }
