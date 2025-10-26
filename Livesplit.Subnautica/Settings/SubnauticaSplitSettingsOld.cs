@@ -16,14 +16,10 @@ namespace Livesplit.Subnautica
     public partial class SubnauticaSplitSettings : UserControl
     {
         public string Split { get; set; } = "";
-        private int mX = 0;
-        private int mY = 0;
-        private bool isDragging = false;
         public SubnauticaSplitSettings()
         {
             InitializeComponent();
             cboName.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboName.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
         }
 
         private void cboName_SelectedIndexChanged(object sender, EventArgs e)
@@ -51,31 +47,6 @@ namespace Livesplit.Subnautica
                 }
             }
             return SplitName.RocketSplit;
-        }
-
-        private void picHandle_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!isDragging)
-            {
-                if (e.Button == MouseButtons.Left)
-                {
-                    int num1 = mX - e.X;
-                    int num2 = mY - e.Y;
-                    if (((num1 * num1) + (num2 * num2)) > 20)
-                    {
-                        DoDragDrop(this, DragDropEffects.All);
-                        isDragging = true;
-                        return;
-                    }
-                }
-            }
-        }
-
-        private void picHandle_MouseDown(object sender, MouseEventArgs e)
-        {
-            mX = e.X;
-            mY = e.Y;
-            isDragging = false;
         }
 
         public enum SplitName
@@ -147,7 +118,5 @@ namespace Livesplit.Subnautica
                 ToolTip = text;
             }
         }
-
-        
     }
 }

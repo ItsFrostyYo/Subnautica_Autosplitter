@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
+using Voxif.AutoSplitter;
 using Voxif.IO;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
 
@@ -137,7 +138,7 @@ namespace Livesplit.Subnautica
                 UpdateExploBtnContent();
             }
         }
-        /*private void ButtonSplitGenerator_Click(object sender, EventArgs e)
+        private void ButtonSplitGenerator_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Generating the splits will overwrite the existing splits and times, do you want to overwrite them?",
                 "Generate Splits?", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
@@ -148,9 +149,9 @@ namespace Livesplit.Subnautica
             using (SplitsGenerator splitGen = new SplitsGenerator())
             {
                 int maxWidth = 0;
-                foreach (string split in Splits)
+                foreach (var split in Splits)
                 {
-                    string splitName = settingsDict[split].Text;
+                    string splitName = split.GetDescription();
                     splitGen.ListView.Items.Add(splitName);
                     int width = TextRenderer.MeasureText(splitName, splitGen.ListView.Font).Width;
                     if (width > maxWidth)
@@ -165,14 +166,14 @@ namespace Livesplit.Subnautica
                     return;
                 }
                 //Doesn't work with subsplits + show last split
-                state.Run.Clear();
+                _state.Run.Clear();
                 foreach (ListViewItem item in splitGen.ListView.Items)
                 {
-                    state.Run.AddSegment(item.Text);
+                    _state.Run.AddSegment(item.Text);
                 }
-                state.Form.Refresh();
+                _state.Form.Refresh();
             }
-        }*/
+        }
         #endregion
         public void UpdateExploBtnContent()
         {
@@ -252,16 +253,12 @@ namespace Livesplit.Subnautica
             setting.cboName.SelectedIndexChanged += new EventHandler(ControlChanged);
             setting.btnRemove.Click += new EventHandler(btnRemove_Click);
             setting.btnEdit.Click += new EventHandler(btnEdit_Click);
-            setting.btnAddAbove.Click += new EventHandler(btnAddAbove_Click);
-            setting.btnAddBelow.Click += new EventHandler(btnAddBelow_Click);
         }
         private void RemoveHandlers(SubnauticaSplitSettings setting)
         {
             setting.cboName.SelectedIndexChanged -= ControlChanged;
             setting.btnRemove.Click -= btnRemove_Click;
             setting.btnEdit.Click -= btnEdit_Click;
-            setting.btnAddAbove.Click -= btnAddAbove_Click;
-            setting.btnAddBelow.Click -= btnAddBelow_Click;
         }
 
         public void LoadSettings()
@@ -358,6 +355,38 @@ namespace Livesplit.Subnautica
                         setting.cboName.DataSource = GetAvailableSplits();
                         setting.cboName.Text = text;
                     }
+                }
+            }
+        }
+
+        private void flowMain_DragDrop(object sender, DragEventArgs e)
+        {
+            UpdateSplits();
+        }
+        private void flowMain_DragEnter(object sender, DragEventArgs e)
+        {
+            e.Effect = DragDropEffects.Move;
+        }
+        private void flowMain_DragOver(object sender, DragEventArgs e)
+        {
+            SubnauticaSplitSettings data = (SubnauticaSplitSettings)e.Data.GetData(typeof(SubnauticaSplitSettings));
+            FlowLayoutPanel destination = (FlowLayoutPanel)sender;
+            Point p = destination.PointToClient(new Point(e.X, e.Y));
+            var item = destination.GetChildAtPoint(p);
+            int index = destination.Controls.GetChildIndex(item, false);
+            if (index == 0)
+            {
+                e.Effect = DragDropEffects.None;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.Move;
+                int oldIndex = destination.Controls.GetChildIndex(data);
+                if (oldIndex != index)
+                {
+                    enableEdit(data);
+                    destination.Controls.SetChildIndex(data, index);
+                    destination.Invalidate();
                 }
             }
         }

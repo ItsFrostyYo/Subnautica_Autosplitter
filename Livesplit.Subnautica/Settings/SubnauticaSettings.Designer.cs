@@ -47,6 +47,7 @@
             this.rdAlpha = new System.Windows.Forms.RadioButton();
             this.rdType = new System.Windows.Forms.RadioButton();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
+            this.ButtonSplitGenerator = new System.Windows.Forms.Button();
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
             this.Options_GroupBox.SuspendLayout();
@@ -89,6 +90,9 @@
             this.flowMain.Size = new System.Drawing.Size(472, 142);
             this.flowMain.TabIndex = 0;
             this.flowMain.WrapContents = false;
+            this.flowMain.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowMain_DragDrop);
+            this.flowMain.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowMain_DragEnter);
+            this.flowMain.DragOver += new System.Windows.Forms.DragEventHandler(this.flowMain_DragOver);
             // 
             // flowOptions
             // 
@@ -103,6 +107,7 @@
             // 
             // Options_GroupBox
             // 
+            this.Options_GroupBox.Controls.Add(this.ButtonSplitGenerator);
             this.Options_GroupBox.Controls.Add(this.btnAddExplo);
             this.Options_GroupBox.Controls.Add(this.Other_GroupBox);
             this.Options_GroupBox.Controls.Add(this.btnAddSplit);
@@ -121,11 +126,11 @@
             // btnAddExplo
             // 
             this.btnAddExplo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddExplo.AutoSize = true;
-            this.btnAddExplo.Location = new System.Drawing.Point(351, 102);
+            this.btnAddExplo.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnAddExplo.Location = new System.Drawing.Point(296, 102);
             this.btnAddExplo.Margin = new System.Windows.Forms.Padding(2);
             this.btnAddExplo.Name = "btnAddExplo";
-            this.btnAddExplo.Size = new System.Drawing.Size(110, 23);
+            this.btnAddExplo.Size = new System.Drawing.Size(164, 23);
             this.btnAddExplo.TabIndex = 9;
             this.btnAddExplo.Text = "Add Explosion Time";
             this.ToolTips.SetToolTip(this.btnAddExplo, "This will add a text component to your layout which shows when the aurora is goin" +
@@ -178,9 +183,10 @@
             // 
             // btnAddSplit
             // 
+            this.btnAddSplit.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnAddSplit.Location = new System.Drawing.Point(6, 102);
             this.btnAddSplit.Name = "btnAddSplit";
-            this.btnAddSplit.Size = new System.Drawing.Size(57, 21);
+            this.btnAddSplit.Size = new System.Drawing.Size(116, 23);
             this.btnAddSplit.TabIndex = 0;
             this.btnAddSplit.Text = "Add Split";
             this.btnAddSplit.UseVisualStyleBackColor = true;
@@ -286,6 +292,17 @@
             this.ToolTips.ReshowDelay = 180;
             this.ToolTips.ShowAlways = true;
             // 
+            // ButtonSplitGenerator
+            // 
+            this.ButtonSplitGenerator.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ButtonSplitGenerator.Location = new System.Drawing.Point(128, 102);
+            this.ButtonSplitGenerator.Name = "ButtonSplitGenerator";
+            this.ButtonSplitGenerator.Size = new System.Drawing.Size(162, 23);
+            this.ButtonSplitGenerator.TabIndex = 10;
+            this.ButtonSplitGenerator.Text = "Generate Splits";
+            this.ButtonSplitGenerator.UseVisualStyleBackColor = true;
+            this.ButtonSplitGenerator.Click += new System.EventHandler(this.ButtonSplitGenerator_Click);
+            // 
             // SubnauticaSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -302,7 +319,6 @@
             this.flowMain.PerformLayout();
             this.flowOptions.ResumeLayout(false);
             this.Options_GroupBox.ResumeLayout(false);
-            this.Options_GroupBox.PerformLayout();
             this.Other_GroupBox.ResumeLayout(false);
             this.Other_GroupBox.PerformLayout();
             this.StartReset_GroupBox.ResumeLayout(false);
@@ -334,5 +350,6 @@
         private System.Windows.Forms.CheckBox chkAskForGoldSave;
         private System.Windows.Forms.CheckBox chkReset;
         private System.Windows.Forms.Button btnAddExplo;
+        private System.Windows.Forms.Button ButtonSplitGenerator;
     }
 }
