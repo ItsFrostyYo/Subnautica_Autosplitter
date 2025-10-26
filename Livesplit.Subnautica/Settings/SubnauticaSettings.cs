@@ -23,7 +23,7 @@ using System.Windows.Forms;
 using System.Xml;
 using Voxif.AutoSplitter;
 using Voxif.IO;
-using static Livesplit.Subnautica.SubnauticaSplitSettings;
+using static Livesplit.Subnautica.SubnauticaPrefabSplit;
 
 namespace Livesplit.Subnautica
 {
@@ -50,7 +50,7 @@ namespace Livesplit.Subnautica
         #region Buttons
         private void btnAddSplit_Click(object sender, EventArgs e)
         {
-            SubnauticaSplitSettings setting = createSetting();
+            var setting = createPrefabSplit();
             flowMain.Controls.Add(setting);
             UpdateSplits();
         }
@@ -61,7 +61,7 @@ namespace Livesplit.Subnautica
             {
                 if (flowMain.Controls[i].Contains((Control)sender))
                 {
-                    RemoveHandlers((SubnauticaSplitSettings)((Button)sender).Parent);
+                    RemoveHandlers((SubnauticaPrefabSplit)((Button)sender).Parent);
 
                     flowMain.Controls.RemoveAt(i);
                     break;
@@ -76,7 +76,7 @@ namespace Livesplit.Subnautica
             {
                 if (flowMain.Controls[i].Contains((Control)sender))
                 {
-                    SubnauticaSplitSettings setting = (SubnauticaSplitSettings)((Button)sender).Parent;
+                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
                     if (setting.cboName.Enabled)
                     {
                         disableEdit(setting);
@@ -95,7 +95,7 @@ namespace Livesplit.Subnautica
             {
                 if (flowMain.Controls[i].Contains((Control)sender))
                 {
-                    SubnauticaSplitSettings setting = (SubnauticaSplitSettings)((Button)sender).Parent;
+                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
                     int index = setting.Parent.Controls.GetChildIndex(setting);
                     addSplitAtIndex(index);
                 }
@@ -107,7 +107,7 @@ namespace Livesplit.Subnautica
             {
                 if (flowMain.Controls[i].Contains((Control)sender))
                 {
-                    SubnauticaSplitSettings setting = (SubnauticaSplitSettings)((Button)sender).Parent;
+                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
                     int index = setting.Parent.Controls.GetChildIndex(setting);
                     addSplitAtIndex(index + 1);
                 }
@@ -186,12 +186,12 @@ namespace Livesplit.Subnautica
         }
         private void addSplitAtIndex(int index)
         {
-            SubnauticaSplitSettings setting = createSetting();
+            var setting = createPrefabSplit();
             flowMain.Controls.Add(setting);
             flowMain.Controls.SetChildIndex(setting, index);
             UpdateSplits();
         }
-        private void enableEdit(SubnauticaSplitSettings setting)
+        private void enableEdit(SubnauticaPrefabSplit setting)
         {
             string currentText = setting.cboName.Text;
             setting.btnEdit.Text = "✔";
@@ -199,7 +199,7 @@ namespace Livesplit.Subnautica
             setting.cboName.Text = currentText;
             setting.cboName.Enabled = true;
         }
-        private void disableEdit(SubnauticaSplitSettings setting)
+        private void disableEdit(SubnauticaPrefabSplit setting)
         {
             setting.btnEdit.Text = "✏";
             setting.cboName.Enabled = false;
@@ -233,9 +233,9 @@ namespace Livesplit.Subnautica
             Splits.Clear();
             foreach (Control c in flowMain.Controls)
             {
-                if (c is SubnauticaSplitSettings)
+                if (c is SubnauticaPrefabSplit)
                 {
-                    SubnauticaSplitSettings setting = (SubnauticaSplitSettings)c;
+                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)c;
                     if (!string.IsNullOrEmpty(setting.cboName.Text))
                     {
                         SplitName split = GetSplitName(setting.cboName.Text);
@@ -248,13 +248,19 @@ namespace Livesplit.Subnautica
         }
         
 
-        private void AddHandlers(SubnauticaSplitSettings setting)
+        private void AddHandlers(SubnauticaPrefabSplit setting)
         {
             setting.cboName.SelectedIndexChanged += new EventHandler(ControlChanged);
             setting.btnRemove.Click += new EventHandler(btnRemove_Click);
             setting.btnEdit.Click += new EventHandler(btnEdit_Click);
         }
-        private void RemoveHandlers(SubnauticaSplitSettings setting)
+        private void AddHandlers(SubnauticaItemSplit setting)
+        {
+            setting.cboItem.SelectedIndexChanged += new EventHandler(ControlChanged);
+            setting.btnRemove.Click += new EventHandler(btnRemove_Click);
+            setting.btnEdit.Click += new EventHandler(btnEdit_Click);
+        }
+        private void RemoveHandlers(SubnauticaPrefabSplit setting)
         {
             setting.cboName.SelectedIndexChanged -= ControlChanged;
             setting.btnRemove.Click -= btnRemove_Click;
@@ -294,7 +300,7 @@ namespace Livesplit.Subnautica
                 MemberInfo info = typeof(SplitName).GetMember(split.ToString())[0];
                 DescriptionAttribute description = (DescriptionAttribute)info.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
 
-                SubnauticaSplitSettings setting = new SubnauticaSplitSettings();
+                SubnauticaPrefabSplit setting = new SubnauticaPrefabSplit();
                 setting.cboName.DataSource = new List<string>() { description.Description };
                 setting.cboName.Enabled = false;
                 setting.cboName.Text = description.Description;
@@ -312,12 +318,23 @@ namespace Livesplit.Subnautica
             LoadSettings();
         }
 
-        private SubnauticaSplitSettings createSetting()
+        private SubnauticaPrefabSplit createPrefabSplit()
         {
-            SubnauticaSplitSettings setting = new SubnauticaSplitSettings();
+            SubnauticaPrefabSplit setting = new SubnauticaPrefabSplit();
             List<string> splitNames = GetAvailableSplits();
             setting.cboName.DataSource = splitNames;
             setting.cboName.Text = splitNames[0];
+            setting.btnEdit.Text = "✔";
+            AddHandlers(setting);
+            return setting;
+        }
+
+        private SubnauticaItemSplit createItemSplit()
+        {
+            SubnauticaItemSplit setting = new SubnauticaItemSplit();
+            List<string> splitNames = Enum.GetValues(typeof(TechType)).Cast<TechType>().Select(t => t.GetDescription()).ToList();
+            setting.cboItem.DataSource = splitNames;
+            setting.cboItem.Text = splitNames[0];
             setting.btnEdit.Text = "✔";
             AddHandlers(setting);
             return setting;
@@ -346,9 +363,9 @@ namespace Livesplit.Subnautica
         {
             foreach (Control c in flowMain.Controls)
             {
-                if (c is SubnauticaSplitSettings)
+                if (c is SubnauticaPrefabSplit)
                 {
-                    SubnauticaSplitSettings setting = (SubnauticaSplitSettings)c;
+                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)c;
                     if (setting.cboName.Enabled)
                     {
                         string text = setting.cboName.Text;
@@ -369,7 +386,7 @@ namespace Livesplit.Subnautica
         }
         private void flowMain_DragOver(object sender, DragEventArgs e)
         {
-            SubnauticaSplitSettings data = (SubnauticaSplitSettings)e.Data.GetData(typeof(SubnauticaSplitSettings));
+            SubnauticaPrefabSplit data = (SubnauticaPrefabSplit)e.Data.GetData(typeof(SubnauticaPrefabSplit));
             FlowLayoutPanel destination = (FlowLayoutPanel)sender;
             Point p = destination.PointToClient(new Point(e.X, e.Y));
             var item = destination.GetChildAtPoint(p);

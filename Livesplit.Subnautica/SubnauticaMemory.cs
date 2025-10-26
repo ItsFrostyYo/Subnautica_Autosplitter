@@ -14,7 +14,7 @@ using Voxif.IO;
 using Voxif.Memory;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Livesplit.Subnautica.SubnauticaSplitSettings;
+using static Livesplit.Subnautica.SubnauticaPrefabSplit;
 
 namespace Livesplit.Subnautica
 {

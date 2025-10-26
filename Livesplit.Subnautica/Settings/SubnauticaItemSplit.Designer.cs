@@ -1,6 +1,6 @@
 ﻿namespace Livesplit.Subnautica
 {
-    partial class SubnauticaSplitSettings
+    partial class SubnauticaItemSplit
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,18 +29,20 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaSplitSettings));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaItemSplit));
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
-            this.cboName = new System.Windows.Forms.ComboBox();
+            this.cboItem = new System.Windows.Forms.ComboBox();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.picHandle = new System.Windows.Forms.PictureBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnEdit
             // 
-            this.btnEdit.Location = new System.Drawing.Point(306, 2);
+            this.btnEdit.Location = new System.Drawing.Point(313, 2);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(26, 23);
             this.btnEdit.TabIndex = 12;
@@ -50,20 +52,20 @@
             // btnRemove
             // 
             this.btnRemove.Image = ((System.Drawing.Image)(resources.GetObject("btnRemove.Image")));
-            this.btnRemove.Location = new System.Drawing.Point(274, 2);
+            this.btnRemove.Location = new System.Drawing.Point(281, 2);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(26, 23);
             this.btnRemove.TabIndex = 10;
             this.btnRemove.UseVisualStyleBackColor = true;
             // 
-            // cboName
+            // cboItem
             // 
-            this.cboName.FormattingEnabled = true;
-            this.cboName.Location = new System.Drawing.Point(22, 3);
-            this.cboName.Name = "cboName";
-            this.cboName.Size = new System.Drawing.Size(246, 21);
-            this.cboName.TabIndex = 9;
-            this.cboName.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
+            this.cboItem.FormattingEnabled = true;
+            this.cboItem.Location = new System.Drawing.Point(29, 3);
+            this.cboItem.Name = "cboItem";
+            this.cboItem.Size = new System.Drawing.Size(246, 21);
+            this.cboItem.TabIndex = 9;
+            this.cboItem.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
             // 
             // ToolTips
             // 
@@ -81,19 +83,34 @@
             this.picHandle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseDown);
             this.picHandle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseMove);
             // 
-            // SubnauticaSplitSettings
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
+            this.pictureBox1.Location = new System.Drawing.Point(345, 2);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(26, 23);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 16;
+            this.pictureBox1.TabStop = false;
+            // 
+            // SubnauticaItemSplit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.picHandle);
             this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.btnRemove);
-            this.Controls.Add(this.cboName);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.Name = "SubnauticaSplitSettings";
-            this.Size = new System.Drawing.Size(336, 30);
+            this.Controls.Add(this.cboItem);
+            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Name = "SubnauticaItemSplit";
+            this.Size = new System.Drawing.Size(377, 33);
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -101,8 +118,9 @@
         #endregion
         public System.Windows.Forms.Button btnEdit;
         public System.Windows.Forms.Button btnRemove;
-        public System.Windows.Forms.ComboBox cboName;
+        public System.Windows.Forms.ComboBox cboItem;
         private System.Windows.Forms.ToolTip ToolTips;
         private System.Windows.Forms.PictureBox picHandle;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Livesplit.Subnautica.SubnauticaSplitSettings;
+using static Livesplit.Subnautica.SubnauticaPrefabSplit;
 
 namespace Livesplit.Subnautica
 {

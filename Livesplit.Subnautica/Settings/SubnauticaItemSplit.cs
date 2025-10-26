@@ -13,29 +13,29 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 namespace Livesplit.Subnautica
 {
     // TODO: Add tooltips to the items while in the dropdown menu
-    public partial class SubnauticaSplitSettings : UserControl
+    public partial class SubnauticaItemSplit : UserControl
     {
         public string Split { get; set; } = "";
         private int mX = 0;
         private int mY = 0;
         private bool isDragging = false;
-        public SubnauticaSplitSettings()
+        public SubnauticaItemSplit()
         {
             InitializeComponent();
-            cboName.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboName.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
+            cboItem.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboItem.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
         }
 
         private void cboName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string splitDescription = cboName.SelectedValue.ToString();
+            string splitDescription = cboItem.SelectedValue.ToString();
             SplitName split = GetSplitName(splitDescription);
             Split = split.ToString();
 
             MemberInfo info = typeof(SplitName).GetMember(split.ToString())[0];
             DescriptionAttribute description = (DescriptionAttribute)info.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
             ToolTipAttribute tooltip = (ToolTipAttribute)info.GetCustomAttributes(typeof(ToolTipAttribute), false)[0];
-            ToolTips.SetToolTip(cboName, tooltip.ToolTip);
+            ToolTips.SetToolTip(cboItem, tooltip.ToolTip);
         }
         public static SplitName GetSplitName(string text)
         {
@@ -147,7 +147,5 @@ namespace Livesplit.Subnautica
                 ToolTip = text;
             }
         }
-
-        
     }
 }

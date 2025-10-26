@@ -86,17 +86,28 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ManualComponents\ManualTimerSettings.Designer.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Settings\SplitGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Settings\SplitGenerator.Designer.cs">
       <DependentUpon>SplitGenerator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaSplitSettings.cs">
+    <Compile Include="Settings\SubnauticaItemSplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaSplitSettings.Designer.cs">
-      <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
+    <Compile Include="Settings\SubnauticaItemSplit.Designer.cs">
+      <DependentUpon>SubnauticaItemSplit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaPrefabSplit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\SubnauticaPrefabSplit.Designer.cs">
+      <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </Compile>
     <Compile Include="SubnauticaComponent.cs" />
     <Compile Include="SubnauticaMemory.cs" />
@@ -126,11 +137,18 @@
     <Compile Include="Voxif.Memory\ProcessWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="Settings\SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaSplitSettings.resx">
-      <DependentUpon>SubnauticaSplitSettings.cs</DependentUpon>
+    <EmbeddedResource Include="Settings\SubnauticaItemSplit.resx">
+      <DependentUpon>SubnauticaItemSplit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\SubnauticaPrefabSplit.resx">
+      <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
