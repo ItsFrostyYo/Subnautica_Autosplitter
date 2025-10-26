@@ -41,6 +41,14 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\Programms\LiveSplit_1.8.33\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>F:\Programms\LiveSplit_1.8.33\System.Text.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,9 +61,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="7.0.3">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Enums\GameModeOption.cs" />
     <Compile Include="Enums\PDATab.cs" />
-    <Compile Include="GameVersion.cs" />
+    <Compile Include="Enums\GameVersion.cs" />
+    <Compile Include="Localization.cs" />
     <Compile Include="ManualComponents\FontTextComponent.cs" />
     <Compile Include="ManualComponents\ManualDoubleTimer.cs" />
     <Compile Include="ManualComponents\ManualDoubleTimerSettings.cs">
@@ -126,13 +140,16 @@
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1_cattrs.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v2.txt" />
-    <Content Include="Resources\ResourcesUpdate.xml" />
     <Content Include="Splits\Presets.xml" />
     <Content Include="Splits\Splits.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\English.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
     </PostBuildEvent>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 </Project>

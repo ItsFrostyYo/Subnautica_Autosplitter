@@ -12,6 +12,8 @@ using Voxif.AutoSplitter;
 using Voxif.Helpers.Unity;
 using Voxif.IO;
 using Voxif.Memory;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using static Livesplit.Subnautica.SubnauticaSplitSettings;
 
 namespace Livesplit.Subnautica
@@ -99,7 +101,8 @@ namespace Livesplit.Subnautica
         private UnityHelperTask unityTask;
 
         public SubnauticaMemory(LiveSplitState state, Logger logger, SubnauticaSettings settings) : base(logger)
-        {            
+        {
+            Localization.Load();
             OnHook += () =>
             {
                 GetGameVersion();
@@ -162,7 +165,6 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-
             return base.Update();
         }
 

@@ -44,7 +44,6 @@ namespace Livesplit.Subnautica
             InitializeComponent();            
             Splits = new List<SplitName>();
             _state = state;
-            UpdateExploBtnContent();
         }
 
         #region Buttons
