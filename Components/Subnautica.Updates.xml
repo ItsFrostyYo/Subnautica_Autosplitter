@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.1.5.3">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+            <change>Fix Setting Dragging</change>
+            <change>Cleaner Combobox Elements</change>
+        </changelog>
+    </update>
     <update version="2.1.5.2">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>

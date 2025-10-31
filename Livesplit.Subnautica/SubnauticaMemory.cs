@@ -23,7 +23,8 @@ namespace Livesplit.Subnautica
     {
         protected override string[] ProcessNames => new string[] { "Subnautica" };
 
-        public TechType CurrentItemToCheck { get; set; }
+        public InventoryItem CurrentItemToCheck { get; set; }
+        public Unlockable CurrentBlueprintToCheck { get; set; }
         public EncyEntry CurrentEncyEntryToCheck { get; set; }      
 
         private IMonoHelper mono;
@@ -133,8 +134,8 @@ namespace Livesplit.Subnautica
             
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => PlayerInventory.GetCount(CurrentItemToCheck) > PlayerInventoryOld.GetCount(CurrentItemToCheck) },
-                { SplitName.Blueprint,            () => KnownTech.Contains(CurrentItemToCheck) && !KnownTechOld.Contains(CurrentItemToCheck) },
+                { SplitName.Inventory,            () => PlayerInventory.GetCount(CurrentItemToCheck.ConvertTo<TechType>()) > PlayerInventoryOld.GetCount(CurrentItemToCheck.ConvertTo<TechType>()) },
+                { SplitName.Blueprint,            () => KnownTech.Contains(CurrentBlueprintToCheck.ConvertTo<TechType>()) && !KnownTechOld.Contains(CurrentBlueprintToCheck.ConvertTo<TechType>()) },
                 { SplitName.Encyclopedia,         () => Encyclopedia.Contains(CurrentEncyEntryToCheck) && !EncyclopediaOld.Contains(CurrentEncyEntryToCheck) },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
@@ -454,7 +455,8 @@ namespace Livesplit.Subnautica
                       SplitName.UpperTabletSplit))
                 UpdateInventory();
 
-            if (Needs(SplitName.BoostersSplit,
+            if (Needs(SplitName.Blueprint, 
+                      SplitName.BoostersSplit,
                       SplitName.FuelReservesSplit,
                       SplitName.RocketUnlockSplit,
                       SplitName.AuroraExitSplit,

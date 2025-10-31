@@ -69,8 +69,10 @@
   <ItemGroup>
     <Compile Include="Enums\EncyMapping2023.cs" />
     <Compile Include="Enums\GameModeOption.cs" />
+    <Compile Include="Enums\InvItems.cs" />
     <Compile Include="Enums\PDATab.cs" />
     <Compile Include="Enums\GameVersion.cs" />
+    <Compile Include="Enums\Unlockable.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ManualComponents\FontTextComponent.cs" />
     <Compile Include="ManualComponents\ManualDoubleTimer.cs" />

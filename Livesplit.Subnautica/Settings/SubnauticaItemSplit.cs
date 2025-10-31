@@ -9,7 +9,7 @@ namespace Livesplit.Subnautica
 {
     public partial class SubnauticaItemSplit : SubnauticaSplitSetting
     {
-        public ItemSplit _split = new ItemSplit(TechType.None, true);
+        public ItemSplit _split = new ItemSplit(InventoryItem.None, true);
 
         private int mX = 0;
         private int mY = 0;
@@ -26,7 +26,7 @@ namespace Livesplit.Subnautica
 
         private void cboName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboItem.SelectedValue is TechType t)
+            if (cboItem.SelectedValue is InventoryItem t)
                 _split.Item = t;
         }
 
@@ -70,11 +70,11 @@ namespace Livesplit.Subnautica
 
     public class ItemSplit : SubnauticaSplit
     {
-        public TechType Item { get; set; }
+        public InventoryItem Item { get; set; }
 
-        public ItemSplit(TechType type, bool onlySplitOnce)
+        public ItemSplit(InventoryItem item, bool onlySplitOnce)
         {
-            Item = type;
+            Item = item;
             this.OnlySplitOnce = onlySplitOnce;
             this.SplitName = SplitName.Inventory;
         }

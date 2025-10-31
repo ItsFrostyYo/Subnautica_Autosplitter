@@ -9,7 +9,7 @@ namespace Livesplit.Subnautica
 {
     public partial class SubnauticaBlueprintSplit : SubnauticaSplitSetting
     {
-        public BlueprintSplit _split = new BlueprintSplit(TechType.None, true);
+        public BlueprintSplit _split = new BlueprintSplit(Unlockable.None, true);
 
         private int mX = 0;
         private int mY = 0;
@@ -26,8 +26,8 @@ namespace Livesplit.Subnautica
 
         private void cboName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboBlueprint.SelectedValue is TechType t)
-                _split.Blueprint = t;
+            if (cboBlueprint.SelectedValue is Unlockable u)
+                _split.Blueprint = u;
         }
 
         private void cbSplitOnce_CheckedChanged(object sender, EventArgs e)
@@ -70,11 +70,11 @@ namespace Livesplit.Subnautica
 
     public class BlueprintSplit : SubnauticaSplit
     {
-        public TechType Blueprint { get; set; }
+        public Unlockable Blueprint { get; set; }
 
-        public BlueprintSplit(TechType type, bool onlySplitOnce)
+        public BlueprintSplit(Unlockable bp, bool onlySplitOnce)
         {
-            Blueprint = type;
+            Blueprint = bp;
             this.OnlySplitOnce = onlySplitOnce;
             this.SplitName = SplitName.Blueprint;
         }

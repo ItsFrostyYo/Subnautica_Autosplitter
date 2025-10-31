@@ -35,6 +35,13 @@ namespace Voxif.AutoSplitter {
             object[] attributes = type.GetMember(Enum.GetName(type, enumVal))[0].GetCustomAttributes(typeof(T), false);
             return (attributes.Length > 0) ? (T)attributes[0] : null;
         }
+        public static TTarget ConvertTo<TTarget>(this Enum source) where TTarget : struct, Enum
+        {
+            if (Enum.TryParse<TTarget>(source.ToString(), ignoreCase: true, out var result))
+                return result;
+
+            throw new ArgumentException($"No matching value in {typeof(TTarget).Name} for '{source}'.");
+        }
 
 
         //

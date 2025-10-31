@@ -22,8 +22,10 @@ namespace Livesplit.Subnautica
         
         public List<ComboItem<SplitName>> PrefabSplits;
         public List<ComboItem<SplitName>> PrefabSplitsAlphaSorted;
-        public List<ComboItem<TechType>> Items;
-        public List<ComboItem<TechType>> ItemsAlphaSorted;
+        public List<ComboItem<InventoryItem>> Items;
+        public List<ComboItem<InventoryItem>> ItemsAlphaSorted;
+        public List<ComboItem<Unlockable>> Blueprints;
+        public List<ComboItem<Unlockable>> BlueprintsAlphaSorted;
         public List<ComboItem<EncyEntry>> EncyEntries;
         public List<ComboItem<EncyEntry>> EncyEntriesAlphaSorted;
 
@@ -49,12 +51,19 @@ namespace Livesplit.Subnautica
                                .ToList();
             PrefabSplitsAlphaSorted = PrefabSplits.OrderBy(x => x.Display).ToList();
 
-            Items = Enum.GetValues(typeof(TechType))
-                        .Cast<TechType>()
+            Items = Enum.GetValues(typeof(InventoryItem))
+                        .Cast<InventoryItem>()
                         .Skip(1)
-                        .Select(t => new ComboItem<TechType> { Value = t, Display = Localization.GetDisplayName(t) })
+                        .Select(t => new ComboItem<InventoryItem> { Value = t, Display = Localization.GetDisplayName(t) })
                         .ToList();
             ItemsAlphaSorted = Items.OrderBy(x => x.Display).ToList();
+
+            Blueprints = Enum.GetValues(typeof(Unlockable))
+                        .Cast<Unlockable>()
+                        .Skip(1)
+                        .Select(t => new ComboItem<Unlockable> { Value = t, Display = Localization.GetDisplayName(t) })
+                        .ToList();
+            BlueprintsAlphaSorted = Blueprints.OrderBy(x => x.Display).ToList();
 
             EncyEntries = Enum.GetValues(typeof(EncyEntry))
                                .Cast<EncyEntry>()
@@ -183,17 +192,29 @@ namespace Livesplit.Subnautica
             var combo = setting.ComboBox;
             combo.DisplayMember = "Display";
             combo.ValueMember = "Value";
-            if (setting is SubnauticaItemSplit itemSplit)
+            var prev = combo.SelectedValue;
+            switch (setting)
             {
-                var prev = combo.SelectedValue;                
-                combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-
-                if (prev is TechType prevTech)
-                    combo.SelectedValue = prevTech;
-            }
-            else
-            {
-                combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
+                case SubnauticaItemSplit itemSplit:
+                    combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+                    if (prev is InventoryItem prevItem)
+                        combo.SelectedValue = prevItem;
+                    break;
+                case SubnauticaBlueprintSplit bpSplit:
+                    combo.DataSource = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
+                    if (prev is Unlockable prevBP)
+                        combo.SelectedValue = prevBP;
+                    break;
+                case SubnauticaEncySplit encySplit:
+                    combo.DataSource = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
+                    if (prev is EncyEntry prevEntry)
+                        combo.SelectedValue = prevEntry;
+                    break;
+                default:
+                    combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
+                    if (prev is SplitName prevSplit)
+                        combo.SelectedValue = prevSplit;
+                    break;
             }
             combo.Enabled = true;
         }
@@ -312,7 +333,7 @@ namespace Livesplit.Subnautica
                     case BlueprintSplit bpSplit:
                         setting = new SubnauticaBlueprintSplit();
                         setting.CbSplitOnce.Checked = bpSplit.OnlySplitOnce;
-                        var data3 = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+                        var data3 = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
                         var combo3 = setting.ComboBox;
 
                         combo3.DisplayMember = "Display";
@@ -401,7 +422,7 @@ namespace Livesplit.Subnautica
         {
             SubnauticaBlueprintSplit setting = new SubnauticaBlueprintSplit();
 
-            var data = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+            var data = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
             setting.cboBlueprint.DisplayMember = "Display";
             setting.cboBlueprint.ValueMember = "Value";
             setting.cboBlueprint.DataSource = data;
@@ -462,17 +483,28 @@ namespace Livesplit.Subnautica
                     combo.DisplayMember = "Display";
                     combo.ValueMember = "Value";
 
-                    if (setting is SubnauticaItemSplit itemSplit)
+                    switch (setting)
                     {
-                        combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-                        if (prev is TechType prevTech)
-                            combo.SelectedValue = prevTech;
-                    }
-                    else
-                    {
-                        combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
-                        if (prev is SplitName prevSplit)
-                            combo.SelectedValue = prevSplit;
+                        case SubnauticaItemSplit itemSplit:
+                            combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+                            if (prev is InventoryItem prevItem)
+                                combo.SelectedValue = prevItem;
+                            break;
+                        case SubnauticaBlueprintSplit bpSplit:
+                            combo.DataSource = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
+                            if (prev is Unlockable prevBP)
+                                combo.SelectedValue = prevBP;
+                            break;
+                        case SubnauticaEncySplit encySplit:
+                            combo.DataSource = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
+                            if (prev is EncyEntry prevEntry)
+                                combo.SelectedValue = prevEntry;
+                            break;
+                        default:
+                            combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
+                            if (prev is SplitName prevSplit)
+                                combo.SelectedValue = prevSplit;
+                            break;
                     }
                 }
             }
@@ -488,27 +520,47 @@ namespace Livesplit.Subnautica
         }
         private void flowMain_DragOver(object sender, DragEventArgs e)
         {
-            SubnauticaPrefabSplit data = (SubnauticaPrefabSplit)e.Data.GetData(typeof(SubnauticaPrefabSplit));
+            SubnauticaSplitSetting data = null;
+
+            if (e.Data.GetDataPresent(typeof(SubnauticaSplitSetting)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaSplitSetting));
+            else if (e.Data.GetDataPresent(typeof(SubnauticaBlueprintSplit)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaBlueprintSplit));
+            else if (e.Data.GetDataPresent(typeof(SubnauticaItemSplit)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaItemSplit));
+            else if (e.Data.GetDataPresent(typeof(SubnauticaPrefabSplit)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaPrefabSplit));
+            else if (e.Data.GetDataPresent(typeof(SubnauticaEncySplit)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaEncySplit));
+
+            if (data == null)
+            {
+                e.Effect = DragDropEffects.None;
+                return;
+            }
+
             FlowLayoutPanel destination = (FlowLayoutPanel)sender;
             Point p = destination.PointToClient(new Point(e.X, e.Y));
             var item = destination.GetChildAtPoint(p);
             int index = destination.Controls.GetChildIndex(item, false);
+
             if (index == 0)
             {
                 e.Effect = DragDropEffects.None;
+                return;
             }
-            else
+
+            e.Effect = DragDropEffects.Move;
+
+            int oldIndex = destination.Controls.GetChildIndex(data);
+            if (oldIndex != index)
             {
-                e.Effect = DragDropEffects.Move;
-                int oldIndex = destination.Controls.GetChildIndex(data);
-                if (oldIndex != index)
-                {
-                    enableEdit(data);
-                    destination.Controls.SetChildIndex(data, index);
-                    destination.Invalidate();
-                }
+                enableEdit(data);
+                destination.Controls.SetChildIndex(data, index);
+                destination.Invalidate();
             }
         }
+
 
         public XmlNode UpdateSettings(XmlDocument document)
         {
@@ -650,11 +702,11 @@ namespace Livesplit.Subnautica
                     {
                         case SplitName.Inventory:
                             var item = SubnauticaItemSplit.GetTechType(value);
-                            Splits.Add(new ItemSplit(item, onlySplitOnce));
+                            Splits.Add(new ItemSplit(item.ConvertTo<InventoryItem>(), onlySplitOnce));
                             break;
                         case SplitName.Blueprint:
                             var blueprint = SubnauticaItemSplit.GetTechType(value);
-                            Splits.Add(new BlueprintSplit(blueprint, onlySplitOnce));
+                            Splits.Add(new BlueprintSplit(blueprint.ConvertTo<Unlockable>(), onlySplitOnce));
                             break;
                         case SplitName.Encyclopedia:
                             var encyEntry = SubnauticaItemSplit.GetEncyEntry(value);
