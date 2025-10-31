@@ -22,6 +22,8 @@ namespace Livesplit.Subnautica
     public class SubnauticaMemory : Memory
     {
         protected override string[] ProcessNames => new string[] { "Subnautica" };
+
+        public TechType CurrentItemToCheck { get; set; }
         
         private LiveSplitState _state;
         private SubnauticaComponent _component;
@@ -135,7 +137,7 @@ namespace Livesplit.Subnautica
             
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => settings.InvItems().Any(tt => PlayerInventory.GetCount(tt) > PlayerInventoryOld.GetCount(tt)) },
+                { SplitName.Inventory,            () => PlayerInventory.GetCount(CurrentItemToCheck) > PlayerInventoryOld.GetCount(CurrentItemToCheck) },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
@@ -179,7 +181,6 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-            //logger.Log(ReadPDAEncyMapping().Count);
 
             return base.Update();
         }
@@ -447,7 +448,8 @@ namespace Livesplit.Subnautica
                       settings.reset)
                 UpdatePosition();
 
-            if (Needs(SplitName.LeaveKelpForestSplit,
+            if (Needs(SplitName.Inventory,
+                      SplitName.LeaveKelpForestSplit,
                       SplitName.FourToothSplit,
                       SplitName.HCGSparseSplit,
                       SplitName.SGLShallowsSplit,

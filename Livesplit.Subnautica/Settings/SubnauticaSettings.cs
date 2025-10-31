@@ -19,7 +19,6 @@ namespace Livesplit.Subnautica
     public partial class SubnauticaSettings : UserControl
     {
         public List<SubnauticaSplit> Splits { get; private set; }
-        public HashSet<TechType> InvItems() => Splits.OfType<ItemSplit>().Select(s => s.Item).ToHashSet();
         public List<ComboItem<TechType>> Items;
         public List<ComboItem<TechType>> ItemsAlphaSorted;
         public List<ComboItem<SplitName>> PrefabSplits;
@@ -30,6 +29,7 @@ namespace Livesplit.Subnautica
         public bool reset {  get; set; }
         public bool askForGoldSave { get; set; }
         public bool SRCLoadtimes { get; set; }
+        public bool Ordered { get; set; }
 
         private LiveSplitState _state;
         private static ReaderWriterLockSlim isLoading = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
@@ -217,6 +217,7 @@ namespace Livesplit.Subnautica
             reset = chkReset.Checked;
             askForGoldSave = chkAskForGoldSave.Checked;
             SRCLoadtimes = chkSRCLoadtimes.Checked;
+            Ordered = cbOrdered.Checked;
 
             Splits.Clear();
             foreach (Control c in flowMain.Controls)
@@ -277,6 +278,7 @@ namespace Livesplit.Subnautica
             chkReset.Checked = reset;
             chkAskForGoldSave.Checked = askForGoldSave;
             chkSRCLoadtimes.Checked = SRCLoadtimes;
+            cbOrdered.Checked = Ordered;
 
             foreach (var split in Splits)
             {
@@ -462,6 +464,10 @@ namespace Livesplit.Subnautica
             xmlSRCLoadtimes.InnerText = SRCLoadtimes.ToString();
             xmlSettings.AppendChild(xmlSRCLoadtimes);
 
+            XmlElement xmlOrdered = document.CreateElement("Ordered");
+            xmlOrdered.InnerText = Ordered.ToString();
+            xmlSettings.AppendChild(xmlOrdered);
+
             XmlElement xmlSplits = document.CreateElement("Splits");
             xmlSettings.AppendChild(xmlSplits);
 
@@ -518,12 +524,14 @@ namespace Livesplit.Subnautica
                 XmlNode resetNode = settings.SelectSingleNode(".//Reset");
                 XmlNode askForGoldSaveNode = settings.SelectSingleNode(".//AskForGoldSave");
                 XmlNode SRCLoadtimesNode = settings.SelectSingleNode(".//SRCLoadtimes");
+                XmlNode Ordered = settings.SelectSingleNode(".//Ordered");
 
                 bool isIntroStart = false;
                 bool isCreativeStart = false;
                 bool isReset = false;
                 bool isAskForGoldSave = false;
                 bool isSRCLoadtimes = false;
+                bool isOrdered = false;
 
                 if (introStartNode != null)
                     bool.TryParse(introStartNode.InnerText, out isIntroStart);
@@ -535,12 +543,15 @@ namespace Livesplit.Subnautica
                     bool.TryParse(askForGoldSaveNode.InnerText, out isAskForGoldSave);
                 if (SRCLoadtimesNode != null)
                     bool.TryParse(SRCLoadtimesNode.InnerText, out isSRCLoadtimes);
+                if (Ordered != null)
+                    bool.TryParse(Ordered.InnerText, out isOrdered);
 
                 introStart = isIntroStart;
                 creativeStart = isCreativeStart;
                 reset = isReset;
                 askForGoldSave = isAskForGoldSave;
                 SRCLoadtimes = isSRCLoadtimes;
+                this.Ordered = isOrdered;
 
                 Splits.Clear();
                 XmlNodeList splitNodes = settings.SelectNodes(".//Splits/Split");

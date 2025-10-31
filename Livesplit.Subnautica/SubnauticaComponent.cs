@@ -71,12 +71,25 @@ namespace Livesplit.Subnautica
             if (!memory.pointersInitialized)
                 return false;
 
-            foreach (SubnauticaSplit split in settings.Splits)
+            var splits = settings.Splits;
+
+            for (int i = 0; i < splits.Count; i++)
             {
+                if (settings.Ordered && i != _state.CurrentSplitIndex)
+                    continue;
+
+                var split = splits[i];
+
+                if (split is ItemSplit itemSplit) 
+                    memory.CurrentItemToCheck = itemSplit.Item;
+                else 
+                    memory.CurrentItemToCheck = TechType.None;
+
+
                 if (memory.splitConditions.TryGetValue(split.SplitName, out var condition) && condition() && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
                 {
                     alreadySplit.Add(split);
-                    logger.Log($"{split} triggered");
+                    logger.Log($"{split.SplitName.GetDescription()} triggered");
                     return true;
                 }
             }
