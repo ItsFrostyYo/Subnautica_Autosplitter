@@ -25,6 +25,8 @@ namespace Livesplit.Subnautica
             InitializeComponent();
             cboName.DropDownStyle = ComboBoxStyle.DropDownList;
             cboName.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
+            cboName.DisplayMember = "Display";
+            cboName.ValueMember = "Value";
         }
 
         private void cboName_SelectedIndexChanged(object sender, EventArgs e)
