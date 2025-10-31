@@ -1,35 +1,26 @@
-﻿using Livesplit;
-using LiveSplit.ComponentUtil;
-using LiveSplit.Model;
-using LiveSplit.Options;
-using LiveSplit.UI;
-using LiveSplit.UI.Components.AutoSplit;
+﻿using LiveSplit.Model;
 using LiveSplit.VoxSplitter;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using Voxif.AutoSplitter;
-using Voxif.IO;
-using static Livesplit.Subnautica.SubnauticaPrefabSplit;
 
 namespace Livesplit.Subnautica
 {
     public partial class SubnauticaSettings : UserControl
     {
-        public List<SplitName> Splits { get; private set; }
+        public List<SubnauticaSplit> Splits { get; private set; }
+        public HashSet<TechType> InvItems() => Splits.OfType<ItemSplit>().Select(s => s.Item).ToHashSet();
+        public List<ComboItem<TechType>> Items;
+        public List<ComboItem<TechType>> ItemsAlphaSorted;
         public bool introStart { get; set; }
         public bool creativeStart { get; set; }
         public bool reset {  get; set; }
@@ -43,14 +34,21 @@ namespace Livesplit.Subnautica
         public SubnauticaSettings(LiveSplitState state)
         {
             InitializeComponent();            
-            Splits = new List<SplitName>();
+            Splits = new List<SubnauticaSplit>();
             _state = state;
+
+            Items = Enum.GetValues(typeof(TechType))
+                        .Cast<TechType>()
+                        .Select(t => new ComboItem<TechType> { Value = t, Display = Localization.GetDisplayName(t) })
+                        .ToList();
+
+            ItemsAlphaSorted = Items.OrderBy(x => x.Display).ToList();
         }
 
         #region Buttons
         private void btnAddSplit_Click(object sender, EventArgs e)
         {
-            var setting = createPrefabSplit();
+            var setting = createItemSplit();
             flowMain.Controls.Add(setting);
             UpdateSplits();
         }
@@ -61,7 +59,7 @@ namespace Livesplit.Subnautica
             {
                 if (flowMain.Controls[i].Contains((Control)sender))
                 {
-                    RemoveHandlers((SubnauticaPrefabSplit)((Button)sender).Parent);
+                    RemoveHandlers((SubnauticaSplitSetting)((Button)sender).Parent);
 
                     flowMain.Controls.RemoveAt(i);
                     break;
@@ -72,44 +70,15 @@ namespace Livesplit.Subnautica
 
         public void btnEdit_Click(object sender, EventArgs e)
         {
-            for (int i = flowMain.Controls.Count - 1; i > 0; i--)
+            foreach (var setting in flowMain.Controls.OfType<SubnauticaSplitSetting>())
             {
-                if (flowMain.Controls[i].Contains((Control)sender))
+                if (ReferenceEquals(setting.BtnEdit, sender))
                 {
-                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
-                    if (setting.cboName.Enabled)
-                    {
+                    if (setting.ComboBox.Enabled) 
                         disableEdit(setting);
-                    }
-                    else
-                    {
+                    else  
                         enableEdit(setting);
-                    }
                     break;
-                }
-            }
-        }
-        private void btnAddAbove_Click(object sender, EventArgs e)
-        {
-            for (int i = flowMain.Controls.Count - 1; i > 0; i--)
-            {
-                if (flowMain.Controls[i].Contains((Control)sender))
-                {
-                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
-                    int index = setting.Parent.Controls.GetChildIndex(setting);
-                    addSplitAtIndex(index);
-                }
-            }
-        }
-        private void btnAddBelow_Click(object sender, EventArgs e)
-        {
-            for (int i = flowMain.Controls.Count - 1; i > 0; i--)
-            {
-                if (flowMain.Controls[i].Contains((Control)sender))
-                {
-                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)((Button)sender).Parent;
-                    int index = setting.Parent.Controls.GetChildIndex(setting);
-                    addSplitAtIndex(index + 1);
                 }
             }
         }
@@ -149,9 +118,10 @@ namespace Livesplit.Subnautica
             using (SplitsGenerator splitGen = new SplitsGenerator())
             {
                 int maxWidth = 0;
-                foreach (var split in Splits)
+                foreach (SubnauticaSplit split in Splits)
                 {
-                    string splitName = split.GetDescription();
+                    string splitName = "Split name";
+                    splitName = split.GetDescription();
                     splitGen.ListView.Items.Add(splitName);
                     int width = TextRenderer.MeasureText(splitName, splitGen.ListView.Font).Width;
                     if (width > maxWidth)
@@ -184,25 +154,31 @@ namespace Livesplit.Subnautica
             else
                 btnAddExplo.Text = "Add Explosion Time";
         }
-        private void addSplitAtIndex(int index)
+        private void enableEdit(SubnauticaSplitSetting setting)
         {
-            var setting = createPrefabSplit();
-            flowMain.Controls.Add(setting);
-            flowMain.Controls.SetChildIndex(setting, index);
-            UpdateSplits();
+            setting.BtnEdit.Text = "✔";
+            if (setting is SubnauticaItemSplit itemSplit)
+            {
+                var combo = itemSplit.cboItem;
+                var prev = combo.SelectedValue;
+
+                combo.DisplayMember = "Display";
+                combo.ValueMember = "Value";
+                combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+
+                if (prev is TechType prevTech)
+                    combo.SelectedValue = prevTech;
+            }
+            else
+            {
+                setting.ComboBox.DataSource = GetAvailableSplits();
+            }
+            setting.ComboBox.Enabled = true;
         }
-        private void enableEdit(SubnauticaPrefabSplit setting)
+        private void disableEdit(SubnauticaSplitSetting setting)
         {
-            string currentText = setting.cboName.Text;
-            setting.btnEdit.Text = "✔";
-            setting.cboName.DataSource = GetAvailableSplits();
-            setting.cboName.Text = currentText;
-            setting.cboName.Enabled = true;
-        }
-        private void disableEdit(SubnauticaPrefabSplit setting)
-        {
-            setting.btnEdit.Text = "✏";
-            setting.cboName.Enabled = false;
+            setting.BtnEdit.Text = "✏";
+            setting.ComboBox.Enabled = false;
         }
         public void ControlChanged(object sender, EventArgs e)
         {
@@ -233,13 +209,11 @@ namespace Livesplit.Subnautica
             Splits.Clear();
             foreach (Control c in flowMain.Controls)
             {
-                if (c is SubnauticaPrefabSplit)
+                if (c is SubnauticaSplitSetting setting)
                 {
-                    SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)c;
-                    if (!string.IsNullOrEmpty(setting.cboName.Text))
+                    if (!string.IsNullOrEmpty(setting.ComboBox.Text))
                     {
-                        SplitName split = GetSplitName(setting.cboName.Text);
-                        Splits.Add(split);
+                        Splits.Add(setting.Split);
                     }
                 }
             }
@@ -248,23 +222,20 @@ namespace Livesplit.Subnautica
         }
         
 
-        private void AddHandlers(SubnauticaPrefabSplit setting)
+        private void AddHandlers(SubnauticaSplitSetting setting)
         {
-            setting.cboName.SelectedIndexChanged += new EventHandler(ControlChanged);
-            setting.btnRemove.Click += new EventHandler(btnRemove_Click);
-            setting.btnEdit.Click += new EventHandler(btnEdit_Click);
+            setting.ComboBox.SelectedIndexChanged += new EventHandler(ControlChanged);
+            setting.CbSplitOnce.CheckedChanged += new EventHandler(ControlChanged);
+            setting.BtnRemove.Click += new EventHandler(btnRemove_Click);
+            setting.BtnEdit.Click += new EventHandler(btnEdit_Click);
         }
-        private void AddHandlers(SubnauticaItemSplit setting)
+
+        private void RemoveHandlers(SubnauticaSplitSetting setting)
         {
-            setting.cboItem.SelectedIndexChanged += new EventHandler(ControlChanged);
-            setting.btnRemove.Click += new EventHandler(btnRemove_Click);
-            setting.btnEdit.Click += new EventHandler(btnEdit_Click);
-        }
-        private void RemoveHandlers(SubnauticaPrefabSplit setting)
-        {
-            setting.cboName.SelectedIndexChanged -= ControlChanged;
-            setting.btnRemove.Click -= btnRemove_Click;
-            setting.btnEdit.Click -= btnEdit_Click;
+            setting.ComboBox.SelectedIndexChanged -= ControlChanged;
+            setting.CbSplitOnce.CheckedChanged -= ControlChanged;
+            setting.BtnRemove.Click -= btnRemove_Click;
+            setting.BtnEdit.Click -= btnEdit_Click;
         }
 
         public void LoadSettings()
@@ -295,17 +266,36 @@ namespace Livesplit.Subnautica
             chkAskForGoldSave.Checked = askForGoldSave;
             chkSRCLoadtimes.Checked = SRCLoadtimes;
 
-            foreach (SplitName split in Splits)
+            foreach (var split in Splits)
             {
-                MemberInfo info = typeof(SplitName).GetMember(split.ToString())[0];
-                DescriptionAttribute description = (DescriptionAttribute)info.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
+                SubnauticaSplitSetting setting;
 
-                SubnauticaPrefabSplit setting = new SubnauticaPrefabSplit();
-                setting.cboName.DataSource = new List<string>() { description.Description };
-                setting.cboName.Enabled = false;
-                setting.cboName.Text = description.Description;
+                switch (split)
+                {
+                    case ItemSplit itemSplit:
+                        setting = new SubnauticaItemSplit();
+                        setting.CbSplitOnce.Checked = itemSplit.OnlySplitOnce;
+                        var data = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+                        var combo = ((SubnauticaItemSplit)setting).cboItem;
+
+                        combo.DisplayMember = "Display";
+                        combo.ValueMember = "Value";
+                        combo.DataSource = data;
+
+                        combo.SelectedValue = itemSplit.Item;
+                        break;
+
+                    default:
+                        setting = new SubnauticaPrefabSplit();
+                        var desc = split.GetDescription();
+                        setting.CbSplitOnce.Checked = split.OnlySplitOnce;
+                        setting.ComboBox.DataSource = new List<string> { desc };
+                        setting.ComboBox.Text = desc;
+                        break;
+                }
+
+                setting.ComboBox.Enabled = false;
                 AddHandlers(setting);
-
                 flowMain.Controls.Add(setting);
             }
 
@@ -332,9 +322,15 @@ namespace Livesplit.Subnautica
         private SubnauticaItemSplit createItemSplit()
         {
             SubnauticaItemSplit setting = new SubnauticaItemSplit();
-            List<string> splitNames = Enum.GetValues(typeof(TechType)).Cast<TechType>().Select(t => t.GetDescription()).ToList();
-            setting.cboItem.DataSource = splitNames;
-            setting.cboItem.Text = splitNames[0];
+
+            var data = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+            setting.cboItem.DisplayMember = "Display";
+            setting.cboItem.ValueMember = "Value";
+            setting.cboItem.DataSource = data;
+
+            if (data.Count > 0)
+                setting.cboItem.SelectedValue = data[0].Value;
+
             setting.btnEdit.Text = "✔";
             AddHandlers(setting);
             return setting;
@@ -348,8 +344,8 @@ namespace Livesplit.Subnautica
                 {
                     MemberInfo info = typeof(SplitName).GetMember(split.ToString())[0];
                     DescriptionAttribute description = (DescriptionAttribute)info.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
-                    availableSplits.Add(description.Description);
-                    availableSplitsAlphaSorted.Add(description.Description);
+                    if ((int)split > 1) availableSplits.Add(description.Description);
+                    if ((int)split > 1) availableSplitsAlphaSorted.Add(description.Description);
                 }
                 availableSplitsAlphaSorted.Sort(delegate (string one, string two)
                 {
@@ -363,15 +359,24 @@ namespace Livesplit.Subnautica
         {
             foreach (Control c in flowMain.Controls)
             {
-                if (c is SubnauticaPrefabSplit)
+                if (c is SubnauticaPrefabSplit s && s.cboName.Enabled)
                 {
+                    var text = s.cboName.Text;
+                    s.cboName.DataSource = GetAvailableSplits();
+                    s.cboName.Text = text;
                     SubnauticaPrefabSplit setting = (SubnauticaPrefabSplit)c;
-                    if (setting.cboName.Enabled)
-                    {
-                        string text = setting.cboName.Text;
-                        setting.cboName.DataSource = GetAvailableSplits();
-                        setting.cboName.Text = text;
-                    }
+                }
+                if (c is SubnauticaItemSplit si && si.cboItem.Enabled)
+                {
+                    var combo = si.cboItem;
+                    var prev = combo.SelectedValue;
+
+                    combo.DisplayMember = "Display";
+                    combo.ValueMember = "Value";
+                    combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+
+                    if (prev is TechType prevTech)
+                        combo.SelectedValue = prevTech;
                 }
             }
         }
@@ -435,11 +440,29 @@ namespace Livesplit.Subnautica
             XmlElement xmlSplits = document.CreateElement("Splits");
             xmlSettings.AppendChild(xmlSplits);
 
-            foreach (SplitName split in Splits)
+            foreach (var split in Splits)
             {
                 XmlElement xmlSplit = document.CreateElement("Split");
-                xmlSplit.InnerText = split.ToString();
+                XmlElement xmlName = document.CreateElement("Name");
+                XmlElement xmlOnlySplitOnce = document.CreateElement("OnlySplitOnce");
+                XmlElement xmlValue = document.CreateElement("Value");
 
+                xmlName.InnerText = split.SplitName.ToString();
+                xmlOnlySplitOnce.InnerText = split.OnlySplitOnce.ToString();
+
+                switch (split)
+                {                    
+                    case ItemSplit itemSplit:                                               
+                        xmlValue.InnerText = itemSplit.Item.ToString();
+                        break;
+                    default:
+                        xmlValue.InnerText = string.Empty;
+                        break;
+                }
+
+                xmlSplit.AppendChild(xmlOnlySplitOnce);              
+                xmlSplit.AppendChild(xmlName);              
+                xmlSplit.AppendChild(xmlValue);
                 xmlSplits.AppendChild(xmlSplit);
             }
 
@@ -496,13 +519,31 @@ namespace Livesplit.Subnautica
 
                 Splits.Clear();
                 XmlNodeList splitNodes = settings.SelectNodes(".//Splits/Split");
+
                 foreach (XmlNode splitNode in splitNodes)
                 {
-                    string splitDescription = splitNode.InnerText;
-                    SplitName split = GetSplitName(splitDescription);
-                    Splits.Add(split);
-                }
+                    bool onlySplitOnce = true;
 
+                    string name = splitNode.SelectSingleNode("Name")?.InnerText;
+                    bool.TryParse(splitNode.SelectSingleNode("OnlySplitOnce")?.InnerText, out onlySplitOnce);
+                    string value = splitNode.SelectSingleNode("Value")?.InnerText;
+                    
+
+                    if (string.IsNullOrEmpty(name))
+                        continue;
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        var splitName = SubnauticaItemSplit.GetSplitName(name);
+                        var techType = SubnauticaItemSplit.GetTechType(value);
+                        Splits.Add(new ItemSplit(techType, onlySplitOnce));
+                    }
+                    else
+                    {
+                        var splitName = SubnauticaItemSplit.GetSplitName(name);
+                        Splits.Add(new PrefabSplit(splitName, onlySplitOnce));
+                    }
+                }
             }
             else
             {
@@ -514,5 +555,10 @@ namespace Livesplit.Subnautica
 
             isLoading.ExitWriteLock();
         }
+    }
+    public sealed class ComboItem<T>
+    {
+        public T Value { get; set; }
+        public string Display { get; set; }
     }
 }

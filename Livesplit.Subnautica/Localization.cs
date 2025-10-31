@@ -90,7 +90,31 @@ namespace Livesplit.Subnautica
             if (_translations == null)
                 throw new InvalidOperationException("Translations not loaded.");
 
-            return _translations.TryGetValue(key.ToString(), out var value) ? value : key.ToString();
+            var keyString = key.ToString();
+
+            if (_translations.TryGetValue(keyString, out var value))
+                return value;
+
+            var match = _translations.FirstOrDefault(kv => string.Equals(kv.Key, keyString, StringComparison.OrdinalIgnoreCase));
+
+            return match.Value ?? keyString;
+        }
+
+        public static string GetRawName(object value)
+        {
+            if (_translations == null)
+                throw new InvalidOperationException("Translations not loaded.");
+
+            var valueString = value.ToString();
+
+            var key = _translations.FirstOrDefault(x => x.Value.Equals(value)).Key;
+
+            if (key != null)
+                return key;
+
+            var match = _translations.FirstOrDefault(kv => string.Equals(kv.Key, valueString, StringComparison.OrdinalIgnoreCase));
+
+            return match.Value ?? valueString;
         }
     }
 }

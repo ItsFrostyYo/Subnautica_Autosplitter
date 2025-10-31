@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Livesplit.Subnautica;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -22,6 +24,9 @@ namespace Voxif.AutoSplitter {
         public static string GetDescription(this Enum enumVal) {
             return enumVal.GetAttributeOfType<DescriptionAttribute>()?.Description;
         }
+        public static string GetTranslation(this Enum enumVal) {
+            return Localization.GetDisplayName(enumVal);
+        }
         public static Type GetType(this Enum enumVal) {
             return enumVal.GetAttributeOfType<TypeAttribute>()?.Type;
         }
@@ -35,6 +40,23 @@ namespace Voxif.AutoSplitter {
         //
         // ASSEMBLY
         //
+        public static string[] ReadAllLinesFromResource(this Assembly assembly, string resourceName)
+        {
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                    throw new FileNotFoundException($"Embedded resource '{resourceName}' not found in assembly '{assembly.FullName}'.");
+
+                using (var reader = new StreamReader(stream))
+                {
+                    var lines = new List<string>();
+                    while (!reader.EndOfStream)
+                        lines.Add(reader.ReadLine() ?? string.Empty);
+
+                    return lines.ToArray();
+                }                    
+            }                
+        }
         public static string FullComponentName(this Assembly asm) {
             StringBuilder sb = new StringBuilder();
 
@@ -59,5 +81,10 @@ namespace Voxif.AutoSplitter {
         public static string ResourcesURL(this Assembly asm) => Path.Combine(asm.GitMainURL(), "Resources");
         public static string ResourcesPath(this Assembly asm) => Path.Combine(Path.GetDirectoryName(asm.Location), asm.GetName().Name);
         public static string Description(this Assembly asm) => ((AssemblyDescriptionAttribute)Attribute.GetCustomAttribute(asm, typeof(AssemblyDescriptionAttribute))).Description;
+
+        //
+        // Dictionary<TechType, int>
+        //
+        public static int GetCount(this Dictionary<TechType, int> dict, TechType type) => dict.TryGetValue(type, out var count) ? count : 0;
     }
 }

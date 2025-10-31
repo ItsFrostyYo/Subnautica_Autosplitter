@@ -15,6 +15,8 @@ namespace Livesplit.Subnautica
         private SubnauticaMemory memory;
         private LiveSplitState _state;
         private readonly TimerModel timerModel;
+        public readonly HashSet<SubnauticaSplit> alreadySplit = new HashSet<SubnauticaSplit>();
+
         public SubnauticaComponent(LiveSplitState state) : base(state)
         {
 #if DEBUG
@@ -24,9 +26,10 @@ namespace Livesplit.Subnautica
 #endif
             logger.StartLogger();
 
+            Localization.Load();
             _state = state;
             settings = new SubnauticaSettings(state);
-            memory = new SubnauticaMemory(state, logger, settings);
+            memory = new SubnauticaMemory(state, this, logger, settings);
             timerModel = new TimerModel() { CurrentState = state };
         }
 
@@ -68,11 +71,11 @@ namespace Livesplit.Subnautica
             if (!memory.pointersInitialized)
                 return false;
 
-            foreach (var split in settings.Splits)
+            foreach (SubnauticaSplit split in settings.Splits)
             {
-                if (memory.splitConditions.TryGetValue(split, out var condition) && condition())
+                if (memory.splitConditions.TryGetValue(split.SplitName, out var condition) && condition() && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
                 {
-                    memory.alreadySplit.Add(split);
+                    alreadySplit.Add(split);
                     logger.Log($"{split} triggered");
                     return true;
                 }

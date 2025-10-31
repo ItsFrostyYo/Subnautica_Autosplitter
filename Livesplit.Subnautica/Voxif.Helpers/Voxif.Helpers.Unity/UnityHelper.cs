@@ -256,7 +256,6 @@ namespace Voxif.Helpers.Unity {
                 }
             }
 
-
             protected virtual string FieldName(IntPtr field) {
                 return GetName(field + data.GetOffset("MonoClassField", "name"));
             }

@@ -110,6 +110,9 @@
     <Compile Include="Settings\SubnauticaPrefabSplit.Designer.cs">
       <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </Compile>
+    <Compile Include="Settings\SubnauticaSplitSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="SubnauticaComponent.cs" />
     <Compile Include="SubnauticaMemory.cs" />
     <Compile Include="Settings\SubnauticaSettings.cs">
@@ -138,6 +141,9 @@
     <Compile Include="Voxif.Memory\ProcessWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="SubnauticaSplitter.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -159,6 +165,7 @@
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1_cattrs.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v2.txt" />
+    <EmbeddedResource Include="Resources\EncyMappingMarch2023.txt" />
     <Content Include="Splits\Presets.xml" />
     <Content Include="Splits\Splits.xml" />
   </ItemGroup>
