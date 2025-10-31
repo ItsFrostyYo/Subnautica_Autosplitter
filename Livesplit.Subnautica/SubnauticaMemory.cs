@@ -135,7 +135,7 @@ namespace Livesplit.Subnautica
             
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => settings.InvItems().Any(item => PlayerInventory.Keys.ToHashSet().Contains(item)) && !PlayerInventoryOld.Keys.Any(k => settings.InvItems().Contains(k)) }, // aiaieia
+                { SplitName.Inventory,            () => settings.InvItems().Any(tt => PlayerInventory.GetCount(tt) > PlayerInventoryOld.GetCount(tt)) },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
