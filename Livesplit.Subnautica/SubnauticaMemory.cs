@@ -170,6 +170,7 @@ namespace Livesplit.Subnautica
 
             
         }
+
         public override bool Update()
         {           
             if(!pointersInitialized)

@@ -75,7 +75,7 @@ namespace Livesplit.Subnautica
 
             for (int i = 0; i < splits.Count; i++)
             {
-                if (settings.Ordered && i != _state.CurrentSplitIndex)
+                if (settings.Ordered && i != alreadySplit.Count)
                     continue;
 
                 var split = splits[i];
@@ -86,7 +86,7 @@ namespace Livesplit.Subnautica
 
                 switch (split)
                 {
-                    case ItemSplit itemSplit:    memory.CurrentItemToCheck = itemSplit.Item;         break;
+                    case ItemSplit itemSplit:    memory.CurrentItemToCheck      = itemSplit.Item;    break;
                     case BlueprintSplit bpSplit: memory.CurrentBlueprintToCheck = bpSplit.Blueprint; break;
                     case EncySplit encySplit:    memory.CurrentEncyEntryToCheck = encySplit.Entry;   break;
                     default: break;
@@ -149,6 +149,11 @@ namespace Livesplit.Subnautica
                 ui.BeginInvoke(doReset);
             else
                 doReset();
+        }
+
+        public override void OnReset()
+        {
+            alreadySplit.Clear();
         }
     }
 }
