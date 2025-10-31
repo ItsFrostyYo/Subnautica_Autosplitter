@@ -556,6 +556,12 @@ namespace Livesplit.Subnautica
                     case ItemSplit itemSplit:                                               
                         xmlValue.InnerText = itemSplit.Item.ToString();
                         break;
+                    case BlueprintSplit bpSplit:
+                        xmlValue.InnerText = bpSplit.Blueprint.ToString();
+                        break;
+                    case EncySplit encySplit:
+                        xmlValue.InnerText = encySplit.Entry.ToString();
+                        break;
                     default:
                         xmlValue.InnerText = split.SplitName.ToString();
                         break;

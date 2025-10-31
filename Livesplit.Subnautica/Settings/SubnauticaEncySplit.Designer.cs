@@ -35,11 +35,10 @@
             this.cboEncy = new System.Windows.Forms.ComboBox();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.picHandle = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.l_name = new System.Windows.Forms.Label();
             this.cbSplitOnce = new System.Windows.Forms.CheckBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // btnEdit
@@ -85,17 +84,6 @@
             this.picHandle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseDown);
             this.picHandle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseMove);
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
-            this.pictureBox1.Location = new System.Drawing.Point(440, 17);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(26, 23);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox1.TabIndex = 16;
-            this.pictureBox1.TabStop = false;
-            // 
             // l_name
             // 
             this.l_name.AutoSize = true;
@@ -119,6 +107,16 @@
             this.cbSplitOnce.UseVisualStyleBackColor = true;
             this.cbSplitOnce.CheckedChanged += new System.EventHandler(this.cbSplitOnce_CheckedChanged);
             // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(440, 16);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(26, 23);
+            this.button1.TabIndex = 20;
+            this.button1.Text = "▼";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
             // SubnauticaEncySplit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -126,9 +124,9 @@
             this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.cbSplitOnce);
             this.Controls.Add(this.l_name);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.picHandle);
             this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.btnRemove);
@@ -137,7 +135,6 @@
             this.Name = "SubnauticaEncySplit";
             this.Size = new System.Drawing.Size(469, 47);
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -149,8 +146,8 @@
         public System.Windows.Forms.ComboBox cboEncy;
         private System.Windows.Forms.ToolTip ToolTips;
         private System.Windows.Forms.PictureBox picHandle;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label l_name;
         private System.Windows.Forms.CheckBox cbSplitOnce;
+        public System.Windows.Forms.Button button1;
     }
 }
