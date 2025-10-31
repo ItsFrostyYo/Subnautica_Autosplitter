@@ -179,7 +179,7 @@ namespace Livesplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-            logger.Log(ReadPDAEncyMapping().Count);
+            //logger.Log(ReadPDAEncyMapping().Count);
 
             return base.Update();
         }

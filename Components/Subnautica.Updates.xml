@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.1.4.0">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+            <change>Add Inventory settings</change>
+            <change>Add Only Split Once Check Box</change>
+        </changelog>
+    </update> 
     <update version="2.1.2.2">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
