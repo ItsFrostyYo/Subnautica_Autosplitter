@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.1.5.1">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+            <change>Add Ordered Splits</change>
+            <change>Add Blueprint Split</change>
+            <change>Add Encyclopedia Split</change>
+        </changelog>
+    </update> 
     <update version="2.1.4.0">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
