@@ -19,10 +19,13 @@ namespace Livesplit.Subnautica
     public partial class SubnauticaSettings : UserControl
     {
         public List<SubnauticaSplit> Splits { get; private set; }
-        public List<ComboItem<TechType>> Items;
-        public List<ComboItem<TechType>> ItemsAlphaSorted;
+        
         public List<ComboItem<SplitName>> PrefabSplits;
         public List<ComboItem<SplitName>> PrefabSplitsAlphaSorted;
+        public List<ComboItem<TechType>> Items;
+        public List<ComboItem<TechType>> ItemsAlphaSorted;
+        public List<ComboItem<EncyEntry>> EncyEntries;
+        public List<ComboItem<EncyEntry>> EncyEntriesAlphaSorted;
 
         public bool introStart { get; set; }
         public bool creativeStart { get; set; }
@@ -39,6 +42,13 @@ namespace Livesplit.Subnautica
             InitializeComponent();            
             Splits = new List<SubnauticaSplit>();
             _state = state;
+            PrefabSplits = Enum.GetValues(typeof(SplitName))
+                               .Cast<SplitName>()
+                               .Skip(4)
+                               .Select(s => new ComboItem<SplitName> { Value = s, Display = s.GetDescription() })
+                               .ToList();
+            PrefabSplitsAlphaSorted = PrefabSplits.OrderBy(x => x.Display).ToList();
+
             Items = Enum.GetValues(typeof(TechType))
                         .Cast<TechType>()
                         .Skip(1)
@@ -46,12 +56,12 @@ namespace Livesplit.Subnautica
                         .ToList();
             ItemsAlphaSorted = Items.OrderBy(x => x.Display).ToList();
 
-            PrefabSplits = Enum.GetValues(typeof(SplitName))
-                               .Cast<SplitName>()
-                               .Skip(2)
-                               .Select(s => new ComboItem<SplitName> { Value = s, Display = s.GetDescription() })
+            EncyEntries = Enum.GetValues(typeof(EncyEntry))
+                               .Cast<EncyEntry>()
+                               .Skip(1)
+                               .Select(e => new ComboItem<EncyEntry> { Value = e, Display = Localization.GetDisplayName(e) })
                                .ToList();
-            PrefabSplitsAlphaSorted = PrefabSplits.OrderBy(x => x.Display).ToList();
+            EncyEntriesAlphaSorted = EncyEntries.OrderBy(x => x.Display).ToList();
         }
 
         #region Buttons
@@ -290,13 +300,39 @@ namespace Livesplit.Subnautica
                         setting = new SubnauticaItemSplit();
                         setting.CbSplitOnce.Checked = itemSplit.OnlySplitOnce;
                         var data1 = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-                        var combo1 = ((SubnauticaItemSplit)setting).cboItem;
+                        var combo1 = setting.ComboBox;
 
                         combo1.DisplayMember = "Display";
                         combo1.ValueMember = "Value";
                         combo1.DataSource = data1;
 
                         combo1.SelectedValue = itemSplit.Item;
+                        break;
+
+                    case BlueprintSplit bpSplit:
+                        setting = new SubnauticaBlueprintSplit();
+                        setting.CbSplitOnce.Checked = bpSplit.OnlySplitOnce;
+                        var data3 = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+                        var combo3 = setting.ComboBox;
+
+                        combo3.DisplayMember = "Display";
+                        combo3.ValueMember = "Value";
+                        combo3.DataSource = data3;
+
+                        combo3.SelectedValue = bpSplit.Blueprint;
+                        break;
+
+                    case EncySplit encySplit:
+                        setting = new SubnauticaEncySplit();
+                        setting.CbSplitOnce.Checked = encySplit.OnlySplitOnce;
+                        var data4 = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
+                        var combo4 = setting.ComboBox;
+
+                        combo4.DisplayMember = "Display";
+                        combo4.ValueMember = "Value";
+                        combo4.DataSource = data4;
+
+                        combo4.SelectedValue = encySplit.Entry;
                         break;
 
                     default:
@@ -355,6 +391,40 @@ namespace Livesplit.Subnautica
 
             if (data.Count > 0)
                 setting.cboItem.SelectedValue = data[0].Value;
+
+            setting.btnEdit.Text = "✔";
+            AddHandlers(setting);
+            return setting;
+        }
+
+        public SubnauticaBlueprintSplit CreateBlueprintSplit()
+        {
+            SubnauticaBlueprintSplit setting = new SubnauticaBlueprintSplit();
+
+            var data = rdAlpha.Checked ? ItemsAlphaSorted : Items;
+            setting.cboBlueprint.DisplayMember = "Display";
+            setting.cboBlueprint.ValueMember = "Value";
+            setting.cboBlueprint.DataSource = data;
+
+            if (data.Count > 0)
+                setting.cboBlueprint.SelectedValue = data[0].Value;
+
+            setting.btnEdit.Text = "✔";
+            AddHandlers(setting);
+            return setting;
+        }
+
+        public SubnauticaEncySplit CreateEncySplit()
+        {
+            SubnauticaEncySplit setting = new SubnauticaEncySplit();
+
+            var data = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
+            setting.cboEncy.DisplayMember = "Display";
+            setting.cboEncy.ValueMember = "Value";
+            setting.cboEncy.DataSource = data;
+
+            if (data.Count > 0)
+                setting.cboEncy.SelectedValue = data[0].Value;
 
             setting.btnEdit.Text = "✔";
             AddHandlers(setting);
@@ -570,14 +640,23 @@ namespace Livesplit.Subnautica
 
                     var splitName = SubnauticaItemSplit.GetSplitName(name);
 
-                    if (splitName == SplitName.Inventory)
-                    {                        
-                        var techType = SubnauticaItemSplit.GetTechType(value);
-                        Splits.Add(new ItemSplit(techType, onlySplitOnce));
-                    }
-                    else
+                    switch (splitName)
                     {
-                        Splits.Add(new PrefabSplit(splitName, onlySplitOnce));
+                        case SplitName.Inventory:
+                            var item = SubnauticaItemSplit.GetTechType(value);
+                            Splits.Add(new ItemSplit(item, onlySplitOnce));
+                            break;
+                        case SplitName.Blueprint:
+                            var blueprint = SubnauticaItemSplit.GetTechType(value);
+                            Splits.Add(new BlueprintSplit(blueprint, onlySplitOnce));
+                            break;
+                        case SplitName.Encyclopedia:
+                            var encyEntry = SubnauticaItemSplit.GetEncyEntry(value);
+                            Splits.Add(new EncySplit(encyEntry, onlySplitOnce));
+                            break;
+                        default:
+                            Splits.Add(new PrefabSplit(splitName, onlySplitOnce));
+                            break;
                     }
                 }
             }

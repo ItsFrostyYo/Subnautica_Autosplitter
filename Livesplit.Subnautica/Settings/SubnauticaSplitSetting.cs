@@ -39,14 +39,29 @@ namespace Livesplit.Subnautica
             foreach (TechType techType in Enum.GetValues(typeof(TechType)))
             {
                 string name = techType.ToString();
-                string displayName = Localization.GetRawName(name);
+                string rawName = Localization.GetRawName(name);
 
-                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || displayName.Equals(text, StringComparison.OrdinalIgnoreCase))
+                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || rawName.Equals(text, StringComparison.OrdinalIgnoreCase))
                 {
                     return techType;
                 }
             }
             return TechType.None;
+        }
+
+        public static EncyEntry GetEncyEntry(string text)
+        {
+            foreach (EncyEntry encyEntry in Enum.GetValues(typeof(EncyEntry)))
+            {
+                string name = encyEntry.ToString();
+                string rawName = Localization.GetRawName(name);
+
+                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || rawName.Equals(text, StringComparison.OrdinalIgnoreCase))
+                {
+                    return encyEntry;
+                }
+            }
+            return EncyEntry.None;
         }
     }    
     
@@ -63,6 +78,10 @@ namespace Livesplit.Subnautica
         None,
         [Description("Inventory Split"), ToolTip("Splits when you have a certain item in the inventory")]
         Inventory,
+        [Description("Blueprint Split"), ToolTip("Splits when you have a certain blueprint unlocked")]
+        Blueprint,
+        [Description("Encyclopedia Split"), ToolTip("Splits when you have a certain entry in the encyclopedia unlocked")]
+        Encyclopedia,
         [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
         RocketSplit,
         [Description("Portal Split"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]

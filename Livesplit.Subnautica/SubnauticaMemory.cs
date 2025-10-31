@@ -24,22 +24,19 @@ namespace Livesplit.Subnautica
         protected override string[] ProcessNames => new string[] { "Subnautica" };
 
         public TechType CurrentItemToCheck { get; set; }
-        
-        private LiveSplitState _state;
-        private SubnauticaComponent _component;
+        public EncyEntry CurrentEncyEntryToCheck { get; set; }      
 
         private IMonoHelper mono;
 
         public bool startedTimerBefore = false;
         public bool isInMainMenu = false;
-        public bool fakePortalLoading = false;
         private readonly Stopwatch _duringLoad = new Stopwatch();
         private readonly Stopwatch _afterLoad = new Stopwatch();
         private int prePortalDelayMs = 0;
         private int postPortalDelayMs = 0;
         public bool pointersInitialized;
         public GameVersion gameVersion;
-        string[] EncyMappingMarch2023;
+        //string[] EncyMappingMarch2023;
 
         public readonly Dictionary<SplitName, Func<bool>> splitConditions;
 
@@ -63,9 +60,10 @@ namespace Livesplit.Subnautica
 
         public Dictionary<TechType, int> PlayerInventory = new Dictionary<TechType, int>();
         public Dictionary<TechType, int> PlayerInventoryOld = new Dictionary<TechType, int>();
-
         public List<TechType> KnownTech = new List<TechType>();
         public List<TechType> KnownTechOld = new List<TechType>();
+        public List<EncyEntry> Encyclopedia = new List<EncyEntry>();
+        public List<EncyEntry> EncyclopediaOld = new List<EncyEntry>();
 
         IntPtr invKlass;
         IntPtr icKlass;
@@ -111,7 +109,7 @@ namespace Livesplit.Subnautica
 
         public SubnauticaMemory(LiveSplitState state, SubnauticaComponent component, Logger logger, SubnauticaSettings settings) : base(logger)
         {            
-            EncyMappingMarch2023 = Assembly.GetExecutingAssembly().ReadAllLinesFromResource("Livesplit.Subnautica.Resources.EncyMappingMarch2023.txt");
+            //EncyMappingMarch2023 = Assembly.GetExecutingAssembly().ReadAllLinesFromResource("Livesplit.Subnautica.Resources.EncyMappingMarch2023.txt");
 
             OnHook += () =>
             {
@@ -131,13 +129,13 @@ namespace Livesplit.Subnautica
                 }
             };
 
-            _state = state;
-            _component = component;
             this.settings = settings;
             
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
                 { SplitName.Inventory,            () => PlayerInventory.GetCount(CurrentItemToCheck) > PlayerInventoryOld.GetCount(CurrentItemToCheck) },
+                { SplitName.Blueprint,            () => KnownTech.Contains(CurrentItemToCheck) && !KnownTechOld.Contains(CurrentItemToCheck) },
+                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(CurrentEncyEntryToCheck) && !EncyclopediaOld.Contains(CurrentEncyEntryToCheck) },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
@@ -462,6 +460,9 @@ namespace Livesplit.Subnautica
                       SplitName.AuroraExitSplit,
                       SplitName.IonUnlockSplit))
                 UpdateBlueprints();
+
+            if(Needs(SplitName.Encyclopedia))
+                UpdateEncyclopedia();
         }
         private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
         private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Select(s => s.SplitName).Contains(r));
@@ -499,6 +500,12 @@ namespace Livesplit.Subnautica
         {
             PlayerInventoryOld = PlayerInventory;
             PlayerInventory = ReadInventoryCounts();
+        }
+
+        private void UpdateEncyclopedia()
+        {
+            EncyclopediaOld = Encyclopedia;
+            Encyclopedia = ReadPDAEncyMapping();
         }
 
         private bool IsWithinBounds(float[] bounds)
@@ -689,9 +696,9 @@ namespace Livesplit.Subnautica
             }
             return result;
         }
-        public Dictionary<string, IntPtr> ReadPDAEncyMapping()
+        public List<EncyEntry> ReadPDAEncyMapping()
         {
-            var result = new Dictionary<string, IntPtr>();
+            var result = new List<EncyEntry>();
 
             IntPtr dict = pdaMappingPtr.New;
             if (dict == IntPtr.Zero)
@@ -735,14 +742,15 @@ namespace Livesplit.Subnautica
 
                         string key = game.ReadString(pKey + strHeader, EStringType.UTF16Sized);
                         if (!string.IsNullOrEmpty(key))
-                            result[key] = pVal;
+                            if (Enum.TryParse(key, out EncyEntry encyEntry)) 
+                                result.Add(encyEntry);
                     }
 
                     int verAfter = (dict_off_version != 0) ? game.Read<int>(dict + dict_off_version) : verBefore;
                     if (verAfter == verBefore)
                         return result;
 
-                    result.Clear(); // inkonsistenter Snapshot, nochmal versuchen
+                    result.Clear();
                 }
             }
 
@@ -792,7 +800,8 @@ namespace Livesplit.Subnautica
 
                         string key = game.ReadString(pKey + strHeader, EStringType.UTF16Sized);
                         if (!string.IsNullOrEmpty(key))
-                            result[key] = pVal;
+                            if (Enum.TryParse(key, out EncyEntry encyEntry))
+                                result.Add(encyEntry);
                     }
                 }
             }

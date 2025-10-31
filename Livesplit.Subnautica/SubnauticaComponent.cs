@@ -80,11 +80,25 @@ namespace Livesplit.Subnautica
 
                 var split = splits[i];
 
-                if (split is ItemSplit itemSplit) 
-                    memory.CurrentItemToCheck = itemSplit.Item;
-                else 
-                    memory.CurrentItemToCheck = TechType.None;
-
+                switch (split)
+                {
+                    case ItemSplit itemSplit:
+                        memory.CurrentItemToCheck = itemSplit.Item;
+                        memory.CurrentEncyEntryToCheck = EncyEntry.None;
+                        break;
+                    case BlueprintSplit bpSplit:
+                        memory.CurrentItemToCheck = bpSplit.Blueprint;
+                        memory.CurrentEncyEntryToCheck = EncyEntry.None;
+                        break;
+                    case EncySplit encySplit:
+                        memory.CurrentItemToCheck = TechType.None;
+                        memory.CurrentEncyEntryToCheck = encySplit.Entry;
+                        break;
+                    default:
+                        memory.CurrentItemToCheck = TechType.None;
+                        memory.CurrentEncyEntryToCheck = EncyEntry.None;
+                        break;
+                }
 
                 if (memory.splitConditions.TryGetValue(split.SplitName, out var condition) && condition() && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
                 {

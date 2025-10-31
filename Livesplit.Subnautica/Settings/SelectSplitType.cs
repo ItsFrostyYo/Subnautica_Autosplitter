@@ -20,6 +20,8 @@ namespace Livesplit.Subnautica.Settings
             {
                 new SplitType { Text = "Prefabricated", Func = settings.CreatePrefabSplit },
                 new SplitType { Text = "Inventory", Func = settings.CreateItemSplit },
+                new SplitType { Text = "Blueprint", Func = settings.CreateBlueprintSplit },
+                new SplitType { Text = "Encyclopedia", Func = settings.CreateEncySplit },
             };
             cboSplitType.DisplayMember = nameof(SplitType.Text);
             cboSplitType.ValueMember = nameof(SplitType.Func);

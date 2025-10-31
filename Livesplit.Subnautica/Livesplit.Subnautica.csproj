@@ -67,6 +67,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\EncyMapping2023.cs" />
     <Compile Include="Enums\GameModeOption.cs" />
     <Compile Include="Enums\PDATab.cs" />
     <Compile Include="Enums\GameVersion.cs" />
@@ -103,6 +104,18 @@
     </Compile>
     <Compile Include="Settings\SplitGenerator.Designer.cs">
       <DependentUpon>SplitGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaBlueprintSplit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\SubnauticaBlueprintSplit.Designer.cs">
+      <DependentUpon>SubnauticaBlueprintSplit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaEncySplit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\SubnauticaEncySplit.Designer.cs">
+      <DependentUpon>SubnauticaEncySplit.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings\SubnauticaItemSplit.cs">
       <SubType>UserControl</SubType>
@@ -156,6 +169,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\SelectSplitType.resx">
       <DependentUpon>SelectSplitType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\SubnauticaBlueprintSplit.resx">
+      <DependentUpon>SubnauticaBlueprintSplit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\SubnauticaEncySplit.resx">
+      <DependentUpon>SubnauticaEncySplit.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
