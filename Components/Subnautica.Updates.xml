@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.2.0.2">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+            <change>Add gantry split</change>
+            <change>Change Creative Start to work on all Gamemodes</change>
+        </changelog>
+    </update>
     <update version="2.2.0.0">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
