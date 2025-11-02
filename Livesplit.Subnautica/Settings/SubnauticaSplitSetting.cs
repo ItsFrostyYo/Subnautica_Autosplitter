@@ -90,6 +90,8 @@ namespace Livesplit.Subnautica
         HatchSplit,
         [Description("Cure Split"), ToolTip("Splits when you cure yourself")]
         CureSplit,
+        [Description("Gantry Split"), ToolTip("Splits when you build the gantry section of the Neptune Rocket\nCreative 2018 only")]
+        GantrySplit,
         [Description("Boosters Split"), ToolTip("Splits when you build the boosters section of the Neptune Rocket\nCreative 2018 only")]
         BoostersSplit,
         [Description("Fuel Reserves Split"), ToolTip("Splits when you build the fuel reserves section of the Neptune Rocket\nCreative 2018 only")]

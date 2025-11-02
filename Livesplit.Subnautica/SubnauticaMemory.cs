@@ -142,6 +142,7 @@ namespace Livesplit.Subnautica
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
                 { SplitName.HatchSplit,           () => isEggsHatching.Current && !isEggsHatching.Old },
                 { SplitName.CureSplit,            () => TimeCured.New > TimeCured.Old },
+                { SplitName.BoostersSplit,        () => KnownTech.Contains(TechType.RocketStage1) && !KnownTechOld.Contains(TechType.RocketStage1) },
                 { SplitName.BoostersSplit,        () => KnownTech.Contains(TechType.RocketStage2) && !KnownTechOld.Contains(TechType.RocketStage2) },
                 { SplitName.FuelReservesSplit,    () => KnownTech.Contains(TechType.RocketStage3) && !KnownTechOld.Contains(TechType.RocketStage3) },
                 { SplitName.GunDeactivationSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(gunBounds) },
