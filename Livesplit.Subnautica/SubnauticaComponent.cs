@@ -52,7 +52,7 @@ namespace Livesplit.Subnautica
             {
                 if (memory.DamageEffectsShowing.New && !memory.DamageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
             }
-            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu && (GameModeOption)memory.GameMode.New == GameModeOption.Creative)
+            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu)
             {
                 // Start of Move
                 if ((memory.walkDir.Current != 0 && memory.walkDir.Old == 0) || (memory.strafeDir.Current != 0 && memory.strafeDir.Old == 0)) { logger.Log("Start of Move"); memory.startedTimerBefore = true; return true; }
