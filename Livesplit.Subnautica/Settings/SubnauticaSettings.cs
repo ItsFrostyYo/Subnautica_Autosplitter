@@ -1,4 +1,5 @@
-﻿using Livesplit.Subnautica.Settings;
+﻿using Livesplit.Subnautica;
+using Livesplit.Subnautica.Settings;
 using LiveSplit.Model;
 using LiveSplit.VoxSplitter;
 using System;
@@ -9,6 +10,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
@@ -19,7 +21,7 @@ namespace Livesplit.Subnautica
     public partial class SubnauticaSettings : UserControl
     {
         public List<SubnauticaSplit> Splits { get; private set; }
-        
+
         public List<ComboItem<SplitName>> PrefabSplits;
         public List<ComboItem<SplitName>> PrefabSplitsAlphaSorted;
         public List<ComboItem<InventoryItem>> Items;
@@ -28,20 +30,22 @@ namespace Livesplit.Subnautica
         public List<ComboItem<Unlockable>> BlueprintsAlphaSorted;
         public List<ComboItem<EncyEntry>> EncyEntries;
         public List<ComboItem<EncyEntry>> EncyEntriesAlphaSorted;
+        public List<ComboItem<Biome>> Biomes;
+        public List<ComboItem<Biome>> BiomesAlphaSorted;
 
-        public bool introStart { get; set; }
-        public bool creativeStart { get; set; }
-        public bool reset {  get; set; }
-        public bool askForGoldSave { get; set; }
+        public bool IntroStart { get; set; }
+        public bool CreativeStart { get; set; }
+        public bool Reset { get; set; }
+        public bool AskForGoldSave { get; set; }
         public bool SRCLoadtimes { get; set; }
         public bool Ordered { get; set; }
 
         private LiveSplitState _state;
         private static ReaderWriterLockSlim isLoading = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
-        
+
         public SubnauticaSettings(LiveSplitState state)
         {
-            InitializeComponent();            
+            InitializeComponent();
             Splits = new List<SubnauticaSplit>();
             _state = state;
             PrefabSplits = Enum.GetValues(typeof(SplitName))
@@ -71,6 +75,13 @@ namespace Livesplit.Subnautica
                                .Select(e => new ComboItem<EncyEntry> { Value = e, Display = Localization.GetDisplayName(e) })
                                .ToList();
             EncyEntriesAlphaSorted = EncyEntries.OrderBy(x => x.Display).ToList();
+
+            Biomes = Enum.GetValues(typeof(Biome))
+                               .Cast<Biome>()
+                               .Skip(1)
+                               .Select(b => new ComboItem<Biome> { Value = b, Display = Localization.GetDisplayName(b) })
+                               .ToList();
+            BiomesAlphaSorted = Biomes.OrderBy(x => x.Display).ToList();
         }
 
         #region Buttons
@@ -106,10 +117,9 @@ namespace Livesplit.Subnautica
             {
                 if (ReferenceEquals(setting.BtnEdit, sender))
                 {
-                    if (setting.ComboBox.Enabled) 
-                        disableEdit(setting);
-                    else  
-                        enableEdit(setting);
+                    bool anyEnabled = setting.ComboBox.Enabled || (setting.ComboBox2?.Enabled ?? false);
+                    if (anyEnabled) disableEdit(setting);
+                    else enableEdit(setting);
                     break;
                 }
             }
@@ -117,7 +127,7 @@ namespace Livesplit.Subnautica
 
         private void btnAddExplo_Click(object sender, EventArgs e)
         {
-            if(_state == null)
+            if (_state == null)
                 return;
 
             var componentPath = @"Components\\SubnauticaShipExplosionInfo.dll";
@@ -189,82 +199,69 @@ namespace Livesplit.Subnautica
         private void enableEdit(SubnauticaSplitSetting setting)
         {
             setting.BtnEdit.Text = "✔";
-            var combo = setting.ComboBox;
-            combo.DisplayMember = "Display";
-            combo.ValueMember = "Value";
-            var prev = combo.SelectedValue;
-            switch (setting)
-            {
-                case SubnauticaItemSplit itemSplit:
-                    combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-                    if (prev is InventoryItem prevItem)
-                        combo.SelectedValue = prevItem;
-                    break;
-                case SubnauticaBlueprintSplit bpSplit:
-                    combo.DataSource = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
-                    if (prev is Unlockable prevBP)
-                        combo.SelectedValue = prevBP;
-                    break;
-                case SubnauticaEncySplit encySplit:
-                    combo.DataSource = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
-                    if (prev is EncyEntry prevEntry)
-                        combo.SelectedValue = prevEntry;
-                    break;
-                default:
-                    combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
-                    if (prev is SplitName prevSplit)
-                        combo.SelectedValue = prevSplit;
-                    break;
-            }
-            combo.Enabled = true;
+            ApplyDataSources(setting, rdAlpha.Checked);
+            setting.ComboBox.Enabled = true;
+            if (setting.ComboBox2 != null)
+                setting.ComboBox2.Enabled = true;
         }
         private void disableEdit(SubnauticaSplitSetting setting)
         {
             setting.BtnEdit.Text = "✏";
             setting.ComboBox.Enabled = false;
+            if (setting.ComboBox2 != null)
+                setting.ComboBox2.Enabled = false;
         }
         public void ControlChanged(object sender, EventArgs e)
         {
             UpdateSplits();
         }
-
+        private void ApplyDataSources(SubnauticaSplitSetting setting, bool alpha)
+        {
+            switch (setting)
+            {
+                case SubnauticaItemSplit a:
+                    BindCombo(setting.ComboBox, alpha ? ItemsAlphaSorted : Items, setting.ComboBox.SelectedValue);
+                    break;
+                case SubnauticaBlueprintSplit b:
+                    BindCombo(setting.ComboBox, alpha ? BlueprintsAlphaSorted : Blueprints, setting.ComboBox.SelectedValue);
+                    break;
+                case SubnauticaEncySplit c:
+                    BindCombo(setting.ComboBox, alpha ? EncyEntriesAlphaSorted : EncyEntries, setting.ComboBox.SelectedValue);
+                    break;
+                case SubnauticaBiomeSplit d:
+                    BindCombo(setting.ComboBox, alpha ? BiomesAlphaSorted : Biomes, setting.ComboBox.SelectedValue);
+                    BindCombo(setting.ComboBox2, alpha ? BiomesAlphaSorted : Biomes, setting.ComboBox2.SelectedValue ?? setting.ComboBox.SelectedValue);
+                    break;
+                default:
+                    BindCombo(setting.ComboBox, alpha ? PrefabSplitsAlphaSorted : PrefabSplits, setting.ComboBox.SelectedValue);
+                    break;
+            }
+        }
         public void UpdateSplits()
         {
             try
             {
-                // NO retry, lower priority than SetSettings and LoadSettings
-                if (!isLoading.TryEnterWriteLock(0))
-                {
-                    return;
-                }
-            }
-            catch (LockRecursionException)
-            {
-                return;
-            }
+                if (!isLoading.TryEnterWriteLock(0)) return;
 
-            introStart = chkIntroStart.Checked;
-            creativeStart = chkCreativeStart.Checked;
-            reset = chkReset.Checked;
-            askForGoldSave = chkAskForGoldSave.Checked;
-            SRCLoadtimes = chkSRCLoadtimes.Checked;
-            Ordered = cbOrdered.Checked;
+                IntroStart = chkIntroStart.Checked;
+                CreativeStart = chkCreativeStart.Checked;
+                Reset = chkReset.Checked;
+                AskForGoldSave = chkAskForGoldSave.Checked;
+                SRCLoadtimes = chkSRCLoadtimes.Checked;
+                Ordered = cbOrdered.Checked;
 
-            Splits.Clear();
-            foreach (Control c in flowMain.Controls)
-            {
-                if (c is SubnauticaSplitSetting setting)
-                {
+                Splits.Clear();
+                foreach (var setting in flowMain.Controls.OfType<SubnauticaSplitSetting>())
                     if (!string.IsNullOrEmpty(setting.ComboBox.Text))
-                    {
                         Splits.Add(setting.Split);
-                    }
-                }
             }
-
-            isLoading.ExitWriteLock();
+            catch (LockRecursionException) { return; }
+            finally
+            {
+                if (isLoading.IsWriteLockHeld) isLoading.ExitWriteLock();
+            }
         }
-        
+
 
         private void AddHandlers(SubnauticaSplitSetting setting)
         {
@@ -286,97 +283,73 @@ namespace Livesplit.Subnautica
         {
             try
             {
-                // 5 seconds, higher priority than UpdateSplits
-                if (!isLoading.TryEnterReadLock(5000))
+                if (!isLoading.TryEnterReadLock(5000)) return;
+
+                this.flowMain.SuspendLayout();
+                for (int i = flowMain.Controls.Count - 1; i > 0; i--)
+                    flowMain.Controls.RemoveAt(i);
+
+                chkIntroStart.Checked = IntroStart;
+                chkCreativeStart.Checked = CreativeStart;
+                chkReset.Checked = Reset;
+                chkAskForGoldSave.Checked = AskForGoldSave;
+                chkSRCLoadtimes.Checked = SRCLoadtimes;
+                cbOrdered.Checked = Ordered;
+
+                foreach (var split in Splits)
                 {
-                    return;
+                    SubnauticaSplitSetting setting;
+                    switch (split)
+                    {
+                        case ItemSplit s:
+                            setting = new SubnauticaItemSplit();
+                            ApplyDataSources(setting, rdAlpha.Checked);
+                            setting.ComboBox.SelectedValue = s.Item;
+                            setting.CbSplitOnce.Checked = s.OnlySplitOnce;
+                            break;
+
+                        case BlueprintSplit s:
+                            setting = new SubnauticaBlueprintSplit();
+                            ApplyDataSources(setting, rdAlpha.Checked);
+                            setting.ComboBox.SelectedValue = s.Blueprint;
+                            setting.CbSplitOnce.Checked = s.OnlySplitOnce;
+                            break;
+
+                        case EncySplit s:
+                            setting = new SubnauticaEncySplit();
+                            ApplyDataSources(setting, rdAlpha.Checked);
+                            setting.ComboBox.SelectedValue = s.Entry;
+                            setting.CbSplitOnce.Checked = s.OnlySplitOnce;
+                            break;
+
+                        case BiomeSplit s:
+                            setting = new SubnauticaBiomeSplit();
+                            ApplyDataSources(setting, rdAlpha.Checked);
+                            setting.ComboBox.SelectedValue = s.Biomes.Biome1;
+                            setting.ComboBox2.SelectedValue = s.Biomes.Biome2;
+                            setting.CbSplitOnce.Checked = s.OnlySplitOnce;
+                            break;
+
+                        default:
+                            setting = new SubnauticaPrefabSplit();
+                            ApplyDataSources(setting, rdAlpha.Checked);
+                            setting.ComboBox.SelectedValue = split.SplitName;
+                            setting.CbSplitOnce.Checked = split.OnlySplitOnce;
+                            break;
+                    }
+
+                    setting.ComboBox.Enabled = false;
+                    if (setting.ComboBox2 != null) setting.ComboBox2.Enabled = false;
+
+                    AddHandlers(setting);
+                    flowMain.Controls.Add(setting);
                 }
             }
-            catch (LockRecursionException)
+            finally
             {
-                return;
+                if (isLoading.IsReadLockHeld) isLoading.ExitReadLock();
+                this.flowMain.ResumeLayout(true);
             }
-
-            this.flowMain.SuspendLayout();
-
-            for (int i = flowMain.Controls.Count - 1; i > 0; i--)
-            {
-                flowMain.Controls.RemoveAt(i);
-            }
-
-            chkIntroStart.Checked = introStart;
-            chkCreativeStart.Checked = creativeStart;
-            chkReset.Checked = reset;
-            chkAskForGoldSave.Checked = askForGoldSave;
-            chkSRCLoadtimes.Checked = SRCLoadtimes;
-            cbOrdered.Checked = Ordered;
-
-            foreach (var split in Splits)
-            {
-                SubnauticaSplitSetting setting;
-
-                switch (split)
-                {
-                    case ItemSplit itemSplit:
-                        setting = new SubnauticaItemSplit();
-                        setting.CbSplitOnce.Checked = itemSplit.OnlySplitOnce;
-                        var data1 = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-                        var combo1 = setting.ComboBox;
-
-                        combo1.DisplayMember = "Display";
-                        combo1.ValueMember = "Value";
-                        combo1.DataSource = data1;
-
-                        combo1.SelectedValue = itemSplit.Item;
-                        break;
-
-                    case BlueprintSplit bpSplit:
-                        setting = new SubnauticaBlueprintSplit();
-                        setting.CbSplitOnce.Checked = bpSplit.OnlySplitOnce;
-                        var data3 = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
-                        var combo3 = setting.ComboBox;
-
-                        combo3.DisplayMember = "Display";
-                        combo3.ValueMember = "Value";
-                        combo3.DataSource = data3;
-
-                        combo3.SelectedValue = bpSplit.Blueprint;
-                        break;
-
-                    case EncySplit encySplit:
-                        setting = new SubnauticaEncySplit();
-                        setting.CbSplitOnce.Checked = encySplit.OnlySplitOnce;
-                        var data4 = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
-                        var combo4 = setting.ComboBox;
-
-                        combo4.DisplayMember = "Display";
-                        combo4.ValueMember = "Value";
-                        combo4.DataSource = data4;
-
-                        combo4.SelectedValue = encySplit.Entry;
-                        break;
-
-                    default:
-                        setting = new SubnauticaPrefabSplit();
-                        setting.CbSplitOnce.Checked = split.OnlySplitOnce;
-                        var data2 = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
-                        var combo2 = setting.ComboBox;
-
-                        combo2.DisplayMember = "Display";
-                        combo2.ValueMember = "Value";
-                        combo2.DataSource = data2;
-
-                        combo2.SelectedValue = split.SplitName;
-                        break;
-                }
-
-                setting.ComboBox.Enabled = false;
-                AddHandlers(setting);
-                flowMain.Controls.Add(setting);
-            }
-
-            isLoading.ExitReadLock();
-            this.flowMain.ResumeLayout(true);
         }
 
         private void Settings_Load(object sender, EventArgs e)
@@ -384,154 +357,54 @@ namespace Livesplit.Subnautica
             LoadSettings();
         }
 
-        public SubnauticaPrefabSplit CreatePrefabSplit()
+        private T CreateSplit<T, TEnum>(IEnumerable<ComboItem<TEnum>> data, Func<T, ComboBox> getCombo) where T : SubnauticaSplitSetting, new()
         {
-            SubnauticaPrefabSplit setting = new SubnauticaPrefabSplit();
+            var setting = new T();
+            var combo = getCombo(setting);
+            combo.DropDownStyle = ComboBoxStyle.DropDownList;
+            combo.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
 
-            var data = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
-            setting.cboName.DisplayMember = "Display";
-            setting.cboName.ValueMember = "Value";
-            setting.cboName.DataSource = data;
+            combo.DisplayMember = "Display";
+            combo.ValueMember = "Value";
+            combo.DataSource = data.ToList();
 
-            if (data.Count > 0)
-                setting.cboName.SelectedValue = data[0].Value;
+            if (combo.Items.Count > 0)
+                combo.SelectedIndex = 0;
 
-            setting.btnEdit.Text = "✔";
+            setting.BtnEdit.Text = "✔";
             AddHandlers(setting);
             return setting;
         }
 
-        public SubnauticaItemSplit CreateItemSplit()
+        public SubnauticaPrefabSplit CreatePrefabSplit() => CreateSplit<SubnauticaPrefabSplit, SplitName>(rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits, s => s.cboName);
+        public SubnauticaItemSplit CreateItemSplit() => CreateSplit<SubnauticaItemSplit, InventoryItem>(rdAlpha.Checked ? ItemsAlphaSorted : Items, s => s.cboItem);
+        public SubnauticaBlueprintSplit CreateBlueprintSplit() => CreateSplit<SubnauticaBlueprintSplit, Unlockable>(rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints, s => s.cboBlueprint);
+        public SubnauticaEncySplit CreateEncySplit() => CreateSplit<SubnauticaEncySplit, EncyEntry>(rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries, s => s.cboEncy);
+        public SubnauticaBiomeSplit CreateBiomeSplit()
         {
-            SubnauticaItemSplit setting = new SubnauticaItemSplit();
-
-            var data = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-            setting.cboItem.DisplayMember = "Display";
-            setting.cboItem.ValueMember = "Value";
-            setting.cboItem.DataSource = data;
-
-            if (data.Count > 0)
-                setting.cboItem.SelectedValue = data[0].Value;
-
+            var setting = new SubnauticaBiomeSplit();
+            var data = rdAlpha.Checked ? BiomesAlphaSorted : Biomes;
+            BindCombo(setting.cboBiome1, data, null);
+            BindCombo(setting.cboBiome2, data, null);
             setting.btnEdit.Text = "✔";
             AddHandlers(setting);
             return setting;
         }
-
-        public SubnauticaBlueprintSplit CreateBlueprintSplit()
-        {
-            SubnauticaBlueprintSplit setting = new SubnauticaBlueprintSplit();
-
-            var data = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
-            setting.cboBlueprint.DisplayMember = "Display";
-            setting.cboBlueprint.ValueMember = "Value";
-            setting.cboBlueprint.DataSource = data;
-
-            if (data.Count > 0)
-                setting.cboBlueprint.SelectedValue = data[0].Value;
-
-            setting.btnEdit.Text = "✔";
-            AddHandlers(setting);
-            return setting;
-        }
-
-        public SubnauticaEncySplit CreateEncySplit()
-        {
-            SubnauticaEncySplit setting = new SubnauticaEncySplit();
-
-            var data = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
-            setting.cboEncy.DisplayMember = "Display";
-            setting.cboEncy.ValueMember = "Value";
-            setting.cboEncy.DataSource = data;
-
-            if (data.Count > 0)
-                setting.cboEncy.SelectedValue = data[0].Value;
-
-            setting.btnEdit.Text = "✔";
-            AddHandlers(setting);
-            return setting;
-        }
-
-        //private List<string> GetAvailableSplits()
-        //{
-        //    if (availableSplits.Count == 0)
-        //    {
-        //        foreach (SplitName split in Enum.GetValues(typeof(SplitName)))
-        //        {
-        //            MemberInfo info = typeof(SplitName).GetMember(split.ToString())[0];
-        //            DescriptionAttribute description = (DescriptionAttribute)info.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
-        //            if ((int)split > 1) availableSplits.Add(description.Description);
-        //            if ((int)split > 1) availableSplitsAlphaSorted.Add(description.Description);
-        //        }
-        //        availableSplitsAlphaSorted.Sort(delegate (string one, string two)
-        //        {
-        //            return one.CompareTo(two);
-        //        });
-        //    }
-        //    return rdAlpha.Checked ? availableSplitsAlphaSorted : availableSplits;
-        //}
 
         private void radio_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (Control c in flowMain.Controls)
+            foreach (SubnauticaSplitSetting setting in flowMain.Controls)
             {
-                if (c is SubnauticaSplitSetting setting)
-                {
-                    var combo = setting.ComboBox;
-                    var prev = combo.SelectedValue;
-
-                    combo.DisplayMember = "Display";
-                    combo.ValueMember = "Value";
-
-                    switch (setting)
-                    {
-                        case SubnauticaItemSplit itemSplit:
-                            combo.DataSource = rdAlpha.Checked ? ItemsAlphaSorted : Items;
-                            if (prev is InventoryItem prevItem)
-                                combo.SelectedValue = prevItem;
-                            break;
-                        case SubnauticaBlueprintSplit bpSplit:
-                            combo.DataSource = rdAlpha.Checked ? BlueprintsAlphaSorted : Blueprints;
-                            if (prev is Unlockable prevBP)
-                                combo.SelectedValue = prevBP;
-                            break;
-                        case SubnauticaEncySplit encySplit:
-                            combo.DataSource = rdAlpha.Checked ? EncyEntriesAlphaSorted : EncyEntries;
-                            if (prev is EncyEntry prevEntry)
-                                combo.SelectedValue = prevEntry;
-                            break;
-                        default:
-                            combo.DataSource = rdAlpha.Checked ? PrefabSplitsAlphaSorted : PrefabSplits;
-                            if (prev is SplitName prevSplit)
-                                combo.SelectedValue = prevSplit;
-                            break;
-                    }
-                }
+                ApplyDataSources(setting, rdAlpha.Checked);
             }
         }
-
-        private void flowMain_DragDrop(object sender, DragEventArgs e)
-        {
-            UpdateSplits();
-        }
-        private void flowMain_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.Move;
-        }
+        private void flowMain_DragDrop(object sender, DragEventArgs e) => UpdateSplits();
+        private void flowMain_DragEnter(object sender, DragEventArgs e) => e.Effect = DragDropEffects.Move;
         private void flowMain_DragOver(object sender, DragEventArgs e)
         {
-            SubnauticaSplitSetting data = null;
-
-            if (e.Data.GetDataPresent(typeof(SubnauticaSplitSetting)))
-                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaSplitSetting));
-            else if (e.Data.GetDataPresent(typeof(SubnauticaBlueprintSplit)))
-                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaBlueprintSplit));
-            else if (e.Data.GetDataPresent(typeof(SubnauticaItemSplit)))
-                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaItemSplit));
-            else if (e.Data.GetDataPresent(typeof(SubnauticaPrefabSplit)))
-                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaPrefabSplit));
-            else if (e.Data.GetDataPresent(typeof(SubnauticaEncySplit)))
-                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaEncySplit));
+            SubnauticaSplitSetting data = e.Data.GetDataPresent(typeof(SubnauticaSplitSetting))
+                ? (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaSplitSetting))
+                : null;
 
             if (data == null)
             {
@@ -566,29 +439,12 @@ namespace Livesplit.Subnautica
         {
             XmlElement xmlSettings = document.CreateElement("Settings");
 
-            XmlElement xmlIntroStart = document.CreateElement("IntroStart");
-            xmlIntroStart.InnerText = introStart.ToString();
-            xmlSettings.AppendChild(xmlIntroStart);
-
-            XmlElement xmlCreativeStart = document.CreateElement("CreativeStart");
-            xmlCreativeStart.InnerText = creativeStart.ToString();
-            xmlSettings.AppendChild(xmlCreativeStart);
-
-            XmlElement xmlReset = document.CreateElement("Reset");
-            xmlReset.InnerText = reset.ToString();
-            xmlSettings.AppendChild(xmlReset);
-            
-            XmlElement xmlAskForGoldSave = document.CreateElement("AskForGoldSave");
-            xmlAskForGoldSave.InnerText = askForGoldSave.ToString();
-            xmlSettings.AppendChild(xmlAskForGoldSave);
-
-            XmlElement xmlSRCLoadtimes = document.CreateElement("SRCLoadtimes");
-            xmlSRCLoadtimes.InnerText = SRCLoadtimes.ToString();
-            xmlSettings.AppendChild(xmlSRCLoadtimes);
-
-            XmlElement xmlOrdered = document.CreateElement("Ordered");
-            xmlOrdered.InnerText = Ordered.ToString();
-            xmlSettings.AppendChild(xmlOrdered);
+            AddBool(document, xmlSettings, "IntroStart", IntroStart);
+            AddBool(document, xmlSettings, "CreativeStart", CreativeStart);
+            AddBool(document, xmlSettings, "Reset", Reset);
+            AddBool(document, xmlSettings, "AskForGoldSave", AskForGoldSave);
+            AddBool(document, xmlSettings, "SRCLoadtimes", SRCLoadtimes);
+            AddBool(document, xmlSettings, "Ordered", Ordered);
 
             XmlElement xmlSplits = document.CreateElement("Splits");
             xmlSettings.AppendChild(xmlSplits);
@@ -604,8 +460,8 @@ namespace Livesplit.Subnautica
                 xmlOnlySplitOnce.InnerText = split.OnlySplitOnce.ToString();
 
                 switch (split)
-                {                    
-                    case ItemSplit itemSplit:                                               
+                {
+                    case ItemSplit itemSplit:
                         xmlValue.InnerText = itemSplit.Item.ToString();
                         break;
                     case BlueprintSplit bpSplit:
@@ -614,13 +470,16 @@ namespace Livesplit.Subnautica
                     case EncySplit encySplit:
                         xmlValue.InnerText = encySplit.Entry.ToString();
                         break;
+                    case BiomeSplit biomeSplit:
+                        xmlValue.InnerText = $"{biomeSplit.Biomes.Biome1}:{biomeSplit.Biomes.Biome2}";
+                        break;
                     default:
                         xmlValue.InnerText = split.SplitName.ToString();
                         break;
                 }
 
-                xmlSplit.AppendChild(xmlOnlySplitOnce);              
-                xmlSplit.AppendChild(xmlName);              
+                xmlSplit.AppendChild(xmlOnlySplitOnce);
+                xmlSplit.AppendChild(xmlName);
                 xmlSplit.AppendChild(xmlValue);
                 xmlSplits.AppendChild(xmlSplit);
             }
@@ -630,103 +489,95 @@ namespace Livesplit.Subnautica
 
         public void SetSettings(XmlNode settings)
         {
+            var haveLock = false;
             try
             {
-                // 5 seconds, higher priority than UpdateSplits
-                if (!isLoading.TryEnterWriteLock(5000))
+                if (!isLoading.TryEnterWriteLock(5000)) return;
+                haveLock = true;
+
+                XmlNode splitsNode = settings.SelectSingleNode(".//Splits");
+                if (splitsNode != null)
                 {
-                    return;
-                }
-            }
-            catch (LockRecursionException)
-            {
-                return;
-            }
+                    IntroStart = ReadBool(settings, "IntroStart");
+                    CreativeStart = ReadBool(settings, "CreativeStart");
+                    Reset = ReadBool(settings, "Reset");
+                    AskForGoldSave = ReadBool(settings, "AskForGoldSave");
+                    SRCLoadtimes = ReadBool(settings, "SRCLoadtimes");
+                    Ordered = ReadBool(settings, "Ordered");
 
-            XmlNode splitsNode = settings.SelectSingleNode(".//Splits");
-
-            if (splitsNode != null)
-            {
-                XmlNode introStartNode = settings.SelectSingleNode(".//IntroStart");
-                XmlNode creativeStartNode = settings.SelectSingleNode(".//CreativeStart");
-                XmlNode resetNode = settings.SelectSingleNode(".//Reset");
-                XmlNode askForGoldSaveNode = settings.SelectSingleNode(".//AskForGoldSave");
-                XmlNode SRCLoadtimesNode = settings.SelectSingleNode(".//SRCLoadtimes");
-                XmlNode Ordered = settings.SelectSingleNode(".//Ordered");
-
-                bool isIntroStart = false;
-                bool isCreativeStart = false;
-                bool isReset = false;
-                bool isAskForGoldSave = false;
-                bool isSRCLoadtimes = false;
-                bool isOrdered = false;
-
-                if (introStartNode != null)
-                    bool.TryParse(introStartNode.InnerText, out isIntroStart);
-                if (creativeStartNode != null)
-                    bool.TryParse(creativeStartNode.InnerText, out isCreativeStart);   
-                if (resetNode != null)
-                    bool.TryParse(resetNode.InnerText, out isReset);
-                if (askForGoldSaveNode != null)
-                    bool.TryParse(askForGoldSaveNode.InnerText, out isAskForGoldSave);
-                if (SRCLoadtimesNode != null)
-                    bool.TryParse(SRCLoadtimesNode.InnerText, out isSRCLoadtimes);
-                if (Ordered != null)
-                    bool.TryParse(Ordered.InnerText, out isOrdered);
-
-                introStart = isIntroStart;
-                creativeStart = isCreativeStart;
-                reset = isReset;
-                askForGoldSave = isAskForGoldSave;
-                SRCLoadtimes = isSRCLoadtimes;
-                this.Ordered = isOrdered;
-
-                Splits.Clear();
-                XmlNodeList splitNodes = settings.SelectNodes(".//Splits/Split");
-
-                foreach (XmlNode splitNode in splitNodes)
-                {
-                    bool onlySplitOnce = true;
-
-                    string name = splitNode.SelectSingleNode("Name")?.InnerText;
-                    bool.TryParse(splitNode.SelectSingleNode("OnlySplitOnce")?.InnerText, out onlySplitOnce);
-                    string value = splitNode.SelectSingleNode("Value")?.InnerText;
-                    
-
-                    if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))
-                        continue;
-
-                    var splitName = SubnauticaItemSplit.GetSplitName(name);
-
-                    switch (splitName)
+                    Splits.Clear();
+                    foreach (XmlNode splitNode in settings.SelectNodes(".//Splits/Split"))
                     {
-                        case SplitName.Inventory:
-                            var item = SubnauticaItemSplit.GetTechType(value);
-                            Splits.Add(new ItemSplit(item.ConvertTo<InventoryItem>(), onlySplitOnce));
-                            break;
-                        case SplitName.Blueprint:
-                            var blueprint = SubnauticaItemSplit.GetTechType(value);
-                            Splits.Add(new BlueprintSplit(blueprint.ConvertTo<Unlockable>(), onlySplitOnce));
-                            break;
-                        case SplitName.Encyclopedia:
-                            var encyEntry = SubnauticaItemSplit.GetEncyEntry(value);
-                            Splits.Add(new EncySplit(encyEntry, onlySplitOnce));
-                            break;
-                        default:
-                            Splits.Add(new PrefabSplit(splitName, onlySplitOnce));
-                            break;
+                        var name = splitNode.SelectSingleNode("Name")?.InnerText;
+                        var value = splitNode.SelectSingleNode("Value")?.InnerText;
+                        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value)) continue;
+
+                        bool onlySplitOnce = true;
+                        bool.TryParse(splitNode.SelectSingleNode("OnlySplitOnce")?.InnerText, out onlySplitOnce);
+
+                        var splitName = SubnauticaSplitSetting.GetSplitName(name);
+                        switch (splitName)
+                        {
+                            case SplitName.Inventory:
+                                var item = SubnauticaSplitSetting.GetTechType(value);
+                                Splits.Add(new ItemSplit(item.ConvertTo<InventoryItem>(), onlySplitOnce));
+                                break;
+                            case SplitName.Blueprint:
+                                var blueprint = SubnauticaSplitSetting.GetTechType(value);
+                                Splits.Add(new BlueprintSplit(blueprint.ConvertTo<Unlockable>(), onlySplitOnce));
+                                break;
+                            case SplitName.Encyclopedia:
+                                var encyEntry = SubnauticaSplitSetting.GetEncyEntry(value);
+                                Splits.Add(new EncySplit(encyEntry, onlySplitOnce));
+                                break;
+                            case SplitName.Biome:
+                                var parts = value.Split(':');
+                                if (parts.Length == 2)
+                                    Splits.Add(new BiomeSplit(
+                                        (SubnauticaSplitSetting.GetBiome(parts[0]),
+                                         SubnauticaSplitSetting.GetBiome(parts[1])), onlySplitOnce));
+                                break;
+                            default:
+                                Splits.Add(new PrefabSplit(splitName, onlySplitOnce));
+                                break;
+                        }
                     }
                 }
+                else
+                {
+                    IntroStart = true;
+                    CreativeStart = false;
+                    Reset = true;
+                    AskForGoldSave = true;
+                    SRCLoadtimes = true;
+                    Ordered = false;
+                    Splits.Clear();
+                }
             }
-            else
+            catch (LockRecursionException) { return; }
+            finally
             {
-                // no splits settings, default
-                introStart = false;
-                creativeStart = false;
-                Splits.Clear();
+                if (haveLock && isLoading.IsWriteLockHeld) isLoading.ExitWriteLock();
             }
+        }
 
-            isLoading.ExitWriteLock();
+
+        private static XmlElement AddBool(XmlDocument doc, XmlElement root, string name, bool value)
+        {
+            var e = doc.CreateElement(name); e.InnerText = value.ToString(); root.AppendChild(e); return e;
+        }
+        private static bool ReadBool(XmlNode root, string name, bool def = false)
+        {
+            var n = root.SelectSingleNode($".//{name}");
+            return n != null && bool.TryParse(n.InnerText, out var b) ? b : def;
+        }
+        public static void BindCombo<T>(ComboBox combo, IEnumerable<ComboItem<T>> data, object previousSelected)
+        {
+            combo.DisplayMember = "Display";
+            combo.ValueMember = "Value";
+            combo.DataSource = data.ToList();
+            if (previousSelected is T prev)
+                combo.SelectedValue = prev;
         }
     }
     public sealed class ComboItem<T>

@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\Biome.cs" />
     <Compile Include="Enums\EncyMapping2023.cs" />
     <Compile Include="Enums\GameModeOption.cs" />
     <Compile Include="Enums\InvItems.cs" />
@@ -101,6 +102,12 @@
     </Compile>
     <Compile Include="Settings\SplitGenerator.Designer.cs">
       <DependentUpon>SplitGenerator.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaBiomeSplit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\SubnauticaBiomeSplit.Designer.cs">
+      <DependentUpon>SubnauticaBiomeSplit.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings\SubnauticaBlueprintSplit.cs">
       <SubType>UserControl</SubType>
@@ -166,6 +173,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\SelectSplitType.resx">
       <DependentUpon>SelectSplitType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\SubnauticaBiomeSplit.resx">
+      <DependentUpon>SubnauticaBiomeSplit.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\SubnauticaBlueprintSplit.resx">
       <DependentUpon>SubnauticaBlueprintSplit.cs</DependentUpon>

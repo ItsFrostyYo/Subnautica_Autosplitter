@@ -48,11 +48,11 @@ namespace Livesplit.Subnautica
                 return false;
 
             // options: 100 -> 80 health
-            if (settings.introStart && (GameModeOption)memory.GameMode.New != GameModeOption.Creative)
+            if (settings.IntroStart && (GameModeOption)memory.GameMode.New != GameModeOption.Creative)
             {
                 if (memory.DamageEffectsShowing.New && !memory.DamageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
             }
-            if (settings.creativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu)
+            if (settings.CreativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu)
             {
                 // Start of Move
                 if ((memory.walkDir.Current != 0 && memory.walkDir.Old == 0) || (memory.strafeDir.Current != 0 && memory.strafeDir.Old == 0)) { logger.Log("Start of Move"); memory.startedTimerBefore = true; return true; }
@@ -83,19 +83,21 @@ namespace Livesplit.Subnautica
                 memory.CurrentItemToCheck = InventoryItem.None;
                 memory.CurrentBlueprintToCheck = Unlockable.None;
                 memory.CurrentEncyEntryToCheck = EncyEntry.None;
+                memory.CurrentBiomesToCheck = (Biome.None, Biome.None);
 
                 switch (split)
                 {
                     case ItemSplit itemSplit:    memory.CurrentItemToCheck      = itemSplit.Item;    break;
                     case BlueprintSplit bpSplit: memory.CurrentBlueprintToCheck = bpSplit.Blueprint; break;
                     case EncySplit encySplit:    memory.CurrentEncyEntryToCheck = encySplit.Entry;   break;
+                    case BiomeSplit biomeSplit:  memory.CurrentBiomesToCheck    = biomeSplit.Biomes; break;
                     default: break;
                 }
 
                 if (memory.splitConditions.TryGetValue(split.SplitName, out var condition) && condition() && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
                 {
                     alreadySplit.Add(split);
-                    logger.Log($"{split.SplitName.GetDescription()} triggered");
+                    logger.Log($"{split.GetDescription()} triggered");
                     return true;
                 }
             }
@@ -106,7 +108,7 @@ namespace Livesplit.Subnautica
 
         private void TryResetOnMainMenu()
         {
-            if (!settings.reset)
+            if (!settings.Reset)
                 return;
             if (memory.MainMenu?.New == memory.MainMenu?.Old && memory.MainMenu?.New != IntPtr.Zero)
                 return;
@@ -127,7 +129,7 @@ namespace Livesplit.Subnautica
                 }
 
                 bool save = true;
-                if (settings.askForGoldSave && GoldSegment)
+                if (settings.AskForGoldSave && GoldSegment)
                 {
                     DialogResult r = MessageBox.Show(
                         ui,

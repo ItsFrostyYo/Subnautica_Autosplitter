@@ -12,6 +12,7 @@ namespace Livesplit.Subnautica
     public abstract class SubnauticaSplitSetting : UserControl
     {
         public abstract ComboBox ComboBox { get; }
+        public virtual ComboBox ComboBox2 { get; }
         public abstract CheckBox CbSplitOnce { get; }
         public abstract Button BtnEdit { get; }
         public abstract Button BtnRemove { get; }
@@ -39,9 +40,9 @@ namespace Livesplit.Subnautica
             foreach (TechType techType in Enum.GetValues(typeof(TechType)))
             {
                 string name = techType.ToString();
-                string rawName = Localization.GetRawName(name);
+                string displayName = Localization.GetDisplayName(name);
 
-                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || rawName.Equals(text, StringComparison.OrdinalIgnoreCase))
+                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || displayName.Equals(text, StringComparison.OrdinalIgnoreCase))
                 {
                     return techType;
                 }
@@ -54,14 +55,29 @@ namespace Livesplit.Subnautica
             foreach (EncyEntry encyEntry in Enum.GetValues(typeof(EncyEntry)))
             {
                 string name = encyEntry.ToString();
-                string rawName = Localization.GetRawName(name);
+                string displayName = Localization.GetDisplayName(name);
 
-                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || rawName.Equals(text, StringComparison.OrdinalIgnoreCase))
+                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || displayName.Equals(text, StringComparison.OrdinalIgnoreCase))
                 {
                     return encyEntry;
                 }
             }
             return EncyEntry.None;
+        }
+
+        public static Biome GetBiome(string text)
+        {
+            foreach (Biome biome in Enum.GetValues(typeof(Biome)))
+            {
+                string name = biome.ToString();
+                string displayName = Localization.GetDisplayName(name);
+
+                if (name.Equals(text, StringComparison.OrdinalIgnoreCase) || displayName.Equals(text, StringComparison.OrdinalIgnoreCase))
+                {
+                    return biome;
+                }
+            }
+            return Biome.None;
         }
     }    
     
@@ -69,7 +85,7 @@ namespace Livesplit.Subnautica
     {
         public SplitName SplitName { get; set; }
         public bool OnlySplitOnce { get; set; }
-        public virtual string GetDescription() => string.Empty;
+        public virtual string GetDescription() => "Split";
     }
 
     public enum SplitName
@@ -82,6 +98,8 @@ namespace Livesplit.Subnautica
         Blueprint,
         [Description("Encyclopedia Split"), ToolTip("Splits when you have a certain entry in the encyclopedia unlocked")]
         Encyclopedia,
+        [Description("Biome Split"), ToolTip("Splits when you have enter a certain biome from a certain biome")]
+        Biome,
         [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
         RocketSplit,
         [Description("Portal Split"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
@@ -90,11 +108,11 @@ namespace Livesplit.Subnautica
         HatchSplit,
         [Description("Cure Split"), ToolTip("Splits when you cure yourself")]
         CureSplit,
-        [Description("Gantry Split"), ToolTip("Splits when you build the gantry section of the Neptune Rocket\nCreative 2018 only")]
+        [Description("Gantry Split"), ToolTip("Splits when you build the gantry section of the Neptune Rocket")]
         GantrySplit,
-        [Description("Boosters Split"), ToolTip("Splits when you build the boosters section of the Neptune Rocket\nCreative 2018 only")]
+        [Description("Boosters Split"), ToolTip("Splits when you build the boosters section of the Neptune Rocket")]
         BoostersSplit,
-        [Description("Fuel Reserves Split"), ToolTip("Splits when you build the fuel reserves section of the Neptune Rocket\nCreative 2018 only")]
+        [Description("Fuel Reserves Split"), ToolTip("Splits when you build the fuel reserves section of the Neptune Rocket")]
         FuelReservesSplit,
         [Description("Mountain Descend Split"), ToolTip("Splits when you descend under the arch after getting out of bounds")]
         MountainDescendSplit,

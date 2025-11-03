@@ -71,7 +71,7 @@ namespace Voxif.AutoSplitter {
             {
                 timer.CurrentState.IsGameTimePaused = Loading();
 
-                if (settings.reset && Reset())
+                if (settings.Reset && Reset())
                 {
                     timer.Reset();
                     logger?.Log("Reset");
@@ -83,7 +83,7 @@ namespace Voxif.AutoSplitter {
             }
 
             if(timer.CurrentState.CurrentSplitIndex < 0) {
-                if((settings.introStart || settings.creativeStart) && Start()) {
+                if((settings.IntroStart || settings.CreativeStart) && Start()) {
                     timer.Start();
                     logger?.Log("Start");
                 }
