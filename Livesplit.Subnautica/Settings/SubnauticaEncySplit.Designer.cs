@@ -37,13 +37,13 @@
             this.picHandle = new System.Windows.Forms.PictureBox();
             this.l_name = new System.Windows.Forms.Label();
             this.cbSplitOnce = new System.Windows.Forms.CheckBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.BtnCondition = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
             this.SuspendLayout();
             // 
             // btnEdit
             // 
-            this.btnEdit.Location = new System.Drawing.Point(408, 16);
+            this.btnEdit.Location = new System.Drawing.Point(440, 16);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(26, 23);
             this.btnEdit.TabIndex = 12;
@@ -53,7 +53,7 @@
             // btnRemove
             // 
             this.btnRemove.Image = ((System.Drawing.Image)(resources.GetObject("btnRemove.Image")));
-            this.btnRemove.Location = new System.Drawing.Point(376, 16);
+            this.btnRemove.Location = new System.Drawing.Point(408, 16);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(26, 23);
             this.btnRemove.TabIndex = 10;
@@ -107,15 +107,15 @@
             this.cbSplitOnce.UseVisualStyleBackColor = true;
             this.cbSplitOnce.CheckedChanged += new System.EventHandler(this.cbSplitOnce_CheckedChanged);
             // 
-            // button1
+            // BtnCondition
             // 
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(440, 16);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(26, 23);
-            this.button1.TabIndex = 20;
-            this.button1.Text = "▼";
-            this.button1.UseVisualStyleBackColor = true;
+            this.BtnCondition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnCondition.Location = new System.Drawing.Point(376, 16);
+            this.BtnCondition.Name = "BtnCondition";
+            this.BtnCondition.Size = new System.Drawing.Size(26, 23);
+            this.BtnCondition.TabIndex = 20;
+            this.BtnCondition.Text = "▼";
+            this.BtnCondition.UseVisualStyleBackColor = true;
             // 
             // SubnauticaEncySplit
             // 
@@ -124,7 +124,7 @@
             this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.BtnCondition);
             this.Controls.Add(this.cbSplitOnce);
             this.Controls.Add(this.l_name);
             this.Controls.Add(this.picHandle);
@@ -148,6 +148,6 @@
         private System.Windows.Forms.PictureBox picHandle;
         private System.Windows.Forms.Label l_name;
         private System.Windows.Forms.CheckBox cbSplitOnce;
-        public System.Windows.Forms.Button button1;
+        public System.Windows.Forms.Button BtnCondition;
     }
 }

@@ -39,6 +39,7 @@
             this.cbSplitOnce = new System.Windows.Forms.CheckBox();
             this.cboBiome2 = new System.Windows.Forms.ComboBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.BtnCondition = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -67,7 +68,7 @@
             this.cboBiome1.FormattingEnabled = true;
             this.cboBiome1.Location = new System.Drawing.Point(29, 18);
             this.cboBiome1.Name = "cboBiome1";
-            this.cboBiome1.Size = new System.Drawing.Size(246, 21);
+            this.cboBiome1.Size = new System.Drawing.Size(233, 21);
             this.cboBiome1.TabIndex = 9;
             this.cboBiome1.SelectedIndexChanged += new System.EventHandler(this.cboBiome_SelectedIndexChanged);
             // 
@@ -102,7 +103,7 @@
             this.cbSplitOnce.Checked = true;
             this.cbSplitOnce.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbSplitOnce.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbSplitOnce.Location = new System.Drawing.Point(314, 29);
+            this.cbSplitOnce.Location = new System.Drawing.Point(290, 29);
             this.cbSplitOnce.Name = "cbSplitOnce";
             this.cbSplitOnce.Size = new System.Drawing.Size(85, 20);
             this.cbSplitOnce.TabIndex = 19;
@@ -116,19 +117,29 @@
             this.cboBiome2.FormattingEnabled = true;
             this.cboBiome2.Location = new System.Drawing.Point(29, 45);
             this.cboBiome2.Name = "cboBiome2";
-            this.cboBiome2.Size = new System.Drawing.Size(246, 21);
+            this.cboBiome2.Size = new System.Drawing.Size(233, 21);
             this.cboBiome2.TabIndex = 20;
             this.cboBiome2.SelectedIndexChanged += new System.EventHandler(this.cboBiome_SelectedIndexChanged);
             // 
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(275, 18);
+            this.pictureBox1.Location = new System.Drawing.Point(260, 18);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(27, 48);
+            this.pictureBox1.Size = new System.Drawing.Size(24, 48);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 21;
             this.pictureBox1.TabStop = false;
+            // 
+            // BtnCondition
+            // 
+            this.BtnCondition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnCondition.Location = new System.Drawing.Point(375, 27);
+            this.BtnCondition.Name = "BtnCondition";
+            this.BtnCondition.Size = new System.Drawing.Size(26, 23);
+            this.BtnCondition.TabIndex = 22;
+            this.BtnCondition.Text = "▼";
+            this.BtnCondition.UseVisualStyleBackColor = true;
             // 
             // SubnauticaBiomeSplit
             // 
@@ -137,6 +148,7 @@
             this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.Controls.Add(this.BtnCondition);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.cboBiome2);
             this.Controls.Add(this.cbSplitOnce);
@@ -165,5 +177,6 @@
         private System.Windows.Forms.CheckBox cbSplitOnce;
         public System.Windows.Forms.ComboBox cboBiome2;
         private System.Windows.Forms.PictureBox pictureBox1;
+        public System.Windows.Forms.Button BtnCondition;
     }
 }

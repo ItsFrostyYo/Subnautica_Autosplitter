@@ -9,15 +9,15 @@ using System.Windows.Forms;
 
 namespace Livesplit.Subnautica
 {
-    public abstract class SubnauticaSplitSetting : UserControl
+    public class SubnauticaSplitSetting : UserControl
     {
-        public abstract ComboBox ComboBox { get; }
+        public virtual ComboBox ComboBox { get; }
         public virtual ComboBox ComboBox2 { get; }
-        public abstract CheckBox CbSplitOnce { get; }
-        public abstract Button BtnEdit { get; }
-        public abstract Button BtnRemove { get; }
-        public abstract SplitName SplitName { get; }
-        public abstract SubnauticaSplit Split { get; }
+        public virtual CheckBox CbSplitOnce { get; }
+        public virtual Button BtnEdit { get; }
+        public virtual Button BtnRemove { get; }
+        public virtual SplitName SplitName { get; }
+        public virtual SubnauticaSplit Split { get; }
 
         public static SplitName GetSplitName(string text)
         {

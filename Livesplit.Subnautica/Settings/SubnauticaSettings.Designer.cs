@@ -120,9 +120,6 @@
             this.Options_GroupBox.TabIndex = 6;
             this.Options_GroupBox.TabStop = false;
             this.Options_GroupBox.Text = "Options";
-            this.ToolTips.SetToolTip(this.Options_GroupBox, "This will add time to the actual load times to match the IGT shown on Speedrun.co" +
-        "m (can be up to 0.1s inaccurate)\\nUnchecking this will not turn off the load rem" +
-        "oval\")");
             // 
             // ButtonSplitGenerator
             // 
