@@ -193,7 +193,9 @@
       <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\English.json" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_2019.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Il2cpp_Base.txt" />
@@ -203,9 +205,6 @@
     <EmbeddedResource Include="Resources\EncyMappingMarch2023.txt" />
     <Content Include="Splits\Presets.xml" />
     <Content Include="Splits\Splits.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\English.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

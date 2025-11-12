@@ -46,7 +46,7 @@
             // 
             // btnEdit
             // 
-            this.btnEdit.Location = new System.Drawing.Point(439, 27);
+            this.btnEdit.Location = new System.Drawing.Point(440, 27);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(26, 23);
             this.btnEdit.TabIndex = 12;
@@ -56,7 +56,7 @@
             // btnRemove
             // 
             this.btnRemove.Image = ((System.Drawing.Image)(resources.GetObject("btnRemove.Image")));
-            this.btnRemove.Location = new System.Drawing.Point(407, 27);
+            this.btnRemove.Location = new System.Drawing.Point(408, 27);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(26, 23);
             this.btnRemove.TabIndex = 10;
@@ -124,7 +124,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(260, 18);
+            this.pictureBox1.Location = new System.Drawing.Point(263, 18);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(24, 48);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -134,7 +134,7 @@
             // BtnCondition
             // 
             this.BtnCondition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnCondition.Location = new System.Drawing.Point(375, 27);
+            this.BtnCondition.Location = new System.Drawing.Point(376, 27);
             this.BtnCondition.Name = "BtnCondition";
             this.BtnCondition.Size = new System.Drawing.Size(26, 23);
             this.BtnCondition.TabIndex = 22;
@@ -159,7 +159,7 @@
             this.Controls.Add(this.cboBiome1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SubnauticaBiomeSplit";
-            this.Size = new System.Drawing.Size(469, 69);
+            this.Size = new System.Drawing.Size(470, 69);
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

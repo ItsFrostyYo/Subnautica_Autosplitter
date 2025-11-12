@@ -107,6 +107,7 @@ namespace Livesplit.Subnautica
         public MemoryWatcher<float> posY = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> posZ = new MemoryWatcher<float>(IntPtr.Zero);
         #endregion
+
         private UnityHelperTask unityTask;
 
         public SubnauticaMemory(LiveSplitState state, SubnauticaComponent component, Logger logger, SubnauticaSettings settings) : base(logger)
