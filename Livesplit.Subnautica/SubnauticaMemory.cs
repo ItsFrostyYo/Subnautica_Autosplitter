@@ -52,9 +52,9 @@ namespace Livesplit.Subnautica
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
         public Pointer<IntPtr> MainMenu;
-        public Pointer<IntPtr> knowntechPtr;
-        public Pointer<IntPtr> pdaMappingPtr;
-        public Pointer<IntPtr> goalsPtr;
+        private Pointer<IntPtr> knowntechPtr;
+        private Pointer<IntPtr> pdaMappingPtr;
+        private Pointer<IntPtr> goalsPtr;
         public Pointer<int> PDATab;
         public Pointer<int> GameMode;
         public StringPointer BiomeString;
@@ -174,8 +174,6 @@ namespace Livesplit.Subnautica
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
             };
-
-            
         }
 
         public override bool Update()

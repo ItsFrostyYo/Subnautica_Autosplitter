@@ -416,6 +416,8 @@ namespace Livesplit.Subnautica
                 data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaPrefabSplit));
             else if (e.Data.GetDataPresent(typeof(SubnauticaEncySplit)))
                 data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaEncySplit));
+            else if (e.Data.GetDataPresent(typeof(SubnauticaBiomeSplit)))
+                data = (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaBiomeSplit));
 
             if (data == null)
             {
