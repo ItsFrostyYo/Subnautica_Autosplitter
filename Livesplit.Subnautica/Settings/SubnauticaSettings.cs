@@ -196,6 +196,12 @@ namespace Livesplit.Subnautica
                 btnAddExplo.Text = "Add Explosion Time";
         }
 
+        private void UpdateSplitOnceCBs()
+        {
+            foreach (var setting in flowMain.Controls.OfType<SubnauticaSplitSetting>())
+                setting.CbSplitOnce.Enabled = !Ordered;
+        }
+
         private void enableEdit(SubnauticaSplitSetting setting)
         {
             setting.BtnEdit.Text = "✔";
@@ -252,6 +258,7 @@ namespace Livesplit.Subnautica
             AskForGoldSave = chkAskForGoldSave.Checked;
             SRCLoadtimes = chkSRCLoadtimes.Checked;
             Ordered = cbOrdered.Checked;
+            UpdateSplitOnceCBs();
 
             Splits.Clear();
             foreach (var setting in flowMain.Controls.OfType<SubnauticaSplitSetting>())
@@ -293,6 +300,7 @@ namespace Livesplit.Subnautica
                 chkAskForGoldSave.Checked = AskForGoldSave;
                 chkSRCLoadtimes.Checked = SRCLoadtimes;
                 cbOrdered.Checked = Ordered;
+                
 
                 for (int i = 0; i < Splits.Count; i++)
                 {
@@ -347,6 +355,7 @@ namespace Livesplit.Subnautica
             finally
             {
                 flowMain.Controls.AddRange(settings);
+                UpdateSplitOnceCBs();
                 _isLoading = false;
                 flowMain.ResumeLayout();
             }
