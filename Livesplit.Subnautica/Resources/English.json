@@ -2913,7 +2913,7 @@ The regular's just a ham and cheese.<delay=33794><duration=1399>
 Ham and cheese!<delay=36802><duration=1000>
 *Offmic* Ok.<delay=37741><duration=800>",
 
-"Ency_CaptainCode" : "High Security Terminal - Captain's Quarters",
+"CaptainCode" : "High Security Terminal - Captain's Quarters",
 "EncyDesc_CaptainCode" : "Before they lost communications, Alterra HQ uploaded a set of blueprints to the Aurora's main computer. There is a high security terminal inside the captain's quarters, located behind the Prawn bay, from which the blueprints should be accessible. The code is 2679.",
     
    
@@ -2955,7 +2955,7 @@ New targets unaccounted for: 1.<delay=11200><duration=4200>",
 //LIFEPOD4
 //IMPLEMENTED
 "RadioRadiationSuitNoSignalAlt" : "Signal co-ordinates corrupted. Approximate transmission origin recorded to databank.",
-"Ency_RadioRadiationSuitNoSignalAltDatabank" : "Lifepod 4 Transmission Origin",
+"RadioRadiationSuitNoSignalAltDatabank" : "Lifepod 4 Transmission Origin",
 "EncyDesc_RadioRadiationSuitNoSignalAltDatabank" : "A distress signal has been received from lifepod 4, but the attached co-ordinates were corrupted. Last available photographic data has been downloaded and analyzed.
 
  - Flotation devices active, lifepod located at sea level
@@ -2966,7 +2966,7 @@ New targets unaccounted for: 1.<delay=11200><duration=4200>",
   //LIFEPOD6
  //IMPLEMENTED
  "RadioShallows22NoSignalAlt" : "Signal co-ordinates corrupted. Approximate transmission origin recorded to databank.",
-"Ency_RadioShallows22NoSignalAltDatabank" : "Lifepod 6 Transmission Origin",
+"RadioShallows22NoSignalAltDatabank" : "Lifepod 6 Transmission Origin",
 "EncyDesc_RadioShallows22NoSignalAltDatabank" : "A distress signal has been received from lifepod 6, but the attached co-ordinates were corrupted. Last available photographic data has been downloaded and analyzed.
 
  - Crew requested assistance navigating radiation
@@ -2978,7 +2978,7 @@ New targets unaccounted for: 1.<delay=11200><duration=4200>",
  //LIFEPOD7
  //IMPLEMENTED
  "RadioKelp28NoSignalAlt" : "Signal co-ordinates corrupted. Approximate transmission origin recorded to databank.",
-"Ency_RadioKelp28NoSignalAltDatabank" : "Lifepod 7 Transmission Origin",
+"RadioKelp28NoSignalAltDatabank" : "Lifepod 7 Transmission Origin",
 "EncyDesc_RadioKelp28NoSignalAltDatabank" : "A distress signal has been received from lifepod 7, but the attached co-ordinates were corrupted. Last available photographic data has been downloaded and analyzed.
 
  - Crew reported problems with their onboard fabricator
@@ -2989,7 +2989,7 @@ New targets unaccounted for: 1.<delay=11200><duration=4200>",
 //LIFEPOD13
 //NOT IMPLEMENTED
 "RadioMushroom24NoSignalAlt" : "Signal co-ordinates corrupted. Approximate transmission origin recorded to databank.",
-"Ency_RadioMushroom24NoSignalAltDatabank" : "Lifepod 13 Transmission Origin",
+"RadioMushroom24NoSignalAltDatabank" : "Lifepod 13 Transmission Origin",
 "EncyDesc_RadioMushroom24NoSignalAltDatabank" : "A distress signal has been received from lifepod 13, but the attached co-ordinates were corrupted.
 
 Reported:
@@ -3002,7 +3002,7 @@ Reported:
  //LIFEPOD3
  //NOT IMPLEMENTED
 "RadioGrassy25NoSignalAlt" : "Signal co-ordinates corrupted. Approximate transmission origin recorded to databank.",
-"Ency_RadioGrassy25NoSignalAltDatabank" : "Lifepod 3 Transmission Origin",
+"RadioGrassy25NoSignalAltDatabank" : "Lifepod 3 Transmission Origin",
 "EncyDesc_RadioGrassy25NoSignalAltDatabank" : "A distress signal has been received from lifepod 3, but the attached co-ordinates were corrupted.
 
 Reported:
@@ -3388,7 +3388,7 @@ Do not attempt repair without appropriate qualifications.",
 ///////////////////////////////////////////////////
 
 //PDA in first office room
-"Ency_Aurora_Office_PDA1" : "Notes to self",
+"Aurora_Office_PDA1" : "Notes to self",
 "EncyDesc_Aurora_Office_PDA1" : "So here we are, finally, in open space. We crossed the galaxy to install a phasegate, to send ships to mine resources, to build more expensive ships, to install fancier phasegates... Are we trying to exhaust the galaxy or just ourselves?
 
 18.06 - Yu's birthday
@@ -3399,7 +3399,7 @@ Not enough - Credits Alterra's paying me
 
 
 //Terminal in first office room
-"Ency_Aurora_Office_Terminal1" : "Alterra Launches the Aurora",
+"Aurora_Office_Terminal1" : "Alterra Launches the Aurora",
 "EncyDesc_Aurora_Office_Terminal1" : "PHASEGATE ANNOUNCED FOR THE ARIADNE ARM: ALTERRA LAUNCHES THE AURORA
 
 The furthest reaches of inhabited space are due to expand, as Alterra Corp launches a newly-constructed capital ship, carrying a phasegate bound for the Ariadne Arm. 
@@ -3412,7 +3412,7 @@ Alterra Corp. currently operates 9% of all phasegates in the galaxy. If the Auro
 
 
 //PDA in the Cargo Bay
-"Ency_Aurora_Cargo_PDA1" : "Aurora Engineering Drone - Log",
+"Aurora_Cargo_PDA1" : "Aurora Engineering Drone - Log",
 "EncyDesc_Aurora_Cargo_PDA1" : "[Exiting sleep mode. Loading voice recognition. Engineer Berkeley and Chief Technology Officer Yu identified.]
 
 BERKELEY: Drone, get me a propulsion cannon.
@@ -3445,7 +3445,7 @@ CTO YU: Maybe so, but it's all that's stopping me from being so bored I take a s
 
 
 //This text is in the room near the scilab
-"Ency_Aurora_DriveRoom_Terminal1" : "Aurora Black Box Data",
+"Aurora_DriveRoom_Terminal1" : "Aurora Black Box Data",
 "EncyDesc_Aurora_DriveRoom_Terminal1" : " - Initiated slingshot maneuver around planet 4546B
  - High velocity energy pulse detected on planet surface
  - Emergency distress signal sent to Alterra listening buoy via long-range comm relay
@@ -3462,7 +3462,7 @@ CTO YU: Maybe so, but it's all that's stopping me from being so bored I take a s
  - Monitoring equipment failed at T+13hrs",
 
 
-"Ency_Aurora_Locker_PDA1" : "Aurora Auxiliary Mission Orders",
+"Aurora_Locker_PDA1" : "Aurora Auxiliary Mission Orders",
 "EncyDesc_Aurora_Locker_PDA1" : "Mission: Search & Rescue 
  - Target: Crew of the Mongolian vessel 'Degasi'
  - Last known position: Vicinity of planet 4546B, Ariadne Arm
@@ -3478,7 +3478,7 @@ Mission Details:
  - Degasi crew manifesto has been distributed to senior employees in a separate message",
 
 
-"Ency_Aurora_Locker_PDA2" : "Sweet Offer",
+"Aurora_Locker_PDA2" : "Sweet Offer",
 "EncyDesc_Aurora_Locker_PDA2" : "From: Huggins
 To: Wilson
 
@@ -3488,7 +3488,7 @@ You're telling me you've been on this rig more than a year and you never took a 
 //LIVING QUARTERS
 
 
-"Ency_Aurora_Living_Area_PDA1" : "Trans-Gov Profile: Alterra Corp.",
+"Aurora_Living_Area_PDA1" : "Trans-Gov Profile: Alterra Corp.",
 "EncyDesc_Aurora_Living_Area_PDA1" : " - One of largest suppliers of spacefaring technologies and consumer electronics in the federation
  - The official supplier of the TSF
  - Consistently ranked amongst the galaxy's best employers
@@ -3504,7 +3504,7 @@ Free enterprise within Alterra space is encouraged, but competition is tight, an
 Despite superficial similarities to national governments, the corporation's lawyers have always maintained that it has no legal obligation to its 'employees', but voluntarily elects to take on the roles usually served by a democratically elected government. This claim has not yet been tested in Federation courts.",
 
 
-"Ency_Aurora_Living_Area_PDA2" : "Responsible Autonomous Relationships",
+"Aurora_Living_Area_PDA2" : "Responsible Autonomous Relationships",
 "EncyDesc_Aurora_Living_Area_PDA2" : "Foreword, by Jenny Ekheart
 
 All the good things in life are commodities. We trade love just as we buy and sell stock. We engage in human relationships when there is a fair exchange of value. Support, motivation, affection - nothing good is ever free.
@@ -3514,7 +3514,7 @@ If every physical good in the federation came from a single supplier it would co
 If one member of a relationship should feel threatened or jealous, they must look at their own business model and ask whether it is performing competitively. There is always room for improvement.",
 
 
-"Ency_Aurora_Living_Area_PDA2b" : "Relationship Contract Legal Recording",
+"Aurora_Living_Area_PDA2b" : "Relationship Contract Legal Recording",
 "EncyDesc_Aurora_Living_Area_PDA2b" : "WILSON: Listen, I know I don't have the right to make demands of you, but I need you to understand that I want to change our arrangement.
 
 ELHEIM: I hear what you're saying and I will try to respect it. How would you like to change it?
@@ -3543,7 +3543,7 @@ WILSON: This is why I want to change our arrangement.",
 
 
 //In canteen type room when you first enter the living area
-"Ency_Aurora_Living_Area_PDA3" : "Today's Menu",
+"Aurora_Living_Area_PDA3" : "Today's Menu",
 "EncyDesc_Aurora_Living_Area_PDA3" : "			STARTER - Space Bear Veloute
 Since their introduction to the interstellar vacuum in the 21st century, microscopic tardigrades (or space bears) have adapted and flourished where no other lifeforms have survived. Condensed into a smooth, nutty, protein-rich soup, they are the freshest local ingredient available to travelers on long-haul space flights.
 
@@ -3557,16 +3557,16 @@ Unfortunately a recent accident in Cargo Bay 3 involving the incorrect applicati
 //Ring room
 
 
-"Ency_Aurora_RingRoom_Code_PDA" : "Lab Access",
+"Aurora_RingRoom_Code_PDA" : "Lab Access",
 "EncyDesc_Aurora_RingRoom_Code_PDA" : "If you need to tweak your equipment please use the mod station in the forward section, or retrieve pre-configured equipment from the lab next door to the data coil. The door code is 6483.",
 
 
-"Ency_DataCoil" : "Aurora Data Coil",
+"DataCoil" : "Aurora Data Coil",
 "EncyDesc_DataCoil" : "CORRUPTED",
 
 
 //Still being used / where is it?
-"Ency_Aurora_RingRoom_Terminal1" : "CORRUPTED",
+"Aurora_RingRoom_Terminal1" : "CORRUPTED",
 "EncyDesc_Aurora_RingRoom_Terminal1" : "CORRUPTED",
 
 
@@ -3575,7 +3575,7 @@ Unfortunately a recent accident in Cargo Bay 3 involving the incorrect applicati
 //Give blueprint
 
 
-"Ency_CaptainPDA" : "Captain's Log",
+"CaptainPDA" : "Captain's Log",
 "EncyDesc_CaptainPDA" : "Loading program: CraigMcGillSimulator.vrat
 Size: 1 player (Cap'n 'Hot Dog' Hollister)
 Map: Boreal 9
@@ -3605,7 +3605,7 @@ Would you like to continue?
 
 
 //This should now be inside the captains quarters
-"Ency_Aurora_RingRoom_Terminal3" : "Alterra HQ - Last Recorded Transmissions",
+"Aurora_RingRoom_Terminal3" : "Alterra HQ - Last Recorded Transmissions",
 "EncyDesc_Aurora_RingRoom_Terminal3" : "Average long-range transmission delay: 8 hours
 Opening last recorded transmissions...
 
@@ -3620,25 +3620,25 @@ ALTERRA HQ [T+8hrs]: This is Alterra HQ. Attached to this message you should fin
 
 //Scan a breach in the generator room
 "RadiationLeakPoint" : "Breach",
-"Ency_Aurora_BreachScan": "Drive Core Shielding Breach",
+"Aurora_BreachScan": "Drive Core Shielding Breach",
 "EncyDesc_Aurora_BreachScan": "The Aurora's drive core is shielded by a thick metal shell, which breached in multiple locations shortly after the crash. Once breached it will continue to leak radiation into the surrounding environment until the breaches are sealed. After that point the radiation in the environment will dissipate over time. This procedure should only be attempted with appropriate radiation protection, and a fully charged repair tool.",
 
 
 
 
 //LEGACY ENTRIES:
-"Ency_Aurora_RingRoom_Terminal2" : "Alterra Safety Instructions",
+"Aurora_RingRoom_Terminal2" : "Alterra Safety Instructions",
 "EncyDesc_Aurora_RingRoom_Terminal2" : "CORRUPTED",
 
 //These texts to be used in wrecks and lifepods as appropriate to gate off the exo room.
 //REMOVED I think?
-"Ency_Exo_Code_LifepodPDA" : "Non-essential Systems Maintenance Logs",
+"Exo_Code_LifepodPDA" : "Non-essential Systems Maintenance Logs",
 "EncyDesc_Exo_Code_LifepodPDA" : "Robotics bay (access code 6666) parts sweep  - Completed
 Standard corridor routines - Completed
 Public conveniences check - Delayed for ongoing use
 Deck A lifepods maintenance check - Commenced",
 
-"Ency_Exo_Code_WreckPDA" : "Robotics Bay Security",
+"Exo_Code_WreckPDA" : "Robotics Bay Security",
 "EncyDesc_Exo_Code_WreckPDA" : "From: CTO Yu
 To: Technician Hinkle
 
@@ -3647,7 +3647,7 @@ You're such a corporate stooge, Hinkle, live a little! No matter what access cod
 How about 6666? The guys will like that.",
     
     
-"Ency_AuroraEngineeringLog": "CORRUPTED",
+"AuroraEngineeringLog": "CORRUPTED",
 "EncyDesc_AuroraEngineeringLog": "CORRUPTED",
     
     
@@ -3658,7 +3658,7 @@ How about 6666? The guys will like that.",
 //////////////////////////////////////////
 
 
-"Ency_InnerBiomeWreckLore1" : "Degasi Crew Manifest: Paul Torgal",
+"InnerBiomeWreckLore1" : "Degasi Crew Manifest: Paul Torgal",
 "EncyDesc_InnerBiomeWreckLore1" : "Auxiliary Search & Rescue Mission: Paul Torgal
 Position: Chief of Torgal Corp, Captain of the 'Degasi'
 Status: Lost in space near planet 4546B
@@ -3674,7 +3674,7 @@ Paul Torgal and his crew fell out of contact with Mongolian authorities close to
     - Inadequate systems maintenance or straying from its planned route may account for the ship's disappearance",
     
 
-"Ency_InnerBiomeWreckLore2" : "Degasi Crew Manifest: Bart Torgal",
+"InnerBiomeWreckLore2" : "Degasi Crew Manifest: Bart Torgal",
 "EncyDesc_InnerBiomeWreckLore2" : "Auxiliary Search & Rescue Mission: Bart Torgal
 Position: Vice President of Torgal Corp.
 Status: Lost in space near planet 4546B
@@ -3686,7 +3686,7 @@ Age at time of disappearance: 19
     - Emissary Khasar reports Bart was accompanying his father to a newly-constructed, deep-space station where he was to serve a five year term as Chief Operating Officer",
 
 
-"Ency_InnerBiomeWreckLore3" : "Degasi Crew Manifest: Marguerit Maida",
+"InnerBiomeWreckLore3" : "Degasi Crew Manifest: Marguerit Maida",
 "EncyDesc_InnerBiomeWreckLore3" : "Auxiliary Search & Rescue Mission: Marguerit Maida
 Position: Freelance Security Personnel
 Status: Lost in space near planet 4546B
@@ -3699,7 +3699,7 @@ Age at time of disappearance: 42
     - Emissary Khasar reports Maida was hired to accompany Paul Torgal onboard the Degasi into uncharted space, and defend the ship in case of assault by pirates or rival corporations",
 
 
-"Ency_InnerBiomeWreckLore4" : "Alterra Citizen Testimonials",
+"InnerBiomeWreckLore4" : "Alterra Citizen Testimonials",
 "EncyDesc_InnerBiomeWreckLore4" : "Frank told us this: 'I hear there are worlds out there where kids still learn from books. They go into a classroom every day, they memorize things, then later they type those things out in controlled environments. Or worlds where everyone's supposed to do whatever creative job they feel like! What use is learning to draw or sing in a world where there's no human resource department to co-ordinate the galleries and concerts? On Alterra worlds, psychometric testing and specialized digi-training makes the most of everyone's talents.'
 
 Max Zoinkoff: 'I started out in marketing for Alterra Survival Systems. It was good work, but I thought I could do better. I set up my own company, developing bespoke code for the Seamoth so it could operate in open space, not just underwater. I sold up to Alterra ten years ago and now it's one of the most widely used vehicles in the galaxy. Now I'm on the board of directors, and I haven't looked back.'
@@ -3709,7 +3709,7 @@ George said, 'An average day for me starts at 10am. I live in a controlled habit
 Kaz says, 'We're lucky. We're free. We have jobs. There are trans-govs out there that do everything with robots, you know?'",
 
 
-    "Ency_InnerBiomeWreckLore5" : "Trans-Gov Profile: Mongolian Independent States",
+    "InnerBiomeWreckLore5" : "Trans-Gov Profile: Mongolian Independent States",
 "EncyDesc_InnerBiomeWreckLore5" : "When the hostilities of the Expansion ceased, the tactical value of the hard-to-reach colony systems on the edge of the China Territories plummeted. Recouping from the war, the central government left them to starve. The systems in question declared independence, claiming their infrastructure as their own, and their intent to become self-sufficient.
 
 Today the Mongolian States is seen as a relatively minor power on the outskirts of colonized space, yet it remains one of the fastest expanding trans-govs in the galaxy.
@@ -3717,7 +3717,7 @@ Today the Mongolian States is seen as a relatively minor power on the outskirts 
 Mongolian societies inherited their technologies from the Chinese, but incorporated the customs of their multicultural colonist base. Non-synthetic foods remain popular. Religion is a strong component of society, but the Mongolians take a relaxed view of competing faiths, believing gods to be universally and equally flawed.",
 
 
-"Ency_InnerBiomeWreckLore7" : "Aurora Scanner Room Voice Log",
+"InnerBiomeWreckLore7" : "Aurora Scanner Room Voice Log",
 "EncyDesc_InnerBiomeWreckLore7" : "OFFICER KEEN: The way I see it no one's to blame here.
 
 UNIDENTIFIED CREW 1: He gave me the wrong co-ordinates!
@@ -3738,7 +3738,7 @@ OFFICER KEEN: Turn that recorder off!",
 //InnerBiomeWreckLore8 renamed and moved to onboard Aurora
 
 
-"Ency_InnerBiomeWreckLore9" : "Unificationism",
+"InnerBiomeWreckLore9" : "Unificationism",
 "EncyDesc_InnerBiomeWreckLore9" : "Religion has been scorned throughout space-faring history, but it has evolved and survived. By combining ancient meditative practices with the foresight of modern science, unificationist pantheism was born.
 
 Determinism teaches us that what has always been, always will be. The future is already decided, and free will is a myth. Gone are the days of casting guilt and original sin on all. Today we understand that we are born innocent, into lives we are not responsible for; we are atoms vibrating in the energy winds of space. Understanding that what we do has no meaning but for ourselves; and understanding that we are just as much a causal part of the universe as the universe is a causal part of us; we can understand that we give meaning to the universe and the universe gives meaning to us. We are people. But we are also gods.
@@ -3749,10 +3749,10 @@ Unificationism has the answer. 300 credits for the opening seminar.",
 
 
 //LEGACY ENTRIES
-"Ency_InnerBiomeWreckLore6" : "CORRUPTED",
+"InnerBiomeWreckLore6" : "CORRUPTED",
 "EncyDesc_InnerBiomeWreckLore6" : "CORRUPTED",
 
-"Ency_InnerBiomeWreckLore8" : "CORRUPTED",
+"InnerBiomeWreckLore8" : "CORRUPTED",
 "EncyDesc_InnerBiomeWreckLore8" : "CORRUPTED",
 
 
@@ -3763,7 +3763,7 @@ Unificationism has the answer. 300 credits for the opening seminar.",
 //////////////////////////////////////////
 
 
-"Ency_OuterBiomeWreckLore1" : "VR Suite Log",
+"OuterBiomeWreckLore1" : "VR Suite Log",
 "EncyDesc_OuterBiomeWreckLore1" : "Loading program: DesertIslandDrama.vrat
 Size: 3 players
 Resources: Normal
@@ -3789,7 +3789,7 @@ Player 2 wins.
 Player 2 has died from cold and starvation.",
 
 
-"Ency_OuterBiomeWreckLore2" : "Alterra Alms Pamphlet",
+"OuterBiomeWreckLore2" : "Alterra Alms Pamphlet",
 "EncyDesc_OuterBiomeWreckLore2" : "'Charity' is an archaic concept which the realism of today's Alterrans has rendered obsolete. We understand that we are each responsible for ourselves, but the best way to get the most for ourselves is to work together with Alterra. The implication of this reasoning is clear: if someone is in need, they must find a way to be needed. 
 
 Alterra Alms is a training academy for those that need to be needed. We're not a charity, because we don't ask for handouts - we prefer to think of ourselves as a philanthropic beneficence facilitation service promoting synergy between employer and workforce. 
@@ -3797,7 +3797,7 @@ Alterra Alms is a training academy for those that need to be needed. We're not a
 AA operates on a lottery system. By investing any number of credits you will be entered into our prize draw. Larger investments yield higher chances of winning. Your credits will go toward training unskilled colonists in vital tasks such as maintenance and interpersonal skills. The colonists receive this training voluntarily and free of charge, on condition of a minimum contract with one of our investors on completion of their training.",
 
 
-"Ency_OuterBiomeWreckLore3" : "The Charter",
+"OuterBiomeWreckLore3" : "The Charter",
 "EncyDesc_OuterBiomeWreckLore3" : "Definitions:
 Trans-gov - An independent authority in de facto control of at least one solar system and phasegate.
 Citizen - A person who consents, consciously or implicitly, to the authority of a recognized trans-gov.
@@ -3816,7 +3816,7 @@ Trans-gov Principles:
     b. No trans-gov shall engage in population abuse",
 
 
-"Ency_OuterBiomeWreckLore4" : "What Can We Learn From the Hive Mind of Strader VI?",
+"OuterBiomeWreckLore4" : "What Can We Learn From the Hive Mind of Strader VI?",
 "EncyDesc_OuterBiomeWreckLore4" : "How are the 'individuals' which make up a hive mind to be categorized? Are they merely dumb components of the larger, intelligent organism; or is the larger 'mind' merely a product of the independent organisms? Can it be both?
 
 We define organisms by their traits, but find invariably that these traits depend on those of their environment. The concept of a tadpole is meaningless without the concept of the frog it will develop into. The idea of a predator is empty without an understanding of its prey. This begs the question: if we define everything by reference to everything else, what have we actually explained?
@@ -3838,11 +3838,11 @@ When a philosophy, or a technology takes hold in human society... when wars are 
 We would do well, as scientists, to remember that our goal is not to paint the world as we see it, but to see it as it truly is.",
 
     
-"Ency_OuterBiomeWreckLore5" : "Corporate Profile: Torgal Corp.",
+"OuterBiomeWreckLore5" : "Corporate Profile: Torgal Corp.",
 "EncyDesc_OuterBiomeWreckLore5" : "Torgal Corporation is a long-standing, family-run clan that operates almost a dozen mining and trading operations. The company share price hit an all time high on the announcement by a Mongolian cabal of their intention to construct a new phasegate utilizing Torgal materials. These plans were put on hold when Bart Torgal, the intended leader of the new mining operation, disappeared along with his father roughly a decade ago.",
 
 
-"Ency_OuterBiomeWreckLore6" : "Join Alterra's Board of Directors",
+"OuterBiomeWreckLore6" : "Join Alterra's Board of Directors",
 "EncyDesc_OuterBiomeWreckLore6" : "It's not about money. That's what every director on Alterra's board has told me - and I believe them. Profitability is just an interim measure of success. Power and status are the real goals.
 
 Make enough profit for Alterra Corporation and you'll be recognized by the most powerful businesspeople in the universe. Establish a company that obliterates the competition and - after compulsory buyout - you can be promoted to the Board of Directors. 
@@ -3857,7 +3857,7 @@ Perks include:
 //WreckLore7 and 8 moved to Aurora
 
 
-"Ency_OuterBiomeWreckLore9" : "Surveillance Log, Leisure Deck B",
+"OuterBiomeWreckLore9" : "Surveillance Log, Leisure Deck B",
 "EncyDesc_OuterBiomeWreckLore9" : "[Suspicious key word 'religious' detected. Beginning automated recording.]
 
 KHASAR: I find a tendency amongst Alterrans to think not only that you have it best, but that yours is the only way to have it at all. In the Mongolian States we have the freedom to work for ourselves.
@@ -3873,7 +3873,7 @@ KHASAR: According to my religious beliefs, this ship belongs to us all. We're al
 CREWMEMBER: Wise words for someone from a cowboy corporation fighting over rocks in the far reaches of space.",
 
 
-"Ency_OuterBiomeWreckLore10" : "Profitability Projections",
+"OuterBiomeWreckLore10" : "Profitability Projections",
 "EncyDesc_OuterBiomeWreckLore10" : "Two choices: A) Carry on working long-haul missions on the outer reaches of space; 2) Come up with a profitable business, sell out to Alterra, live happily ever after.
 
 I choose 2. Ideas:
@@ -3886,9 +3886,9 @@ I choose 2. Ideas:
 
 
 //LEGACY ENTRIES:
-"Ency_OuterBiomeWreckLore7" : "CORRUPTED",
+"OuterBiomeWreckLore7" : "CORRUPTED",
 "EncyDesc_OuterBiomeWreckLore7" : "CORRUPTED",
-"Ency_OuterBiomeWreckLore8" : "CORRUPTED",
+"OuterBiomeWreckLore8" : "CORRUPTED",
 "EncyDesc_OuterBiomeWreckLore8" : "CORRUPTED",
 
 
@@ -3900,7 +3900,7 @@ I choose 2. Ideas:
 //EscapePod_17_GrassyPlateaus
 //SEAMOTH fragment nearby; changed from seaglide.
 //Add flares / something else? Need to add debris on top
-"Ency_LifepodSeaglide" : "Lifepod 17 Crew Log",
+"LifepodSeaglide" : "Lifepod 17 Crew Log",
 "EncyDesc_LifepodSeaglide" : "Ozzy's log. It's the day of the crash. I don't know what the heck is happening. I'm scared and I'm not going outside. There are shadows in the water under the hatch but I can't tell if rocks, or aliens, and there's weird looking caves nearby.
 
 The Aurora was carrying everything needed to build the phasegate: mobile vehicle bays, bioreactors, propulsion cannons... It had a cinema. There was a zero-G gym. My cafe. I don't understand how we're here now. I don't know why no one's coming for me.",
@@ -3908,7 +3908,7 @@ The Aurora was carrying everything needed to build the phasegate: mobile vehicle
 
 //EscapePod_3_KelpForest
 //This lifepod contains a COMPASS and SEAGLIDE fragment, and high capacity tank databox
-"Ency_Lifepod3" : "Lifepod 3 Crew Log",
+"Lifepod3" : "Lifepod 3 Crew Log",
 "EncyDesc_Lifepod3" : "UNIDENTIFIED CREW 1: You really think it'll carry two of us?
 
 UNIDENTIFIED CREW 2: Your regular seaglide tows a mass of 80kg at over 30km/h. The power cell I rigged to this one should double that.
@@ -3926,7 +3926,7 @@ UNIDENTIFIED CREW 2: I'm seeing the engineering problem. If I stop seeing the ma
 //LifepodCrashZone1 and LifepodCrashZone2 are separate PDAs in the same lifepod.
 //This lifepod contains lead, flare, ultra glide fins databox
 //Currently contains neither a radiation suit, it is unlocked from the start so player can craft it
-"Ency_LifepodCrashZone1" : "Lifepod 6 Crew Log #1",
+"LifepodCrashZone1" : "Lifepod 6 Crew Log #1",
 "EncyDesc_LifepodCrashZone1" : "CREW: Ma'am, I need you to stay calm. We're not in immediate danger.
 
 PASSENGER: Where are the rescue teams?!
@@ -3946,7 +3946,7 @@ PASSENGER: Out there? I am not setting foot outside this lifepod without the pro
 CREW: Don't worry. I'll go.",
 
 
-"Ency_LifepodCrashZone2" : "Lifepod 6 Crew Log #2",
+"LifepodCrashZone2" : "Lifepod 6 Crew Log #2",
 "EncyDesc_LifepodCrashZone2" : "CREW: What are you doing?!
 
 PASSENGER: You were gone so long, I thought you'd drowned. I was going to try and attract someone's attention.
@@ -3957,18 +3957,18 @@ CREW: That's not a distress flare! Stop waving it around like that, you'll catch
 
 //EscapePod_4_Crashzone
 //Obsolete, replacing with radio signal
-"Ency_LifepodCaptainsQuartersCode" : "CORRUPTED",
+"LifepodCaptainsQuartersCode" : "CORRUPTED",
 "EncyDesc_LifepodCaptainsQuartersCode" : "CORRUPTED",
 
 //Current pda for escapepod 4
-"Ency_LifepodDecoy" : "Lifepod 4 Crew Log",
+"LifepodDecoy" : "Lifepod 4 Crew Log",
 "EncyDesc_LifepodDecoy" : "To any Alterra crew. Landed in area of significant alien activity. Encountered predators in the leviathan class, highly aggressive. Spectroscope scanner assigned species designator 'Reaper'. One specimen attempted to swallow the lifepod, doing extensive damage in the process. Only viable option is to make for the safety of the Aurora crash site.
 
 I have retrieved a databox with the creature decoy, and enough resources to fabricate a couple of them. The swim's longer than the decoy lifetime, but it should just be enough to keep them busy. If you don't find me onboard the ship, presume I miscalculated.",
 
 
 //Place at the central, underwater entrance to floating island (on land)
-"Ency_RendezvousFloatingIsland" : "Rendezvous Voicelog",
+"RendezvousFloatingIsland" : "Rendezvous Voicelog",
 "EncyDesc_RendezvousFloatingIsland" : "CTO YU: We have to board the Aurora, repair the long range comms, make contact with the other survivors. We can't be the only two that made it.
 
 OFFICER KEEN: Those are not the orders the captain gave me, and they are not the orders I'm giving you.
@@ -3992,7 +3992,7 @@ OFFICER KEEN: Rendezvous was a failure. Intercepted a transmission from Alterra 
 
 //EscapePod_7_Cragfield
 //This lifepod contains a number of random prop items which would be useless in a survival situation, produced erroneously by the onboard fabricator (eg gorge plushy, aurora ship model, desk equipment etc)
-"Ency_LifepodRandom" : "Lifepod 7 Crew Log",
+"LifepodRandom" : "Lifepod 7 Crew Log",
 "EncyDesc_LifepodRandom" : "I've tried everything. The analysis circuits on the fabricator are fried. I can barely manufacture the most basic of materials. Want a battery? Here, have a children's toy! Need deep sea diving equipment? Have some lab tech! Hungry? I'll turn that fruit into dust for you.
 
 I'm going forward with trial and error. I hit every button here, it's got to make something useful eventually.",
@@ -4000,7 +4000,7 @@ I'm going forward with trial and error. I hit every button here, it's got to mak
 
 //EscapePod_13_MushroomForest
 //Make a bit more accepting of his fate.
-"Ency_Lifepod4" : "Lifepod 13 Emissary's Voicelog",
+"Lifepod4" : "Lifepod 13 Emissary's Voicelog",
 "EncyDesc_Lifepod4" : "[Lifepod lift sequence initiated.]
 [Entering planetary atmosphere.]
 
@@ -4016,7 +4016,7 @@ KHASAR: Life is a game, which the universe plays with itself. I am done playing 
 
 
 //EscapePod_12_KooshZone
-"Ency_Lifepod2" : "Lifepod 12 Medical Officer Danby's Crew Log",
+"Lifepod2" : "Lifepod 12 Medical Officer Danby's Crew Log",
 "EncyDesc_Lifepod2" : "I'm not really a doctor. I know that's what my ID says, but I never have been. Cheated the medical exams. What does a doctor these days need to know about manually resetting bones? When was the last time a top surgeon actually cut someone open? That's what the robots are for!
 
 Doctors these days read diagnoses off of computer readouts. For that, I'm perfectly qualified. 
@@ -4028,7 +4028,7 @@ I think I'm actually going to die down here.",
 
 //EscapePod_2_BloodKelp
 //Can you decorate the local area around the pod with dive reel, where the character has been trying to chart a way out?
-"Ency_Lifepod1" : "Lifepod 2 Chief Technical Officer Yu's Voicelog (T+2min)",
+"Lifepod1" : "Lifepod 2 Chief Technical Officer Yu's Voicelog (T+2min)",
 "EncyDesc_Lifepod1" : "CTO YU: Flotation devices failed!
 
 *Sound of flooding*
@@ -4054,7 +4054,7 @@ CTO YU: We use the remaining juice to send a distress call and build whatever ge
 
 //EscapePod_19_SparseReef
 //Near to floating island
-"Ency_LifepodKeenDialog" : "Lifepod 19 Second Officer Keen's Voicelog",
+"LifepodKeenDialog" : "Lifepod 19 Second Officer Keen's Voicelog",
 "EncyDesc_LifepodKeenDialog" : "CAPTAIN: Keen! This is Aurora, come in!
 
 KEEN: This is Keen, lifepod detached okay, planetfall in 30 seconds!
@@ -4076,18 +4076,18 @@ KEEN: Captain?!
 *Static*",
 
 //Give island rendezvous signal
-"Ency_LifepodKeenLog" : "Lifepod 19 Second Officer Keen's Crew Log",
+"LifepodKeenLog" : "Lifepod 19 Second Officer Keen's Crew Log",
 "EncyDesc_LifepodKeenLog" : "To all crew - If you are reading this then you have followed the automatic distress signal broadcast by this lifepod's onboard computer, contrary to my orders. I have been forced to evacuate. Your orders are to disregard my safety and attempt to reach the designated rendezvous co-ordinates at the nearest landmass. I hope to see you there.",
 
 
 //LEGACY ENTRIES:
-"Ency_LifepodCTODialog1" : "REMOVED",
+"LifepodCTODialog1" : "REMOVED",
 "EncyDesc_LifepodCTODialog1" : " ",
-"Ency_LifepodCTODialog2" : "REMOVED",
+"LifepodCTODialog2" : "REMOVED",
 "EncyDesc_LifepodCTODialog2" : " ",
-"Ency_LifepodCTOLog2" : "REMOVED",
+"LifepodCTOLog2" : "REMOVED",
 "EncyDesc_LifepodCTOLog2" : " ",
-"Ency_LifepodCTOLog1" : "REMOVED",
+"LifepodCTOLog1" : "REMOVED",
 "EncyDesc_LifepodCTOLog1" : "REMOVED",
 
 
@@ -4101,7 +4101,7 @@ KEEN: Captain?!
 
 
 
-"Ency_IslandsPDABase1Interior" : "Paul Torgal's Log #1 - Marooned",
+"IslandsPDABase1Interior" : "Paul Torgal's Log #1 - Marooned",
 "EncyDesc_IslandsPDABase1Interior" : "Chief's log, five weeks since the crash. The only other survivors are my son, Bart, and Maida, the cut-price mercenary I commissioned for the journey.
 
 After days drifting in the lifepod, rain hammering the roof, the weather cleared and we washed up here. I had Maida salvage the Degasi wreck, set Bart to finding us a stable source of food. His education is paying off sooner than I'd anticipated.
@@ -4113,7 +4113,7 @@ If she had my experience she'd have more faith. Humans have spent millennia spec
 My one task now is to keep us alive, as comfortably as possible, until the insurance company arranges rescue. In this part of space that could be months, or even years.",
 
 
-"Ency_IslandsPDABase1a" : "Bart Torgal's Log #3 - Return From the Deep",
+"IslandsPDABase1a" : "Bart Torgal's Log #3 - Return From the Deep",
 "EncyDesc_IslandsPDABase1a" : "This is the first time I've seen sunlight in months. After all that time in the deep I'd been dreaming of it. Now that I'm back here, I'm finding it hard to enjoy alone. Father was right: we should never have left this place. We shouldn't have gone so deep. They do not want us down there.
 
 Despite my best efforts ill-health is taking hold of me. The visions are getting worse.
@@ -4123,7 +4123,7 @@ Marguerit and father are now part of the ecosystem of this incredible planet. It
 Until then... well, there's always the view.",
 
 
-"Ency_IslandsPDABase1bDesk" : "Degasi Voice Log #1 - Habitation Location",
+"IslandsPDABase1bDesk" : "Degasi Voice Log #1 - Habitation Location",
 "EncyDesc_IslandsPDABase1bDesk" : "PAUL: This island is a godsend! Look out of the window. No predators... Fresh food...
 
 MARGUERIT: No building materials... nothing left of the ship... And your kid says we're gonna starve without more growbeds. Speak up, kid.
@@ -4137,7 +4137,7 @@ PAUL: The rest of your life may have been a fight, Maida, but I've made my decis
 MARGUERIT: Believe me, I'm thinkin' on it.",
 
 	
-"Ency_IslandsPDABase1Desk" : "Degasi Voice Log #2 - Storm!",
+"IslandsPDABase1Desk" : "Degasi Voice Log #2 - Storm!",
 "EncyDesc_IslandsPDABase1Desk" : "PAUL: Son, I said wait for the storm to pass. Your life's more valuable to me than a plant patch.
 
 BART: You stopped being in charge when the ship you were captaining sunk!
@@ -4163,7 +4163,7 @@ PAUL: Interfere with my family again and when rescue arrives I will leave you he
 MARGUERIT: No rescue coming, Chief. Not in time. And no stayin' here, neither. This rain keeps falling, sooner or later this place'll be buried. Only choice we got is whether to get buried with it.",
 
 
-"Ency_IslandsPDAExterior" : "Degasi Voice Log #3 - Aftermath",
+"IslandsPDAExterior" : "Degasi Voice Log #3 - Aftermath",
 "EncyDesc_IslandsPDAExterior" : "MARGUERIT: You see, Chief? You brought us to this sodden planet. Told us we'd see a lush payday. Now what do we got, some 6 weeks later? A dead crew. A habitat that's half buried. Food washed away.
 
 PAUL: I suppose the executive decisions would be better left to someone with your extensive experience of hitting people in the face?
@@ -4183,7 +4183,7 @@ PAUL: Send the coordinates to my PDA. I'll review your proposal.",
 
 
 //Move this PDA to first base, to reflect presence of purple precursor key in that base:
-"Ency_JellyPDARoom2Locker" : "Degasi Voice Log #4 - Curious Discovery",
+"JellyPDARoom2Locker" : "Degasi Voice Log #4 - Curious Discovery",
 "EncyDesc_JellyPDARoom2Locker" : "PAUL: What is that thing?
 
 MARGUERIT: I don't know. I found it outside, in the sand.
@@ -4207,7 +4207,7 @@ MARGUERIT: People. Maybe. Could be aliens. Could be the damn seamonsters for all
 
 
 //LEGACY ENTRIES:
-"Ency_IslandsPDAPaal" : "Paul Torgal's Log",
+"IslandsPDAPaal" : "Paul Torgal's Log",
 "EncyDesc_IslandsPDAPaal" : "CORRUPTED",
     
     
@@ -4219,7 +4219,7 @@ MARGUERIT: People. Maybe. Could be aliens. Could be the damn seamonsters for all
 ///////////////////////////
     
     
-"Ency_JellyPDABrokenCorridor" : "Degasi Voice Log #5 - Pecking Order",
+"JellyPDABrokenCorridor" : "Degasi Voice Log #5 - Pecking Order",
 "EncyDesc_JellyPDABrokenCorridor" : "PAUL: Son, there is always a pecking order, and in our world, money makes the hierarchy. I pay Maida a fraction of what I pay you, and you a fraction of what I pay me.
 
 BART: If money makes the hierarchy, why is Marguerit making the decisions?
@@ -4232,7 +4232,7 @@ PAUL: For enough money, she will. People always do.",
 
 
 
-"Ency_JellyPDARoom2Desk" : "Degasi Voice Log #6 - Deeper?!",
+"JellyPDARoom2Desk" : "Degasi Voice Log #6 - Deeper?!",
 "EncyDesc_JellyPDARoom2Desk" : "PAUL: We're already 200m below sea level! You want to go DEEPER?!
 
 MARGUERIT: Look around us, Chief. Water leaking through the hull. Water outside the hatch. We're drowning. Real slow. If rescue arrives whatever shot us down, it's going to do it again. And again. Until it's shut off. You see an off switch around here, Chief?
@@ -4246,7 +4246,7 @@ PAUL: You're mad.
 MARGUERIT: I'm goin' all the same. And I've an idea you two are gonna follow. But if you do, be mindful: your authority stopped at sea level.",
 
 
-"Ency_JellyPDAObservatory" : "Bart Torgal's Log #2 - Stalker Teeth",
+"JellyPDAObservatory" : "Bart Torgal's Log #2 - Stalker Teeth",
 "EncyDesc_JellyPDAObservatory" : "Something incredible just happened.
 
 Since we're down here, I had this plan to build equipment and study the incredible lifeforms we're encountering, but I didn't have enough enameled glass. So I started looking for a natural substrate that would strengthen the glass we have, and those stalker teeth we've been finding fit the bill - only, well, we needed more.
@@ -4265,7 +4265,7 @@ I wish I knew more about these animals, but father won't let me leave the habita
 //Locked aquarium
 
 
-"Ency_JellyPDARoom1Desk" : "Bart Torgal's Log #1 - This World",
+"JellyPDARoom1Desk" : "Bart Torgal's Log #1 - This World",
 "EncyDesc_JellyPDARoom1Desk" : "I thought it might get claustrophobic, living underwater. Father feels it is. He'd tell me it was childish, but I stare out the window and sometimes I think how lucky I am to see this world up close. Back on the island I wouldn't have believed the creatures that live down here. The fish, they GLOW... There's one that's 90% eyeball... Snakes twice the length of a habitat compartment.
 
 Certainly it's not all friendly. Most of the plantlife is toxic, I learned that the hard way, but I've managed to coax some marblemelons into growing indoors, and when they don't cover our dietary needs, well... we eat the fish themselves. It's a bit gross, but it's nothing they wouldn't do.
@@ -4275,7 +4275,7 @@ I've been attempting to document my findings. Father approves. He says understan
 Lately I've been watching the crabsnakes. They ambush their prey as it tries to feed on the mushrooms they hide in. What they don't eat settles on the seabed, which fertilizes the mushrooms, which feeds the herbivores, and so the chain continues. Co-evolution gives me the fuzzies.",
 
 
-"Ency_JellyPDARoom1Locker" : "Paul Torgal's Log #2 - Dilemma",
+"JellyPDARoom1Locker" : "Paul Torgal's Log #2 - Dilemma",
 "EncyDesc_JellyPDARoom1Locker" : "You know what Maida told me today? She wants to build a habitat 500m below sea level, more than a kilometer north-east of here. And she needs Bart and I to do it. She's got it into her head that she can save us if she just acts recklessly enough. But I've hauled starwhals to Neptune. Plasteel to the Federation... this family operates nine different mining colonies across the Ariadne Arm. Maida thinks she's better suited to lead? Her contract still says otherwise.
 
 But... I just cannot damn tell whether it's the stupidest idea I ever heard, or my only hope. I turned 80 years old last week. I thought I had another 80 in me, but marooned on this planet there's no swapping out of my liver when the old one fails. Here, I'm mortal. And Maida is useful.
@@ -4286,7 +4286,7 @@ I'll give Maida just one thing. She was right about these caves. There's enough 
 //Deep grand reef base signal
 
 
-"Ency_JellyPDAExterior" : "Marguerit Maida's Log - Speaking Freely",
+"JellyPDAExterior" : "Marguerit Maida's Log - Speaking Freely",
 "EncyDesc_JellyPDAExterior" : "These conniving, corporate, bourgeois, inbred, incompetent, self-absorbed jerks don't have a damn clue!
 
 The kid's not so bad - he's even useful - but I swear everything that comes out of his father's idiot face is a narcissistic lie. He wants to stay in this cave, his problem. I'm the one doing the heavy lifting. When seamonsters are hunting you, you don't hide. You hunt the seamonsters. Then you build a bigger boat out of seamonster bones, and you hunt bigger monsters. Keep going until there aren't any monsters left to hunt you.
@@ -4296,7 +4296,7 @@ I'm going deeper, I'm gonna find what shot us down, and I'm going to tear its da
 I've started the prep work. The kid's taught me how to make enamelled glass. I've started stockpiling metal ores to build myself a seamoth. I'll raid the indoor growbeds before I leave.",
 
 
-"Ency_JellyPDABreadcrumb" : "Environment Log",
+"JellyPDABreadcrumb" : "Environment Log",
 "EncyDesc_JellyPDABreadcrumb" : "User 'Paul Torgal' requested cross-referencing of local environment scans with ideal habitat construction conditions. Displaying results.
 
  - Large subterranean cavern with multiple entrances
@@ -4325,7 +4325,7 @@ A signal tracking the site has been created.",
 
 //DeepPDA1, DeepPDA2 and DeepPDA3 all located in different spots in the interior of the base.
 
-"Ency_DeepPDA1" : "Degasi Voice Log #7 - Malady",
+"DeepPDA1" : "Degasi Voice Log #7 - Malady",
 "EncyDesc_DeepPDA1" : "BART: Please stop fighting and listen! We're sick!
 
 MARGUERIT: What?
@@ -4356,7 +4356,7 @@ PAUL: Just tell me what you need, son. Materials? Equipment?
 
 BART: Just... can I have some quiet? I need time to think.",
 
-"Ency_DeepPDA2" : "Degasi Voice Log #8 - Risk Taking",
+"DeepPDA2" : "Degasi Voice Log #8 - Risk Taking",
 "EncyDesc_DeepPDA2" : "[Marguerit Maida has boarded the habitat.]
 
 PAUL: What are you so happy about, Maida?
@@ -4378,7 +4378,7 @@ MARGUERIT: You prefer it got curious and came of its own accord, or got messed u
 PAUL: When we get off this planet I am going to drag you through every court in the damn federation!",
 
 
-"Ency_DeepPDA3" : "Degasi Voice Log #9 - Disaster",
+"DeepPDA3" : "Degasi Voice Log #9 - Disaster",
 "EncyDesc_DeepPDA3" : "PAUL: I have had it with you risking our lives!
 
 MARGUERIT: Oh stow it, Chief. The kid can't kill this disease without specimens for his research. I'm just bringin' 'em home.
@@ -4416,7 +4416,7 @@ MARGUERIT: Brace!
 
 
 //This final PDA should be located on the seafloor at -642 -529 -946.
-"Ency_DeepPDA4" : "Paul Torgal's Log #3 - The End",
+"DeepPDA4" : "Paul Torgal's Log #3 - The End",
 "EncyDesc_DeepPDA4" : "Came out of nowhere. An alien kraken, bigger than a Cyclops. Tore a hole clear through the reinforced hull. I barely got my breather in time. I told her. I said others would come. 
 
 The rupture threw me clear of the habitat, and the monster turned and bore down on me. Just as its tentacles came within reach, Maida appeared out of nowhere. She had a seaglide in one hand, a jagged piece of scrap metal in the other. She meant to butcher that beast, or die trying. The last I saw her she had the metal lodged in its neck as the monster did its best to shake her, contorting off into the darkness. I'm certain she got her wish, one way or another.
@@ -4426,7 +4426,7 @@ Then I thought I saw a light, deep below me. I hoped maybe Bart had swum clear. 
 
 
 //LEGACY ENTRIES:
-"Ency_DeepPDABase3" : "CORRUPTED",
+"DeepPDABase3" : "CORRUPTED",
 "EncyDesc_DeepPDABase3" : "CORRUPTED",
 
 
@@ -4451,7 +4451,7 @@ Then I thought I saw a light, deep below me. I hoped maybe Bart had swum clear. 
 "AdviseSelfScan": "Detecting increased foreign bacteria levels in the water. Performing a self-scan is advised.",
 
 //First infected creature scan
-"Ency_Infection" : "Specimen with Symptoms of Infection",
+"Infection" : "Specimen with Symptoms of Infection",
 "EncyDesc_Infection" : "This organism is displaying signs of a bacterial infection.
 
 - Bright green blisters are forming networks around the infection sites
@@ -4462,7 +4462,7 @@ Then I thought I saw a light, deep below me. I hoped maybe Bart had swum clear. 
 WARNING: May be contagious. Avoid. Do not under any circumstances consume the flesh.",
 
 
-"Ency_HeroPeeper": "Enzyme Host Peeper",
+"HeroPeeper": "Enzyme Host Peeper",
 "EncyDesc_HeroPeeper": "A peeper specimen was observed emitting a faint, fluorescent enzyme trail, and engaging in unusual behavioral patterns.
 
 - Peeper is actively approaching other creatures, including predators
@@ -4477,7 +4477,7 @@ Chemical Analysis of Enzyme:
 Assessment: Recommend further research into enzyme origin",
 
 
-"Ency_CuredCreature": "Specimen with Infection Symptoms Inhibited",
+"CuredCreature": "Specimen with Infection Symptoms Inhibited",
 "EncyDesc_CuredCreature": "Scans indicate this infected organism has recently come into contact with a unique enzyme which has counteracted the most debilitating symptoms of its infection.
 
 - Skin blistering has rapidly receded and been replaced with healthy tissue
@@ -4493,7 +4493,7 @@ Assessment: Investigate enzyme origin",
 
 //Prison ventilation system surface end point
 "PrecursorSurfacePipe" : "Alien Vent",
-"Ency_PrecursorSurfacePipe" : "Alien Vent",
+"PrecursorSurfacePipe" : "Alien Vent",
 "EncyDesc_PrecursorSurfacePipe" : "These vents connect to an ancient piping network that extends beyond maximum scannable depth. The pumping system is still functional.
 
 - The inflow vent is drawing water from the surrounding area, and pumping it to an unknown location below the surface
@@ -4526,7 +4526,7 @@ No matches found in database. Performing structural analysis.",
 "Goal_BiomePrecursorGunUpper4": "CORRUPTED",
 
 "Precursor_Gun_DataDownload1" : "Unknown language. Attempting translation.",
-"Ency_Precursor_Gun_DataDownload1" : "Alien Data Terminal",
+"Precursor_Gun_DataDownload1" : "Alien Data Terminal",
 "EncyDesc_Precursor_Gun_DataDownload1" : "Discovered inside an alien facility, it was not possible to translate any useful information, however scans have returned some information on the device itself.
 
 It is likely a solid-state computer, although there is no clear way to interface with it. On approach it began producing a low-frequency radio wave containing complex but recognizable data patterns.
@@ -4537,7 +4537,7 @@ Assessment: Further research required",
 
 
 "Precursor_Gun_DataDownload2" : "Unknown language. Attempting translation.",
-"Ency_Precursor_Gun_DataDownload2" : "Enforcement Platform Schematic",
+"Precursor_Gun_DataDownload2" : "Enforcement Platform Schematic",
 "EncyDesc_Precursor_Gun_DataDownload2" : "This data set appears to be a multidimensional schematic of some kind. By mapping the pattern to three-dimensional space it is possible to gather a basic understanding of this facility's internal workings.
 
 Construction Material:
@@ -4564,7 +4564,7 @@ WARNING: Infected individuals may not disable the weapon. This planet is under q
 
 "Precursor_Gun_LostRiverHint": "Translating background broadcast. Downloading summary to databank.",
 
-"Ency_Precursor_Gun_DataDownload3" : "Alien Facility Locations",
+"Precursor_Gun_DataDownload3" : "Alien Facility Locations",
 "EncyDesc_Precursor_Gun_DataDownload3": "Intercepted background data regarding further alien facilities elsewhere on the planet.
 
 Disease Research Facility
@@ -4588,11 +4588,11 @@ In the event of an outbreak, quarantine procedures will be automatically enforce
 
 //GUN SCANNABLES
 "PrecursorKeyTerminal" : "Forcefield Control",
-"Ency_PrecursorKeyTerminal" : "Forcefield Control Terminal",
+"PrecursorKeyTerminal" : "Forcefield Control Terminal",
 "EncyDesc_PrecursorKeyTerminal" : "This device matches no known technologies, and is likely alien in nature. Power is being routed via the terminal to the nearby forcefield. The technology is far beyond anything encountered before by the federation. Nonetheless there is a good chance it functions like a regular lock, and only requires the correct kind of key.",
 
 "PrecursorTeleporter" : "Alien Arch",
-"Ency_PrecursorTeleporter" : "Alien Arch",
+"PrecursorTeleporter" : "Alien Arch",
 "EncyDesc_PrecursorTeleporter" : "This structure's intended purpose is unclear.
 
 Theories on Function:
@@ -4603,20 +4603,20 @@ Theories on Function:
 Assessment: Further research required.",
 
 "PrecursorEnergyCore" : "Energy Core",
-"Ency_PrecursorEnergyCore" : "Energy Core",
+"PrecursorEnergyCore" : "Energy Core",
 "EncyDesc_PrecursorEnergyCore" : "This device houses energy equivalent to a 100MT nuclear detonation, which can be channeled through the facility and directed at vessels overhead, or bent around the planet's gravitational pull to strike targets in orbit. Power is routed via the attached terminal, allowing for the device to be deactivated if necessary. It is currently operating without parameters, suggesting it will target any ship within range.",
 
-"Ency_PrecursorKey_Purple" : "Purple Tablet",
+"PrecursorKey_Purple" : "Purple Tablet",
 "EncyDesc_PrecursorKey_Purple" : "This carbon-based device is lighter than it looks, and features a symbol which resembles a 'U', lit up in purple. Despite the onboard power still functioning, algae growth on the exterior indicates it was abandoned hundreds, perhaps thousands of years ago. While the technology is far beyond federation levels, and there is no obvious way to interface with it, it should nonetheless be possible to fabricate a precise physical copy of the device, if necessary.",
 
-"Ency_PrecursorKey_Blue" : "Blue Tablet",
+"PrecursorKey_Blue" : "Blue Tablet",
 "EncyDesc_PrecursorKey_Blue" : "Smooth and cold, with a blue light which illuminates an alien symbol resembling an upper case 'H'. While it is likely these devices served in part as security clearance for whoever constructed them, their size suggests some additional purpose, such as personal computers. Whatever the case, the technology is far beyond humanity's own.",
 
-"Ency_PrecursorKey_Orange" : "Orange Tablet",
+"PrecursorKey_Orange" : "Orange Tablet",
 "EncyDesc_PrecursorKey_Orange" : "This device hums slightly, and displays an orange-lit symbol resembling an 'n'. It may offer a way to interact with compatible technologies.",
 
 
-"Ency_Void" : "Crater Edge",
+"Void" : "Crater Edge",
 "EncyDesc_Void" : "Geological scans of this area show a steep decline in all directions. This data is consistent with the theory that that the Aurora crashed on the edge of a 2km x 2km volcanic crater. It has likely been millenia since an eruption reached the surface, encouraging the ecosystem within the crater to flourish.
 
 The ecology of the trench surrounding the crater supports only two kinds of life: microscopic, and leviathan class. Exploration is ill-advised.",
@@ -4638,7 +4638,7 @@ The ecology of the trench surrounding the crater supports only two kinds of life
 "Precursor_LostRiverBase_Log4" : "CORRUPTED",
 
 
-"Ency_Precursor_LostRiverBase_DataDownload1" : "Specimen Research Data",
+"Precursor_LostRiverBase_DataDownload1" : "Specimen Research Data",
 "EncyDesc_Precursor_LostRiverBase_DataDownload1" : "A catalog of information on the organisms previously contained within the alien facility. A number of entries have been translated.
 
 Small Herbivore Gamma:
@@ -4656,7 +4656,7 @@ This leviathan species has been assigned designator 'Sea Emperor'. Bone samples 
 Assessment: While it is unlikely that the emperor specimen is still contained within the facility described, it may be possible to acquire further data there on the aliens' attempts to develop a vaccine.",
 
 
-"Ency_Precursor_LostRiverBase_DataDownload2" : "Kharaa Contagion Profile",
+"Precursor_LostRiverBase_DataDownload2" : "Kharaa Contagion Profile",
 "EncyDesc_Precursor_LostRiverBase_DataDownload2" : "This terminal contains extensive data regarding the bacterial contagion identified as 'Kharaa'.
 
 Discovery: First encountered during routine network expansion on outer worlds.
@@ -4671,7 +4671,7 @@ Emergency Steps Taken: Core worlds quarantined. Bacterial samples distributed to
 
 Treatment procedure: Unknown.",
 
-"Ency_Precursor_LostRiverBase_DataDownload3" : "Damage report",
+"Precursor_LostRiverBase_DataDownload3" : "Damage report",
 "EncyDesc_Precursor_LostRiverBase_DataDownload3" : "Leviathan detected at facility perimeter, closing at high speed.
 Exterior anchor cable impacted with massive force.
 Exterior anchor system buckling, facility sinking.
@@ -4694,7 +4694,7 @@ WARNING: Infected individuals may not leave the planet.",
 
 "Precursor_LostRiverBase_Log3" : "Data pertaining to the bacterium is being downloaded. Caution, detecting atypical fluctuations in blood plasma proteins. A self-scan is strongly advised.",
 
-"Ency_Precursor_LostRiverBase_DataDownload4" : "Bacterial Infection Report",
+"Precursor_LostRiverBase_DataDownload4" : "Bacterial Infection Report",
 "EncyDesc_Precursor_LostRiverBase_DataDownload4" : "You have been infected with a previously unknown, waterborne bacterium. It is currently multiplying in your bloodstream. Estimated incubation time: 2 weeks.
 
 Your immune system is currently combating the infection at low efficacy. You may already be experiencing flu-like symptoms and skin irritation. These will likely be exacerbated as the bacterium takes hold.
@@ -4710,15 +4710,15 @@ Recommended steps:
 //LOST RIVER SCANNABLES
 
 //Unable to set this one up reliably because room meshes are divided arbitrarily
-"Ency_Precursor_LostRiverBase_StructuralDamage" : "Alien Facility Structural Damage",
+"Precursor_LostRiverBase_StructuralDamage" : "Alien Facility Structural Damage",
 "EncyDesc_Precursor_LostRiverBase_StructuralDamage" : "Given the physical strength of the construction material it is likely that visible structural damage to this facility is the result of its collapse to the sea floor, rather than erosion over time.",
 
 "PrecursorLostRiverBrokenAnchor" : "Damaged Cable",
-"Ency_Precursor_LostRiverBase_BrokenAnchor" : "Damaged Anchor Cable",
+"Precursor_LostRiverBase_BrokenAnchor" : "Damaged Anchor Cable",
 "EncyDesc_Precursor_LostRiverBase_BrokenAnchor" : "These thick cables were designed to anchor the nearby facility to the surrounding cave walls. Damage to some of the cabling has resulted in the facility collapsing to the floor. Calculations suggest such damage would require an external percussive force in excess of 300 tons.",
 
 "PrecursorLostRiverLabRays": "Ray Specimens",
-"Ency_Precursor_LostRiverBase_Rays" : "Ray Species on 4546B",
+"Precursor_LostRiverBase_Rays" : "Ray Species on 4546B",
 "EncyDesc_Precursor_LostRiverBase_Rays" : "Different species of ray indigenous to 4546B, each adapted to different environments. The specimens are 99.99% genetically identical to those encountered on the planet today, suggesting that rays in particular have undergone little evolutionary mutation in the past millenium.
 
 Ghostrays, jellyrays, crimson rays and rabbit rays likely all share a common evolutionary ancestor. The 'alpha ray' would have evolved deep in the ocean trenches, quickly growing in line with available food supplies. It would have most resembled the ghostray in size and appearance, with translucent skin for camouflage and forward-mounted eyes for hunting. A fast and fearsome stalker of small creatures in the dark.
@@ -4728,14 +4728,14 @@ While some rays have stayed within the limits of the cave systems where they fir
 All of the rays on 4546B have given up predation in favor of herbivorous scavenging, and use poisonous flesh to protect themselves.",
 
 "PrecursorLostRiverLabBones": "Rib Cage",
-"Ency_Precursor_LostRiverBase_Bones" : "Rib Cage Samples",
+"Precursor_LostRiverBase_Bones" : "Rib Cage Samples",
 "EncyDesc_Precursor_LostRiverBase_Bones" : "A display case containing an array of rib cages harvested from the indigenous lifeforms. There is a particular focus in this instance on vertebrate skeletal structures. While some of these skeletons match organisms encountered on the planet so far, most cannot be matched with confidence, suggesting either that there are species out there not yet accounted for, or that they have become extinct since these samples were collected.",
 
 
 
 //Biter type thing in DRF aquarium
 "PrecursorFishSkeleton": "Skeletal Remains",
-"Ency_Precursor_LostRiverBase_GiantFishSkeleton" : "Remains of Research Specimen",
+"Precursor_LostRiverBase_GiantFishSkeleton" : "Remains of Research Specimen",
 "EncyDesc_Precursor_LostRiverBase_GiantFishSkeleton" : "The skeletal remains of a vast predator, housed within an artificial habitat.
 
 1. Habitat:
@@ -4745,11 +4745,11 @@ The environment constructed to house the specimen suggests it was kept alive in 
 While it shares some skeletal traits with the biter and sand shark, including its distinctive double eye sockets, this fossilized specimen is significantly larger, and features unusual forearms rarely seen in aquatic species. This species has likely gone extinct in the past thousand years, and its evolutionary relatives have evolved almost beyond recognition.",
 
 "PrecursorLostRiverLabEgg" : "Egg",
-"Ency_Precursor_LostRiverBase_LeviathanEggShellScan" : "Sea Dragon Egg",
+"Precursor_LostRiverBase_LeviathanEggShellScan" : "Sea Dragon Egg",
 "EncyDesc_Precursor_LostRiverBase_LeviathanEggShellScan" : "This large egg is held in a hermetically sealed environment, and has been chemically sterilized. Without the means at the facility to house a fully grown sea dragon specimen, it is possible the aliens sought to study instead the egg-laying and incubation process. To what end is unclear.",
 
 "PrecursorWarper": "Warper",
-"Ency_Precursor_LostRiverBase_WarperScan" : "Self-Warping Quarantine Enforcer Unit",
+"Precursor_LostRiverBase_WarperScan" : "Self-Warping Quarantine Enforcer Unit",
 "EncyDesc_Precursor_LostRiverBase_WarperScan" : "This lifeform shows signs of heavy genetic modification, and extensive mechanical grafting. 
 
 Its digestive and pulmonary systems have been replaced by an onboard battery receiving energy directly from the main grid and distributing it around the body.
@@ -4761,11 +4761,11 @@ The brain and central nervous system have been digitally augmented with advanced
 Assessment: Programmable Hunter/Killer - Avoid",
 
 "PrecursorLostRiverProductionLine" : "Conveyor system",
-"Ency_Precursor_LostRiverBase_ProductionLine" : "Production Line",
+"Precursor_LostRiverBase_ProductionLine" : "Production Line",
 "EncyDesc_Precursor_LostRiverBase_ProductionLine" : "A production line of warper parts.",
 
 "PrecursorLostRiverWarperParts" : "Biological matter",
-"Ency_Precursor_LostRiverBase_WarperParts" : "Warper Parts",
+"Precursor_LostRiverBase_WarperParts" : "Warper Parts",
 "EncyDesc_Precursor_LostRiverBase_WarperParts" : "The organic parts on display contain DNA from dozens of different organisms, largely originating offworld. They are in varying states of augmentation with advanced technologies. This production line setup suggests these self-warping constructs were built, maintained and deployed by the aliens that designed this facility.",
 
 
@@ -4780,7 +4780,7 @@ Assessment: Programmable Hunter/Killer - Avoid",
 
 //Seadragon type thing at lostriver junction
 "PrecursorSeaDragonSkeleton": "Leviathan Skeletal Remains",
-"Ency_Precursor_LostRiverBase_SeaDragonSkeleton" : "Sea Dragon Skeleton",
+"Precursor_LostRiverBase_SeaDragonSkeleton" : "Sea Dragon Skeleton",
 "EncyDesc_Precursor_LostRiverBase_SeaDragonSkeleton" : "The semi-intact skeletal structure of a leviathan class predator.
 
 1. Head Trauma:
@@ -4791,7 +4791,7 @@ Something in the environment has helped to preserve these remains, but calcium d
 
 
 "HugeSkeleton" : "Skeletal Remains",
-"Ency_LostRiver_BonesfieldHugeSkeleton" : "Gargantuan Fossil",
+"LostRiver_BonesfieldHugeSkeleton" : "Gargantuan Fossil",
 "EncyDesc_LostRiver_BonesfieldHugeSkeleton" : "The fossilized remains of an extinct super predator. Its sheer size would have prohibited it from entering such an enclosed space, suggesting the geography of the planet has shifted around it over time. A true apex predator.
 
 - Dated at approximately three million years old
@@ -4803,19 +4803,19 @@ NOTE: There are a series of precise, angular indentations on the rib cage, sugge
 
 
 //Sensor pointed at CaveSkeleton/AncientSkeleton
-"Ency_Precursor_LostRiverBase_ScanningCableScan" : "Research Probes",
+"Precursor_LostRiverBase_ScanningCableScan" : "Research Probes",
 "EncyDesc_Precursor_LostRiverBase_ScanningCableScan" : "The prominence and facing of these alien devices suggests they are some kind of probe or sensor. Their subject would seem to be the vast skeleton in the center of the cavern. The attached cable network may lead to a remote power station or data hub.
 
 Assessment: Investigate",
 
 "CaveSkeleton": "Ancient Skeleton",
-"Ency_Precursor_LostRiverBase_CaveSkeletonScan" : "Ancient Fossilized Skeleton",
+"Precursor_LostRiverBase_CaveSkeletonScan" : "Ancient Fossilized Skeleton",
 "EncyDesc_Precursor_LostRiverBase_CaveSkeletonScan" : "The skeleton of a million-year-old, armored carnivore. Projections suggest this lifeform would have been larger than any living creature encountered on the planet.
 
 The oceans of the time would have been very different to support lifeforms of this size, with more open geography and many more individuals in the leviathan range.",
 
 "ReaperSkeleton" : "Leviathan Skeletal Remains",
-"Ency_LavaZone_ReaperSkeleton" : "Reaper Leviathan Skeleton",
+"LavaZone_ReaperSkeleton" : "Reaper Leviathan Skeleton",
 "EncyDesc_LavaZone_ReaperSkeleton" : "Reapers are ill-suited to high temperature environments, suggesting this creature was forced down into the active lava zone by conditions outside its control.
 
 - Trace muscle tissue remains on the bones, indicating the specimen died in recent months
@@ -4839,7 +4839,7 @@ The oceans of the time would have been very different to support lifeforms of th
 
 
 //From terminal in thermal plant room
-"Ency_Precursor_LavaCastleBase_ThermalPlant2" : "Primary Containment Facility",
+"Precursor_LavaCastleBase_ThermalPlant2" : "Primary Containment Facility",
 "EncyDesc_Precursor_LavaCastleBase_ThermalPlant2" : "A power router in the thermal plant is distributing energy collected onsite to other facilities on the planet.
 
 Primary Containment Facility Location Updated: 
@@ -4862,7 +4862,7 @@ There is no clear way to interrupt the power flow.",
 
 
 //From terminal in thermal plant room
-"Ency_Precursor_LavaCastleBase_ThermalPlant3" : "Fossil Data",
+"Precursor_LavaCastleBase_ThermalPlant3" : "Fossil Data",
 "EncyDesc_Precursor_LavaCastleBase_ThermalPlant3" : "Fossil data recorded from the volcanic rock that was excavated to construct the alien power facility. It has been possible to extrapolate a number of key trends.
 
 Genetic Divergence:
@@ -4877,7 +4877,7 @@ Soil samples from 1,000 years ago contain 300% higher concentrations of organic 
 
 //this unlocks the ion crystal battery blueprint
 "Precursor_LavaCastle_Log3" :"Synthesizing ion power blueprints from alien data. Blueprints stored to databank.",
-"Ency_Precursor_LavaCastleBase_DataDownload1" : "Ion Power Data",
+"Precursor_LavaCastleBase_DataDownload1" : "Ion Power Data",
 "EncyDesc_Precursor_LavaCastleBase_DataDownload1" : "It has been possible to extract useful information regarding alien ion power.
 
 Ion cubes are grown artificially from a mineral substance, and are treated to remain in a stable state despite the huge ionic energy contained within. By installing an ion cube in an appropriate device this energy can be released as electrical power.
@@ -4890,7 +4890,7 @@ Using this knowledge it has been possible to synthesize new battery and power ce
 //LAVA CASTLE BASE SCANNABLES
 
 "PrecursorThermalPlant" : "Alien Thermal Plant",
-"Ency_Precursor_LavaCastleBase_ThermalPlant" : "Alien Thermal Plant",
+"Precursor_LavaCastleBase_ThermalPlant" : "Alien Thermal Plant",
 "EncyDesc_Precursor_LavaCastleBase_ThermalPlant" : "This system is directly converting local thermal energy into electric current at 90% efficiency. Most of this energy is being stored in the battery-like devices within the plant itself, each of which holds enough to power a small city for a year. Some of it, however, is being drained off, presumably as it is distributed to other facilities on the planet.
 
 The power plant appears to be fully automated and - given current understanding of the mechanisms involved - uninterruptible.",
@@ -4906,7 +4906,7 @@ The power plant appears to be fully automated and - given current understanding 
 ///////////////////////////////////////
 
 "PrecursorPrisonOutposts" : "Alien Structure",
-"Ency_PrisonOutposts" : "Sonic Deterrent",
+"PrisonOutposts" : "Sonic Deterrent",
 "EncyDesc_PrisonOutposts" : "These small alien structures are emitting high wavelength soundwaves which seem to be designed to deter indigenous lifeforms from approaching the larger facility.",
 
 
@@ -4924,27 +4924,27 @@ Emperor egg hatching project terminated. Live specimens terminated. Evacuate imm
 
 //Box
 "PrecursorPrisonArtifact1" : "Unusual Box",
-"Ency_PrecursorPrisonArtifact1" : "Organic Matter Particulator",
+"PrecursorPrisonArtifact1" : "Organic Matter Particulator",
 "EncyDesc_PrecursorPrisonArtifact1" : "This device contains a highly unstable radioactive isotope, likely to destroy all organisms exposed to it, while leaving physical structures intact. Although it would function perfectly well as a weapon, it was more likely used to sterilize spaces for later inhabitation. Without instructions it would be unwise to interact with it.",
 
 //Alien disc
 "PrecursorPrisonArtifact2" : "Circular Object",
-"Ency_PrecursorPrisonArtifact2" : "Holographic Projector",
+"PrecursorPrisonArtifact2" : "Holographic Projector",
 "EncyDesc_PrecursorPrisonArtifact2" : "This device contains network apparatus and a holographic projection unit. It was likely used as a communications relay, capturing and projecting the image of the user to a remote location. There do not appear to be any other devices in range.",
 
 //Key
 "PrecursorPrisonArtifact3" : "Rudimentary Tablet",
-"Ency_PrecursorPrisonArtifact3" : "Rudimentary Tablet",
+"PrecursorPrisonArtifact3" : "Rudimentary Tablet",
 "EncyDesc_PrecursorPrisonArtifact3" : "This device shares many similarities with the tablets used to access the alien facilities, although its structure is rather less complex. It may have served a similar purpose, granting security access and storing relevant data, and was thus kept here as a form of legacy support.",
 
 //Boomerang
 "PrecursorPrisonArtifact4" : "Crescent Artifact",
-"Ency_PrecursorPrisonArtifact4" : "Tracking Implant",
+"PrecursorPrisonArtifact4" : "Tracking Implant",
 "EncyDesc_PrecursorPrisonArtifact4" : "This construct is emitting a high-bandwidth signal consistent with alien transmissions intercepted elsewhere. DNA on the exterior indicates it was once implanted inside one of the lifeforms indigenous to 4546B, its size suggesting the subject was a leviathan class organism. Beyond tracking and broadcasting its location, the implant may also have recorded biological data on the subject, however this data cannot be retrieved.",
 
 //Yin-Yang
 "PrecursorPrisonArtifact5" : "Strange Carving",
-"Ency_PrecursorPrisonArtifact5" : "Alien Carving",
+"PrecursorPrisonArtifact5" : "Alien Carving",
 "EncyDesc_PrecursorPrisonArtifact5" : "This carving is hundreds of thousands of years old, and made from an unrecognized natural fiber, grown on an unknown planet. It bears striking resemblance to the old earth yin-yang symbol. Two competing theories may explain this similarity:
 
 1. Aliens visited earth prior to the 4th century BC and influenced the development of ancient Chinese philosophy.
@@ -4954,33 +4954,33 @@ Emperor egg hatching project terminated. Live specimens terminated. Evacuate imm
 
 //Alien bomb
 "PrecursorPrisonArtifact6" : "Alien Device",
-"Ency_PrecursorPrisonArtifact6" : "Doomsday Device",
+"PrecursorPrisonArtifact6" : "Doomsday Device",
 "EncyDesc_PrecursorPrisonArtifact6" : "Scans indicate this device contains enough potential energy to destroy the entire planet, along with most of the solar system. Fortunately, it has malfunctioned.",
 
 //Railgun
 "PrecursorPrisonArtifact7" : "Alien Rifle",
-"Ency_PrecursorPrisonArtifact7" : "Alien Rifle",
+"PrecursorPrisonArtifact7" : "Alien Rifle",
 "EncyDesc_PrecursorPrisonArtifact7" :  "Strong resemblance to human weaponry in form, this device must have been designed with a humanoid user in mind. Whether the aliens that built this structure were themselves humanoid, or otherwise employed the use of humanoids is unclear. What is clear is that they considered defending this facility a necessary precaution. There is no obvious way to remove the rifle from the case.",
 
 //Ancient blade
 "PrecursorPrisonArtifact8" : "Ancient Blade",
-"Ency_PrecursorPrisonArtifact8" : "Ancient Earth Blade",
+"PrecursorPrisonArtifact8" : "Ancient Earth Blade",
 "EncyDesc_PrecursorPrisonArtifact8" : "An ancient Earth blade, dating back to the 13th century. Blood samples on the blade match the DNA of seven separate heads of state from the period. This evidence supports the theory that the aliens are an ancient, space-borne civilization engaged in the surreptitious study of less developed species.",
 
 //CUT?
 "PrecursorPrisonArtifact9" : "Display Case",
-"Ency_PrecursorPrisonArtifact9" : "Display Case",
+"PrecursorPrisonArtifact9" : "Display Case",
 "EncyDesc_PrecursorPrisonArtifact9" : "This case is composed of an impregnable, translucent metal at the distant end of the periodic table. Scans do not reveal any contents.",
 
 //Pyramid
 "PrecursorPrisonArtifact10" : "Alien Statue",
-"Ency_PrecursorPrisonArtifact10" : "Alien Statue",
+"PrecursorPrisonArtifact10" : "Alien Statue",
 "EncyDesc_PrecursorPrisonArtifact10" : "This artifact is unpowered, suggesting it served a ceremonial, rather than practical purpose. The pyramid resembles vines, spiraling upwards toward the warm blue stone mounted above it. It may represent a plant found on the aliens' home world, a building of religious import, or even the gravitational pull of their home solar system.",
 
 
 //Chip
 "PrecursorPrisonArtifact11" : "Alien Technology",
-"Ency_PrecursorPrisonArtifact11" : "Translation Device",
+"PrecursorPrisonArtifact11" : "Translation Device",
 "EncyDesc_PrecursorPrisonArtifact11" : "This device stores linguistic data from over 1,000 different languages. The core of the device may allow alien texts to be read and translated.
 
 Analysis of the onboard data reveals a number of ancient Earth languages, and the term 'CHBCLive' appears many times in the device's data. Its import is unclear.
@@ -4989,12 +4989,12 @@ The device seems to be configured to translate into the designer's language - it
 
 //Rock-thing
 "PrecursorPrisonArtifact12" : "Alien Object",
-"Ency_PrecursorPrisonArtifact12" : "Alien Building Block",
+"PrecursorPrisonArtifact12" : "Alien Building Block",
 "EncyDesc_PrecursorPrisonArtifact12" : "This rock-like object features organic as well as mechanical parts, and there is some genetic and technological crossover with the design of the self-warping constructs encountered elsewhere. It appears to serve no purpose in its current state, and is awaiting some kind of activation sequence. Materials such as this may have been a fundamental building block of the aliens' technology, or even of the aliens themselves.",
 
 //Empty
 "PrecursorPrisonArtifact13" : "Empty Case",
-"Ency_PrecursorPrisonArtifact13" : "Nanobots",
+"PrecursorPrisonArtifact13" : "Nanobots",
 "EncyDesc_PrecursorPrisonArtifact13" : "Scans show some form of advanced nanobot inside this seemingly empty case. These bots are substantially smaller than any developed within the federation, and it is not possible to ascertain their exact function. It would, however, be unwise to release them.",
 
 
@@ -5007,7 +5007,7 @@ The device seems to be configured to translate into the designer's language - it
 
 
 //Antechamber terminal
-"Ency_Precursor_Prison_DataDownload1" : "Enzyme 42 Project Data",
+"Precursor_Prison_DataDownload1" : "Enzyme 42 Project Data",
 "EncyDesc_Precursor_Prison_DataDownload1" : "According to translated data logs, an indigenous leviathan species was found to produce a unique substance referred to as 'Enzyme 42', which inhibited the symptoms of the kharaa bacterial infection in other indigenous organisms. The specimen was captured and contained in a purpose-built habitat for further study.
 
 The alien researchers went to great lengths to provide for the lifeform's environmental needs, including the import of interdependent flora and fauna via an onsite warpgate, however its health quickly deteriorated.
@@ -5016,7 +5016,7 @@ When quarantine was imposed all warp gates and forcefields were sealed. All atte
 
 
 //Egg chamber terminal
-"Ency_Precursor_Prison_DataDownload2" : "Sea Emperor Leviathan Research Data",
+"Precursor_Prison_DataDownload2" : "Sea Emperor Leviathan Research Data",
 "EncyDesc_Precursor_Prison_DataDownload2" : "SPECIMEN SIZE CATEGORIES HAVE BEEN ADJUSTED UPWARD TO ACCOMMODATE THIS SPECIES
 
 1. Feeding & Digestion
@@ -5037,7 +5037,7 @@ Assessment: While a healthy emperor specimen may have held some potential as a c
 
 
 //Pipe room terminal
-"Ency_Precursor_Prison_DataDownload3" : "Ventilation Control",
+"Precursor_Prison_DataDownload3" : "Ventilation Control",
 "EncyDesc_Precursor_Prison_DataDownload3" : "Water flowing to and from the primary containment facility is being automatically controlled, independently of other safeguards. Data on the water composition has been recorded:
 
 Inflow:
@@ -5052,13 +5052,13 @@ Oxygen-deprived water is being flooded from the system and recycled back to the 
 //SCANS
 
 "PrecursorPrisonIonGenerator" : "Ion Cube Fabricator",
-"Ency_PrecursorPrisonIonGenerator" : "Ion Cube Fabricator",
+"PrecursorPrisonIonGenerator" : "Ion Cube Fabricator",
 "EncyDesc_PrecursorPrisonIonGenerator" : "This device appears to be the origin of the raw mineral that forms the base of the ion cubes which power smaller alien systems. Likely drawing power itself from the main thermal plant, this device may represent an almost limitless source of energy.",
 
 
 
 "PrecursorPipeRoomIncomingPipe" : "Inflow Pipe",
-"Ency_PrecursorPipeRoomIncomingPipe" : "Peepers Entering the Containment Facility",
+"PrecursorPipeRoomIncomingPipe" : "Peepers Entering the Containment Facility",
 "EncyDesc_PrecursorPipeRoomIncomingPipe" : "The pipes drawing water into the containment facility are filled with peepers arriving from the surface.
 
 - The fish show no signs of distress
@@ -5067,7 +5067,7 @@ Oxygen-deprived water is being flooded from the system and recycled back to the 
 
 
 "PrecursorPipeRoomOutgoingPipe" : "Outflow Pipe",
-"Ency_PrecursorPipeRoomOutgoingPipe" : "Enzyme Host Peepers Leaving the Containment Facility",
+"PrecursorPipeRoomOutgoingPipe" : "Enzyme Host Peepers Leaving the Containment Facility",
 "EncyDesc_PrecursorPipeRoomOutgoingPipe" : "The outflow pipes are filled with peepers traveling back towards the surface.
 
 - Specimens show no symptoms of infection
@@ -5079,7 +5079,7 @@ Assessment: If peepers have evolved to distribute the enzyme via the pipe networ
 
 
 "PrecursorPrisonLabEmperorFetus" : "Preserved Fetus",
-"Ency_PrecursorPrisonLabEmperorFetus" : "Sea Emperor Fetus",
+"PrecursorPrisonLabEmperorFetus" : "Sea Emperor Fetus",
 "EncyDesc_PrecursorPrisonLabEmperorFetus" : "Found preserved in a display case, it was likely a child of the adult specimen contained within the facility.
 
 Physiology:
@@ -5094,7 +5094,7 @@ Analysis:
 
 
 "PrecursorPrisonLabEmperorEgg" : "Preserved Egg Casing",
-"Ency_PrecursorPrisonLabEmperorEgg" : "Sea Emperor Egg Casing",
+"PrecursorPrisonLabEmperorEgg" : "Sea Emperor Egg Casing",
 "EncyDesc_PrecursorPrisonLabEmperorEgg" : "Shell Composition:
 The shell casing is formed from thick layers of carbon-composite, suggesting an extensive gestation period. This leviathan species may give birth just once per century, perhaps just once in their lifetimes.
 
@@ -5107,7 +5107,7 @@ Analysis:
 
 
 "PrecursorPrisonEggChamberEmperorEgg": "In-tact Emperor Egg",
-"Ency_PrecursorPrisonEggChamberEmperorEgg": "In-tact Emperor Egg",
+"PrecursorPrisonEggChamberEmperorEgg": "In-tact Emperor Egg",
 "EncyDesc_PrecursorPrisonEggChamberEmperorEgg": "Scans indicate the egg is in a healthy condition of self-regulated stasis.
 
 - Microscopic holes have been bored into the shell
@@ -5124,7 +5124,7 @@ Analysis:
 
 //Scans
 
-"Ency_AquariumPeeper": "Peepers Inside the Containment Facility",
+"AquariumPeeper": "Peepers Inside the Containment Facility",
 "EncyDesc_AquariumPeeper": "While all other creatures encountered within the facility are isolated within it, peepers appear to be coming and going of their own accord via the alien pipe network.
 
 - On arrival, peepers are approaching the sea emperor
@@ -5138,24 +5138,24 @@ Analysis:
 
 
 "PrecursorPrisonAquariumPipe" : "Aquarium Pipe Access Point",
-"Ency_PrecursorPrisonAquariumPipe" : "Aquarium Pipe Access Point",
+"PrecursorPrisonAquariumPipe" : "Aquarium Pipe Access Point",
 "EncyDesc_PrecursorPrisonAquariumPipe" : "An access point to the alien piping system transporting water to and from the containment facility. Peepers are using the pipe network to travel to and from the surface.",
 
 
 //Scan for final aquarium teleporter which the player needs to activate
 "PrecursorPrisonAquariumFinalTeleporter" : "Aquarium Arch",
-"Ency_PrecursorPrisonAquariumFinalTeleporter" : "Aquarium Arch",
+"PrecursorPrisonAquariumFinalTeleporter" : "Aquarium Arch",
 "EncyDesc_PrecursorPrisonAquariumFinalTeleporter" : "Scans indicate this arch was left inactive when the facility was abandoned. It likely served as an access point to the surface of the planet. It is much too small for the emperor to pass through, but would accommodate smaller lifeforms.",
 
 
 //Changed from emperor scan to terminal data
-"Ency_SeaEmperorLeviathan" : "Sea Emperor Leviathan",
+"SeaEmperorLeviathan" : "Sea Emperor Leviathan",
 "EncyDesc_SeaEmperorLeviathan" : "STATIC",
 
 
 //When you scan the eggs on the incubator
 "PrecursorPrisonAquariumIncubatorEggs" : "Sea Emperor Eggs",
-"Ency_PrecursorPrisonAquariumIncubatorEggs" : "The Sea Emperor's Eggs", 
+"PrecursorPrisonAquariumIncubatorEggs" : "The Sea Emperor's Eggs", 
 "EncyDesc_PrecursorPrisonAquariumIncubatorEggs" : "1. (Shell)
 Uncommonly strong shell lining. Organic growth on the exterior suggests these eggs may be hundreds or thousands of years old.
 
@@ -5173,7 +5173,7 @@ It is likely that ideal hatching conditions for the eggs vary considerably from 
 
 //When you scan the incubator terminal, the following are downloaded
 "PrecursorPrisonAquariumIncubator" : "Incubator",
-"Ency_PrecursorPrisonAquariumIncubator" : "Hatching Enzymes", 
+"PrecursorPrisonAquariumIncubator" : "Hatching Enzymes", 
 "EncyDesc_PrecursorPrisonAquariumIncubator" : "The emperor specimen's eggs are attached to some form of incubator. 
 
 In a normal life cycle it seems likely that sea emperors would have buried their eggs in shallower waters, where different organic materials in the soil would have triggered a hatching response. The incubator suggests the aliens had resorted to developing artificial hatching enzymes which would simulate the eggs' natural hatching environment, but were unable to discover the formula.
@@ -5181,12 +5181,12 @@ In a normal life cycle it seems likely that sea emperors would have buried their
 With extensive information on the sea emperors themselves it may still be possible to fabricate an artificial hatching enzyme using indigenous ingredients, however the only surviving source of that information may be the sea emperor itself.",
 
 
-"Ency_SeaEmperorEggHatchingEnzymes" : "Hatching Enzymes Old",
+"SeaEmperorEggHatchingEnzymes" : "Hatching Enzymes Old",
 "EncyDesc_SeaEmperorEggHatchingEnzymes" : "STATIC",
 
 
 //Unlocked after short delay once emperor has delivered its speech
-"Ency_SeaEmperorLifeCycle" : "The Sea Emperor's Lifecycle",
+"SeaEmperorLifeCycle" : "The Sea Emperor's Lifecycle",
 "EncyDesc_SeaEmperorLifeCycle" : "Available biological data has been used to synthesize the effects of the alien bacterium on the sea emperor's natural lifecycle.
 
 This creature likely lived and moved in small herds around the planet's ocean trenches, coming to the surface to feed off the huge volumes of microorganisms in the shallower waters. Family size would be strictly limited by available food supply. Offspring would likely split off at a young age to form their own herds elsewhere.
@@ -5199,7 +5199,7 @@ The symbiotic relationship between this specimen and other lifeforms likely deve
 
 
 //After the emperor babies have hatched, they can be scanned, reveals bacterium vaccine recipe
-"Ency_SeaEmperorBaby" : "Sea Emperor Juvenile",
+"SeaEmperorBaby" : "Sea Emperor Juvenile",
 "EncyDesc_SeaEmperorBaby" : "A juvenile emperor specimen. It is producing a highly potent form of Enzyme 42, which should be capable of fully curing individuals of the alien bacterium.
 
 This species hatches relatively fully formed and independent, perhaps reflecting the fact they must fend for themselves when they are first born away from their parents.
@@ -5264,7 +5264,7 @@ Explanation unclear at this time.",
 //As you approach enzyme cloud, the log plays, then the vaccine data entry is added
 "Precursor_Prison_Aquarium_EnvironmentLog2" : "The creatures' symptoms are being alleviated by the clouds of stomach enzyme being emitted by the leviathan.
 Scans indicate the enzyme is too unstable to act as a permanent vaccine.",
-"Ency_SeaEmperorLeviathanEnzymeCloud": "Bacterial Vaccine",
+"SeaEmperorLeviathanEnzymeCloud": "Bacterial Vaccine",
 "EncyDesc_SeaEmperorLeviathanEnzymeCloud": "Analysis of the enzyme-production organs in the sea emperor species indicates that it may be possible to permanently purge the alien bacteria from a human system with a sufficiently stable enzyme sample. Unfortunately the emperor specimen contained within the alien facility is in poor health and unlikely to produce enzyme with the necessary strength. A juvenile of the species would provide a higher chance of success.",
 
 //When you approach a predatory creature
@@ -5283,7 +5283,7 @@ Other lifeforms fertilizing and pruning the vegetation may be offsetting this en
 ////////////////////
 
 
-"Ency_Precursor_SparseReefCache_DataDownload1" : "Alien Sanctuary Alpha",
+"Precursor_SparseReefCache_DataDownload1" : "Alien Sanctuary Alpha",
 "EncyDesc_Precursor_SparseReefCache_DataDownload1" : "Architectural information has been downloading regarding this antechamber.
 
 Ceiling Fixtures:
@@ -5292,7 +5292,7 @@ The structures mounted to the ceiling of the cavern cast a low green light over 
 Aesthetics:
 Ornate in design. The cubes mounted on the pedestals are not being drained of power, suggesting they served some more symbolic purpose. Similarities to old earth religious iconography may be coincidental, but they may also indicate some shared and ancient cultural history.",
 
-"Ency_Precursor_Cache_DataDownload2" : "Alien Sanctuary Beta",
+"Precursor_Cache_DataDownload2" : "Alien Sanctuary Beta",
 "EncyDesc_Precursor_Cache_DataDownload2" : "This antechamber consists of a series of data hubs, each adorned with an ion cube. These are networked up to the main terminal in parallel, presumably to ensure data integrity over time.
 
  - Unprecedented data complexity
@@ -5304,7 +5304,7 @@ Evidence suggests that this antechamber served as a sanctuary of last resort for
 It is unclear whether other members of the alien species ever returned here, or how many souls are backed up on the hubs, but the data stored is far too complex to reconstitute with the little information available.",
 
 
-"Ency_Precursor_Cache_DataDownload3" : "Alien Biological History",
+"Precursor_Cache_DataDownload3" : "Alien Biological History",
 "EncyDesc_Precursor_Cache_DataDownload3" : "This terminal contains data mapping the complete biological history of a member of the alien species.
 
 The dataset is hugely complex, but some basic facts can be reconstructed.
@@ -5320,7 +5320,7 @@ Stored in Sanctuary 3, corporeal body safely disposed",
 
 
 //LOSTRIVER LAB CACHE
-"Ency_Precursor_Cache_DataDownloadLostRiver" : "Fauna Reproductive Data",
+"Precursor_Cache_DataDownloadLostRiver" : "Fauna Reproductive Data",
 "EncyDesc_Precursor_Cache_DataDownloadLostRiver" : "Extensive alien research data on the local fauna, with a special focus on their reproductive methods. Core conclusions have been synthesized:
 
 - The aliens discovered the lifeforms on the planet have just one sex
@@ -5333,17 +5333,17 @@ Research appears to have been focused around hatching conditions and genetic var
 
 "PrecursorLabCacheContainer1" : "Alien Bone Specimen Case",
 
-"Ency_Precursor_Cache_LostRiverBonesScan" : "Mixed Leviathan Fossils",
+"Precursor_Cache_LostRiverBonesScan" : "Mixed Leviathan Fossils",
 "EncyDesc_Precursor_Cache_LostRiverBonesScan" : "These fossils likely came from the ancient ancestors of the leviathans which inhabit the planet today. The relative size and delicacy of the bones suggests they formed part of the ear canal, or some other complex internal structure.",
 
 "PrecursorLabCacheContainer2" : "Alien Flora Specimen Case",
 
-"Ency_Precursor_Cache_LostRiverPlantCaseScan" : "Alien Flora Research",
+"Precursor_Cache_LostRiverPlantCaseScan" : "Alien Flora Research",
 "EncyDesc_Precursor_Cache_LostRiverPlantCaseScan" : "Local plants being held in stasis. The aliens evidently sought an extensive knowledge of the planet's ecosystem, which would have been necessary to support any live specimen research.",
 
 "PrecursorLabTable" : "Alien Research Equipment",
 
-"Ency_Precursor_Cache_LostRiverLabTable" : "Research Equipment",
+"Precursor_Cache_LostRiverLabTable" : "Research Equipment",
 "EncyDesc_Precursor_Cache_LostRiverLabTable" : "A large laboratory table and accompanying scanners incorporate technologies far beyond our current level of understanding. 
 
 Hypotheses:
@@ -5359,7 +5359,7 @@ Hypotheses:
 //////STARTING ENTRIES/////
 ///////////////////////////
 	
-"Ency_Lifepod" : "2-Berth Emergency Lifepod",
+"Lifepod" : "2-Berth Emergency Lifepod",
 "EncyDesc_Lifepod" : "Standard Features: 
  - Short-range radio (250km uninterrupted range)
  - Wall-mounted fabricator for survival equipment manufacture, and for rendering organic substances edible
@@ -5378,7 +5378,7 @@ Standard Provisions:
 NB Some lifepods may be equipped with different supplies, such as radiation suits and replacement parts. Board the right lifepod for the right situation.",
 	
     
-	    "Ency_Readme" : "Start Here",
+	    "Readme" : "Start Here",
 "EncyDesc_Readme" : "If you are reading this, then you have survived an emergency evacuation of a capital-class ship equipped with Alterra technology. Congratulations: the hard part is over. 
 
 Your PDA has automatically rebooted in Emergency Mode. This operating system has one directive: to keep you alive on a hostile alien world. If that is not possible it will alert salvage teams to the location of your remains.
@@ -5392,7 +5392,7 @@ It features:
 NB Your personal and work files have been encrypted and may be retrieved at a later date by a licensed engineer.",
 	
     
-	    "Ency_SurvivalChecklist" : "Survival Checklist",
+	    "SurvivalChecklist" : "Survival Checklist",
 "EncyDesc_SurvivalChecklist" : "1. Administer first aid if required
 2. Take inventory of available materials and supplies, and decide on rations
 3. Survey the environment for threats and resources
@@ -5406,7 +5406,7 @@ NB Your personal and work files have been encrypted and may be retrieved at a la
 NB This information is meant as a general guide. In the first instance you should always follow the advice of your PDA, which has taken your particular circumstances into account.",
 	
 	
-	    "Ency_AuroraOverview" : "Aurora Ship Status",
+	    "AuroraOverview" : "Aurora Ship Status",
 "EncyDesc_AuroraOverview" : "Ship Class: Alterra Long-Range Capital Ship
 Mission: Ariadne Arm Phasegate Installation, 3 year operation time
 Crew: Command Team (23), Engineering Team (85), Support Crew (40), Passengers (9)
@@ -5429,7 +5429,7 @@ Engineering section:
 	- Leisure facilities including VR suite and virtual cinema",
 
 
-	    "Ency_AEPSuit" : "All-Environment Protection Suit",
+	    "AEPSuit" : "All-Environment Protection Suit",
 "EncyDesc_AEPSuit" : "The Alterra AEP Suit: A single solution for a universe of infinite danger
 
 You are currently wearing the AEP suit: a hermetically-sealed personal environment, designed to withstand the most extreme conditions in the known universe.
@@ -5443,11 +5443,11 @@ You are currently wearing the AEP suit: a hermetically-sealed personal environme
 AEP suits should always be equipped BEFORE lifepod launch, in case of hull breach.",
 
 
-	    "Ency_BlueprintCorruption" : "WARNING: Blueprint Database Corrupted",
+	    "BlueprintCorruption" : "WARNING: Blueprint Database Corrupted",
 "EncyDesc_BlueprintCorruption" : "Damage to your PDA's hard drive has corrupted approximately 80% of stored survival blueprints. Blueprints may be reacquired by scanning a salvaged technology using the handheld scanner, or by downloading plans from a ship-board databox. In the circumstances these assets will most likely be found amongst wreckage from the Aurora.",
 
 //triggered when secondary systems are fixed
-	    "Ency_SecondarySystems" : "4546B Environment Scan",
+	    "SecondarySystems" : "4546B Environment Scan",
 "EncyDesc_SecondarySystems" : "- Category 3 Ocean planet
 - Oxygen/Nitrogen Atmosphere
 - Extensive biodiversity
@@ -5465,74 +5465,74 @@ It is not recommended to explore this environment without hazardous material sui
 ///////////////////////////
 
 
-    "Ency_LimestoneOutcrops" : "Limestone Outcrops",
+    "LimestoneOutcrops" : "Limestone Outcrops",
 "EncyDesc_LimestoneOutcrops" : "These unusual geological structures often form around titanium and copper deposits, and are distinct to this planet. Closer analysis reveals the stone around the metal has been hardened against erosion, but the mechanism remains unknown.
 
 Assessment: Titanium and copper source",
 
-    "Ency_SandstoneOutcrops" : "Sandstone Outcrops",
+    "SandstoneOutcrops" : "Sandstone Outcrops",
 "EncyDesc_SandstoneOutcrops" : "These common, porous outcrops seem to form around small amounts of precious metals, or otherwise these metals are part of a sedimentary buildup over time.
 
 Assessment: Lead, silver and gold source",
 
-    "Ency_ShaleOutcrops" : "Shale Outcrops",
+    "ShaleOutcrops" : "Shale Outcrops",
 "EncyDesc_ShaleOutcrops" : "This sedimentary rock is formed from flakes of clay minerals, inside of which rare metals such as lithium can be found. Geological conditions on this planet mean it tends to be found in deeper biomes.
 
 Assessment: Gold, lithium and diamond source",
 
-    "Ency_BasaltOutcrops" : "Basalt Outcrops",
+    "BasaltOutcrops" : "Basalt Outcrops",
 "EncyDesc_BasaltOutcrops" : "Hard, igneous rock, formed by past volcanic activity. Likely to contain very rare minerals, such as diamond and uranium, which cannot be found elsewhere.
 
 Assessment: Gold, diamond and uranium source",
 
-    "Ency_BrainCoral" : "Brain Coral",
+    "BrainCoral" : "Brain Coral",
 "EncyDesc_BrainCoral" : "A permanent, growing colony of microscopic organisms. This coral species has adapted to filter carbon dioxide from the environment, using the carbon to build the colony, and expelling the oxygen from specialized exhaust funnels. It is quite hardy, suggesting samples from a mature specimen could be grown artificially.
 
 Assessment: Air tanks are equipped to siphon oxygen from the water where possible",
 
-    "Ency_Kyanite" : "Kyanite",
+    "Kyanite" : "Kyanite",
 "EncyDesc_Kyanite" : "Kyanite is a blue silicate mineral which forms under high temperature, high pressure conditions. It is resistant to heat up to 1100 degrees Celsius, and is thermoelectric, making it a valuable component of thermal power plants.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_AluminiumOxide" : "Ruby",
+    "AluminiumOxide" : "Ruby",
 "EncyDesc_AluminiumOxide" : "A hard, blood-red gemstone, made of aluminum oxide. Rubies may be processed in order to leverage their structural integrity in advanced vehicle construction and modification.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_Mercury" : "Mercury Ore",
+    "Mercury" : "Mercury Ore",
 "EncyDesc_Mercury" : "A common, low-value cinnabar ore, which can be processed into liquid mercury. Has a range of applications, including continued use in temperature measurement.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_Magnetite" : "Magnetite",
+    "Magnetite" : "Magnetite",
 "EncyDesc_Magnetite" : "Magnetite is an iron oxide valued for its magnetic potential amongst other qualities. It is used in many federation technologies, including sonar and torpedo systems.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_Nickel" : "Nickel Ore",
+    "Nickel" : "Nickel Ore",
 "EncyDesc_Nickel" : "Nickel is a medium-hard, ductile metal used extensively in production of strong metal alloys. It has applications throughout the construction industry.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_Uraninite" : "Uraninite",
+    "Uraninite" : "Uraninite",
 "EncyDesc_Uraninite" : "Uraninite is a naturally occurring uranium oxide. Highly radioactive and unstable, its primary use is in the production of uranium reactor rods for nuclear generators.
 
 Assessment: Applications in nuclear power",
 
 
-    "Ency_Sulphur" : "Crystalline Sulfur",
+    "Sulphur" : "Crystalline Sulfur",
 "EncyDesc_Sulphur" : "Sulfur is a highly reactive, non-metallic element, usually found in abundance underground. Common applications include production of acidic compounds, and combustibles.
 
 Assessment: Essential for advanced fabrication",
 
 
-    "Ency_IonCrystal" : "Ion Cube",
+    "IonCrystal" : "Ion Cube",
 "EncyDesc_IonCrystal" : "This green mineral substance has no entry on the periodic table, and an unprecedented ability to store huge amounts of ionic energy within it.
 
 - Likely grown artificially
@@ -5543,7 +5543,7 @@ Assessment: Essential for advanced fabrication",
 
 Assessment: Valuable energy source",
 
-    "Ency_MetalSalvage" : "Scattered Wreckage",
+    "MetalSalvage" : "Scattered Wreckage",
 "EncyDesc_MetalSalvage" : "Analysis confirms this wreckage is from the Aurora. 
 
 Outer layers of the material have oxidized, suggesting it has been heated to over 1200 Celsius. This pattern is consistent with hull disintegration during atmospheric entry.
@@ -5557,7 +5557,7 @@ Salvage of intact portions of Alterra vessels is prohibited at legal, moral and 
 ///////////////////////////
 
 
-"Ency_CuteFish" : "Cuddlefish",
+"CuteFish" : "Cuddlefish",
 "EncyDesc_CuteFish" : "A small, gray-colored herbivore, the cuddlefish displays high levels of intelligence, curiosity and attachment. Strangely this species has not been encountered in the wild, and the scanned specimen had to be artificially hatched within an alien containment unit. 
 
 1. Lifecycle:
@@ -5571,7 +5571,7 @@ Evidence suggests the cuddlefish is capable of understanding and following simpl
 
 Assessment: Emotional connection between living creatures is an essential component of psychological health",
 
-    "Ency_Gasopod" : "Gasopod",
+    "Gasopod" : "Gasopod",
 "EncyDesc_Gasopod" : "A slow-moving lifeform, and one of the larger herbivores on the planet. Providing a substantial meal to would-be predators, the gasopod protects its domain by filling the surrounding water with poisonous and corrosive pods whose contents dissolve even synthetic fibers.
 
 1. Filtration System: 
@@ -5589,7 +5589,7 @@ Gasopods appear to be social in nature, and may even use their emissions in thei
 Assessment: Approach with caution - Acidic pods may be retrieved and re-purposed",
 
 
-	"Ency_Floater" : "Floater",
+	"Floater" : "Floater",
 "EncyDesc_Floater" : "Two species living in symbiosis, which attach to and attempt to feed on any objects they come into contact with.
 
 1. Dominant Lifeform:
@@ -5604,7 +5604,7 @@ A thin layer of helium is stored within the outer membrane, providing buoyancy t
 Assessment: May aid in flotation of sunken objects",
 
 
-	"Ency_LargeFloater" : "Ancient Floater",
+	"LargeFloater" : "Ancient Floater",
 "EncyDesc_LargeFloater" : "Biodata suggests these vast floaters have matured in an ingenious symbiosis with the land they have attached to.
 
 - The attached landmass is raised in the water, increasing sunlight and encouraging plantgrowth
@@ -5621,7 +5621,7 @@ Those creatures which successfully raise a landmass to the surface are rewarded 
 Assessment: Incredible",
 
 
-	"Ency_Crash" : "Crashfish",
+	"Crash" : "Crashfish",
 "EncyDesc_Crash" : "This unusual species has developed an emergency defense mechanism based on mutually assured destruction.
 
 1. Forward-mounted Eye:
@@ -5635,7 +5635,7 @@ Concentrations of sulfur build up in the organism over time. If the crashfish co
 
 Assessment: Equip stasis rifle, repulsion cannon or similar before approaching shallow caves",
 
-	"Ency_CrashLair" : "Sulfur Plant",
+	"CrashLair" : "Sulfur Plant",
 "EncyDesc_CrashLair" : "These plants appear to serve as nests for the explosive organisms which guard them.
 
 - The outer petals are undamaged by the presence of the inhabiting creature, suggesting a complex co-development
@@ -5645,7 +5645,7 @@ Assessment: Equip stasis rifle, repulsion cannon or similar before approaching s
 Assessment: Sulfur has applications in construction of the repair tool",
 
 
-	"Ency_Mesmer" : "Mesmer",
+	"Mesmer" : "Mesmer",
 "EncyDesc_Mesmer" : "Small, carnivorous lifeform with a unique hunting mechanism that enables it to hypnotize its foes.
 
 1. Outer Wings:
@@ -5657,7 +5657,7 @@ The mesmer can open the jawlike recess in its protective outer shell in order to
 Assessment: Draw closer",
 
 
- 	"Ency_Crabsnake" : "Crabsnake",
+ 	"Crabsnake" : "Crabsnake",
 "EncyDesc_Crabsnake" : "This lifeform appears to live in symbiosis with the local flora. All encountered specimens have been located within 50m of jellyshroom flora, frequently within the plants themselves.
 
 1. Jaws:
@@ -5671,7 +5671,7 @@ Crabsnakes display territorial behavior when threatened, patrolling the cave sys
     
 Assessment: Avoid",
 
-	"Ency_Blighter" : "Blighter",
+	"Blighter" : "Blighter",
 "EncyDesc_Blighter" : "Small predator that shares close resemblance to the more common biter, but tends towards a more solitary, less aggressive hunting style.
 
 1. Olfactory Stalk:
@@ -5686,7 +5686,7 @@ This creature has found little use for eyes in the deep, dark caverns it inhabit
 Assessment: Avoid or incapacitate",
 
 
-	"Ency_Ampeel" : "Ampeel",
+	"Ampeel" : "Ampeel",
 "EncyDesc_Ampeel" : "A powerful and inquisitive predator found inhabiting the deeper waters of the reefs and bulb bush colonies.
 
 1. Electrical Prongs
@@ -5698,7 +5698,7 @@ A large, flexible jaw, studded with sharp teeth. If a faster, stronger and hungr
 Assessment: Avoid or incapacitate",
 
  
- 	"Ency_Rockgrub" : "Rockgrub",
+ 	"Rockgrub" : "Rockgrub",
 "EncyDesc_Rockgrub" : "A small, luminescent scavenger, roughly thumb-sized. This creature may be a distant relative of the sand shark, sharing that species' unusual limbs, segmented exoskeleton and burrowing behavior.
 
 1. Jaw:
@@ -5715,7 +5715,7 @@ Assessment: Harmless",
 
 
 
- 	"Ency_SeaTreader" : "Sea Treader Leviathan",
+ 	"SeaTreader" : "Sea Treader Leviathan",
 "EncyDesc_SeaTreader" : "A vast bipedal leviathan which roams the reefs in herds, grazing the seafloor.
 
 1. Antennae:
@@ -5733,7 +5733,7 @@ Large herds would decimate the flora of a single area, thus encouraging the sea 
 Assessment: Sea treader herds may unearth mineral deposits as they churn up the sand",
 
 
- 	"Ency_Crabsquid" : "Crabsquid",
+ 	"Crabsquid" : "Crabsquid",
 "EncyDesc_Crabsquid" : "This large predator can be found in deep waters, where it lurks amongst the blood kelp and membrain trees in search of prey. It can deploy a powerful electromagnetic pulse to defend itself.
 
 1. Limbs:
@@ -5748,7 +5748,7 @@ While crabsquids appear to have large brains and a resemblance to the intelligen
 Assessment: Neutralizes electrical equipment - Lights attract its (unwanted) attention",
 
 
-	"Ency_SpineEel" : "River Prowler",
+	"SpineEel" : "River Prowler",
 "EncyDesc_SpineEel" : "A fast, agile predator discovered at great depths. 
 
 1. Jaws:
@@ -5763,7 +5763,7 @@ It will aggressively keep its jaws facing its opponent, but smaller, faster life
 Assessment: Avoid",
 
 
- 	"Ency_Warper" : "Warper",
+ 	"Warper" : "Warper",
 "EncyDesc_Warper" : "An aggressive creature with the ability to teleport itself and others in space. No genetic crossover identified with indigenous lifeforms. Demonstrates no recognized defensive behavior.
 
 1. Head:
@@ -5775,7 +5775,7 @@ Appears to hunt other lifeforms, but no digestive organs have been identified. I
 Assessment: Further research required",
 
 
- 	"Ency_LavaLarva" : "Lava Larva",
+ 	"LavaLarva" : "Lava Larva",
 "EncyDesc_LavaLarva" : "A grub-like species which appears to lack sight and smell, but is able to sense and drain thermal and electrical energy in its immediate environment.
 
 1. Suction Cup:
@@ -5794,7 +5794,7 @@ Assessment: Avoid when piloting vehicles - Remove to conserve batteries",
 ///////		RAYS	///////
 ///////////////////////////
 
-    "Ency_RabbitRay" : "Rabbit Ray",
+    "RabbitRay" : "Rabbit Ray",
 "EncyDesc_RabbitRay" : "A herbivorous aquatic lifeform, rabbit rays appear to live serene and solitary lives, with few predators, a natural sense of curiosity and awesomely poisonous flesh.
 
 1. Ears:
@@ -5808,7 +5808,7 @@ Evidence indicates its large, side-facing eyes are relatively recent adaptations
 Assessment: Inedible but harmless",
 
 
-"Ency_Skyray" : "Skyray",
+"Skyray" : "Skyray",
 "EncyDesc_Skyray" : "The skyray has a bird-like head, and feathered wings which enable it to fly. Skyrays are commonly found circling floating structures, and rarely venture far out to sea. They will perch on dry land, but are prone to flee on approach.
 
 1. Wings:
@@ -5820,7 +5820,7 @@ Largely seed-based. Skyrays have not been observed diving for food, which implie
 Assessment: Presence may indicate nearby dry land.",
 
 
-	"Ency_Jellyray" : "Jellyray",
+	"Jellyray" : "Jellyray",
 "EncyDesc_Jellyray" : "This species has adapted to low-light environments with a translucent, luminescent body.
 
 1. Luminescent Body:
@@ -5832,7 +5832,7 @@ Smaller creatures have been seen swimming in the jellyray's wake to take advanta
 Assessment: Inedible",
 
 
- 	"Ency_GhostRay" : "Ghostray",
+ 	"GhostRay" : "Ghostray",
 "EncyDesc_GhostRay" : "This ray species has adapted to deep-sea conditions. Its body is fully protected by a translucent skin, and its large wings are capable of generating considerable thrust.
 
 1. Poisonous Flesh:
@@ -5844,7 +5844,7 @@ Feeds on plant matter that has settled on the ground in deep sea caverns.
 Assessment: Inedible",
 
 
-"Ency_FireRay" : "Crimson Ray",
+"FireRay" : "Crimson Ray",
 "EncyDesc_FireRay" : "One of the largest rays on the planet, displaying generally docile behavior.
 
 1. Thick Scaling:
@@ -5856,7 +5856,7 @@ Suggests a predatory evolutionary history, left behind long ago.
 Assessment: Inedible",
 
 
-"Ency_RaysAdvanced" : "Alpha Ray",
+"RaysAdvanced" : "Alpha Ray",
 "EncyDesc_RaysAdvanced" : "CORRUPTED - Info moved to Ray display case",
 
 
@@ -5866,7 +5866,7 @@ Assessment: Inedible",
 ///////	EDIBLE FISH ///////
 ///////////////////////////
 
-   "Ency_Peeper" : "Peeper",
+   "Peeper" : "Peeper",
 "EncyDesc_Peeper" : "A fast prey fish encountered in shallow waters and rich in protein.
 
 1. Developed, Side-facing Eyes:
@@ -5885,7 +5885,7 @@ While the peeper is well adapted to survive in shallow waters, a number of its f
 
 Assessment: Edible (high calorie count), further research required",
 
-	"Ency_Oculus" : "Oculus",
+	"Oculus" : "Oculus",
 "EncyDesc_Oculus" : "This specimen shares genetic similarities with the common peeper. While the shallows and the cave systems are separated by just a few meters of rock, foodstuffs and threats in each biome are completely different. It is possible a small school of peepers was once cut off in the caves, and the oculus species is how they adapted.
 
 1. Highly Developed Night-vision:
@@ -5899,7 +5899,7 @@ The caves in which the oculus lives make it hard to escape from fast predators. 
 
 Assessment: Edible",
 
-    "Ency_Eyeye" : "Eyeye",
+    "Eyeye" : "Eyeye",
 "EncyDesc_Eyeye" : "An extreme evolutionary adaptation where 90% of the lifeform's body mass is dedicated to the ocular cavity.
 
 1. Over-sized Eyeball:
@@ -5913,7 +5913,7 @@ This organism and the common peeper share a common evolutionary ancestor. While 
 Assessment: Edible (low calorie count)",
 
 
-    "Ency_LavaEyeye" : "Red Eyeye",
+    "LavaEyeye" : "Red Eyeye",
 "EncyDesc_LavaEyeye" : "A small herbivorous creature with poor maneuverability, evolved to inhabit high temperature environments.
 
 1. Thermal Camouflage:
@@ -5924,7 +5924,7 @@ Delicate, light-based eyesight is impractical at these temperatures, and the red
 
 Assessment: Edible (low calorie count)",
 
-	"Ency_Reginald" : "Reginald",
+	"Reginald" : "Reginald",
 "EncyDesc_Reginald" : "A small herbivore, and a distant relative of the common peeper, sharing that species' well-developed, side-facing eyes; approximate size; and body profile.
 
 1. Coloration:
@@ -5936,7 +5936,7 @@ Filters algae and other plant material from the water via four gill-like, forwar
 Assessment: Edible (high calorie count)",
 
 
-	"Ency_AlphaPeeper" : "Alpha Peeper",
+	"AlphaPeeper" : "Alpha Peeper",
 "EncyDesc_AlphaPeeper" : "With the acquired data it has been possible to construct a profile of the theoretical last common ancestor of the modern day peeper and other small fish.
 
 The alpha peeper would have been a small herbivore prone to predation in the shallow waters where light was abundant. It likely developed photosensitive skin on each side, which over time became eyeballs, and allowed it to detect the presence of nearby threats more efficiently than other prey fish. As the species grew in number it expanded to new territories, developing into subspecies like the eyeye and the reginald.
@@ -5947,7 +5947,7 @@ Assessment: Extinct",
 
 
 
-    "Ency_Airsack" : "Bladderfish",
+    "Airsack" : "Bladderfish",
 "EncyDesc_Airsack" : "This unusual herbivore appears to be mostly defenseless, and bears little resemblance to the other lifeforms around it.
 
 1. Semi-permeable Bladder:
@@ -5965,7 +5965,7 @@ Assessment: Edible (oxygen may be retrieved from the bladder and added to tanks 
 
 
 
-    "Ency_Bladderfish" : "Bladderfish",
+    "Bladderfish" : "Bladderfish",
 "EncyDesc_Bladderfish" : "This unusual herbivore appears to be mostly defenseless, and bears little resemblance to the other lifeforms around it.
 
 1. Semi-permeable Bladder:
@@ -5979,7 +5979,7 @@ Largely oblivious to threats, and practically immobile at night, its only identi
 Assessment: Edible (oxygen may be retrieved from the bladder and added to tanks on consumption); membrane has applications as a natural water filter",
 
 
-"Ency_Hoopfish" : "Hoopfish",
+"Hoopfish" : "Hoopfish",
 "EncyDesc_Hoopfish" : "Small, school-mentality prey fish with a unique method of propulsion, and a distant relative of the bladderfish.
 
 1. Antennae:
@@ -5994,7 +5994,7 @@ While schools of hoopfish will form periodically and evade predators en masse, t
 Assessment: Edible",
 
 
-	"Ency_Spinefish" : "Spinefish",
+	"Spinefish" : "Spinefish",
 "EncyDesc_Spinefish" : "Small, school-mentality prey fish, closely related to the hoopfish.
 
 1. Grey Coloration:
@@ -6009,7 +6009,7 @@ Assessment: Edible (low calorie count)",
 
 
 
-    "Ency_Boomerang" : "Boomerang",
+    "Boomerang" : "Boomerang",
 "EncyDesc_Boomerang" : "A herbivore encountered in large numbers, found to frequent shallow waters and move in schools.
 
 1. Serrated Teeth:
@@ -6023,7 +6023,7 @@ Most active during daylight hours, and prone to flee on approach, the boomerang 
 Assessment: Edible",
 
 
-    "Ency_LavaBoomerang" : "Magmarang",
+    "LavaBoomerang" : "Magmarang",
 "EncyDesc_LavaBoomerang" : "This organism is an adaptation of the common boomerang, evolved to survive in high temperature environments.
 
 1. Coloration:
@@ -6035,7 +6035,7 @@ Marginally bolder than its shallow-dwelling cousins, the magmarang will nonethel
 Assessment: Edible",
 
 
-    "Ency_Garryfish" : "Garryfish",
+    "Garryfish" : "Garryfish",
 "EncyDesc_Garryfish" : "Slow-moving and curious herbivore, camouflage indicates adaptation for evasive behavior on the ocean floor.
 
 1. Eye Stalks:
@@ -6048,7 +6048,7 @@ Assessment: Edible",
  
 
 
-		"Ency_Holefish" : "Holefish",
+		"Holefish" : "Holefish",
 "EncyDesc_Holefish" : "A very small herbivore found in low numbers, often around cave system entrances where their skin coloration blends into the background.
 
 1. Bored-out Tail Fin:
@@ -6062,7 +6062,7 @@ Assessment: Edible",
 
 
 
-    "Ency_Hoverfish" : "Hoverfish",
+    "Hoverfish" : "Hoverfish",
 "EncyDesc_Hoverfish" : "A small, cautious herbivore, commonly found in kelp-rich environments.
 
 1. Charged Footpads:
@@ -6070,7 +6070,7 @@ Six unique limb appendages feature charged pads capable of ionizing the surround
 
 Assessment: Edible",
 
-	"Ency_Spadefish" : "Spadefish",
+	"Spadefish" : "Spadefish",
 "EncyDesc_Spadefish" : "A medium-sized herbivore found in deeper waters.
 
 1. Single Eye:
@@ -6091,7 +6091,7 @@ Assessment: Edible",
 //// LEVIATHANS /////////
 //////////////////////////
 
-	"Ency_Reefback" : "Reefback Leviathan",
+	"Reefback" : "Reefback Leviathan",
 "EncyDesc_Reefback" : "This vast lifeform is in excess of 30m long and has been designated leviathan class. Fortunately it feeds exclusively on plankton-like lifeforms in the water.
 
 1. Chitinous Shell:
@@ -6109,13 +6109,13 @@ Reefbacks's lifespans likely extend through many centuries, should they survive 
 Assessment: Harbors plants, small fish and metal-rich barnacles",
 
 
-	"Ency_ReefbackBarnacles" : "Reefback Barnacles",
+	"ReefbackBarnacles" : "Reefback Barnacles",
 "EncyDesc_ReefbackBarnacles" : "Unlike most barnacles, these do not grow in clusters but in single instances found uniquely on reefback shells. As the leviathans age they collect scars from overconfident predators, which fill with dirt and metal deposits, around which these barnacles form.
 
 Assessment: Source of copper and other metals",
 
 
- 	"Ency_ReaperLeviathan" : "Reaper Leviathan",
+ 	"ReaperLeviathan" : "Reaper Leviathan",
 "EncyDesc_ReaperLeviathan" : "Leviathan class species are vast organisms at the top of their respective food chains. This species is a streamlined hunter, with highly developed senses.
 
 1. Powerful Mandibles:
@@ -6133,7 +6133,7 @@ Assessment: Extreme threat - Avoid in all circumstances",
 
 
 
- 	"Ency_SeaDragon" : "Sea Dragon Leviathan",
+ 	"SeaDragon" : "Sea Dragon Leviathan",
 "EncyDesc_SeaDragon" : "A colossal leviathan with reptilian features, seen stalking the very heart of the volcanic crater which underpins life in this area. The scanned specimen measured 112m in length.
 
 1. Heat-Proof Tissue:
@@ -6152,7 +6152,7 @@ Assessment: Extreme threat - Avoid in all circumstances",
 
 
 
- 	"Ency_TreeCoveTree" : "Giant Cove Tree",
+ 	"TreeCoveTree" : "Giant Cove Tree",
 "EncyDesc_TreeCoveTree" : "A vast tree encountered in a deep cove, and the only one of its kind encountered on the planet. The tree is surrounded by rays grazing on its pink outer leaves.
 
 1. Bark:
@@ -6163,7 +6163,7 @@ The tree's branches are wrapped around a number of maturing eggs, belonging to t
 
 This tree appears to be an ancient nesting ground. The eggs were laid when the tree was young, and now the branches protect and grow with them as they await the right conditions to hatch.",
 
- 	"Ency_GhostLeviathan" : "Ghost Leviathan",
+ 	"GhostLeviathan" : "Ghost Leviathan",
 "EncyDesc_GhostLeviathan" : "This creature is approaching the size limit for sustainable organic lifeforms, and has been designated leviathan class. Adults of the species have been encountered exclusively around the edges of the volcanic crater which supports life on this part of the planet, and react with extreme aggression on approach.
 
 1. Hammerhead:
@@ -6181,7 +6181,7 @@ Probable migratory behavior. This specimen was likely born far from the area whe
 Assessment: Extreme threat - Avoid the crater edge",
 
 
- 	"Ency_GhostLeviathanJuvenile" : "Ghost Leviathan Juvenile",
+ 	"GhostLeviathanJuvenile" : "Ghost Leviathan Juvenile",
 "EncyDesc_GhostLeviathanJuvenile" : "This large predator has adapted to live in deep waters and dark cave systems, attacking anything and everything in its quest to grow larger.
 
 1. Torso:
@@ -6195,7 +6195,7 @@ Assessment: Avoid",
 
 
 
-"Ency_PrecursorDroid" : "Alien Robot",
+"PrecursorDroid" : "Alien Robot",
 "EncyDesc_PrecursorDroid" : "This device is of alien origin, although its design is relatively simple.
 
 1. Purpose:
@@ -6212,7 +6212,7 @@ Assessment: Immobilize and return to Alterra for mutual profit",
 //// SHARKS /////
 //////////////////
 
-    "Ency_Stalker" : "Stalker",
+    "Stalker" : "Stalker",
 "EncyDesc_Stalker" : "A streamlined predator encountered in the kelp forests in wait of prey leaving the safety of the shallows to feed. The stalker likely carved out its evolutionary niche at the sweet spot between speed and size millions of years ago, and may be one of the oldest species on the planet.
 
 The stalker appears to be attracted to titanium deposits, which tends to sharpen and put stress on its teeth.
@@ -6234,7 +6234,7 @@ Long and powerful, the stalker has evolved to hunt the fastest of prey.
 Assessment: Stalker teeth may have applications in enameled glass fabrication",
 
 
-	"Ency_StalkerTooth" : "Stalker Teeth",
+	"StalkerTooth" : "Stalker Teeth",
 "EncyDesc_StalkerTooth" : "Extended analysis of acquired dental samples has been completed. Samples matched to species designated 'stalker'.
 
 Stalker teeth exhibit extraordinary lightness and strength, and contain only trace amounts of calcium. The edges show signs of wear, and are studded with metal flakes, providing evidence that the stalkers chew on metal deposits in order to sharpen their teeth.
@@ -6244,7 +6244,7 @@ Assessment: Applications as a natural substrate in enameled glass fabrication",
 
 
 
-    "Ency_SandShark" : "Sand Shark",
+    "SandShark" : "Sand Shark",
 "EncyDesc_SandShark" : "A powerful, medium-sized predator that burrows into the sand and ambushes its prey from below. As with many predators it may be possible to temporarily distract sand sharks by feeding any hungry specimens that draw close.
 
 1. Forward Dorsal Fin:
@@ -6259,7 +6259,7 @@ Ill-designed for ambulation. Likely used to disturb the surface of the sand so t
 Assessment: Avoid - Be vigilant for ambush in sandy biomes",
 
 
-    "Ency_Biter" : "Biter",
+    "Biter" : "Biter",
 "EncyDesc_Biter" : "Vicious, pack-hunting predator. 94% muscle, 4% connective tissue, 2% brain. Indiscriminate when hungry. Almost always hungry.
 	
 1. Specialized Olfactory Antenna:
@@ -6274,7 +6274,7 @@ Favors out-pacing and outnumbering their prey over individual maneuverability. C
 Assessment: Avoid packs - Try not to bleed",
 
 
-	"Ency_Boneshark" : "Boneshark",
+	"Boneshark" : "Boneshark",
 "EncyDesc_Boneshark" : "A large and powerful predator that lives in small groups and fiercely defends its hunting grounds.
 
 1. Thickly-armored Exoskeleton:
@@ -6288,7 +6288,7 @@ Generally slow and unresponsive as a means of energy conservation, they will act
 Assessment: Avoid - May be distracted by light sources",
 
 
- 	"Ency_LavaLizard" : "Lava Lizard",
+ 	"LavaLizard" : "Lava Lizard",
 "EncyDesc_LavaLizard" : "Medium-sized predator adapted for life in volcanic regions, and remarkably able to spit molten rock at its foes.
 
 1. Fore-mounted Mandibles:
@@ -6309,7 +6309,7 @@ Assessment: Avoid, especially in the presence of lava flow",
 ///////////////////////
 
 
-    "Ency_Shuttlebug" : "Shuttlebug",
+    "Shuttlebug" : "Shuttlebug",
 "EncyDesc_Shuttlebug" : "A common scavenger at the base of the food chain.
 
 1. Mouth Parts:
@@ -6324,7 +6324,7 @@ High strength muscles can propel the lifeform great distances through the water,
 Assessment: Necessary waste recycler - Presence may indicate nearby cave systems",
 
 	
-		"Ency_CaveCrawler" : "Cave Crawler",
+		"CaveCrawler" : "Cave Crawler",
 "EncyDesc_CaveCrawler" : "Agile, territorial carrion-feeder. Well-adapted to both land and sea.
 
 1. Gas Exchange Membrane: 
@@ -6336,7 +6336,7 @@ This species seeks out corpses in packs, before defending its claim while the co
 Assessment: Necessary waste recycler - Avoid or incapacitate",
 
 
-	"Ency_BloodCrawler" : "Blood Crawler",
+	"BloodCrawler" : "Blood Crawler",
 "EncyDesc_BloodCrawler" : "An agile, territorial scavenger that moves in packs across the sea bed. Closely related to the amphibious cave crawler, but adapted to deep sea conditions.
 
 1. Legs:
@@ -6348,7 +6348,7 @@ The blood crawler can lower its entire body to bring its mandibles within graspi
 Assessment: Necessary waste recycler - Avoid or incapacitate",
 
 
-	"Ency_Bleeder" : "Bleeder",
+	"Bleeder" : "Bleeder",
 "EncyDesc_Bleeder" : "A simple parasitic organism, little more complex than the common space tick, but just as dirty.
 
 1. Ductile Sack:
@@ -6372,7 +6372,7 @@ Assessment: Inconvenient and unhygienic - Avoid or incapacitate",
 /////PLANTS////////
 ///////////////////
 	
-		"Ency_HangingStinger" : "Drooping Stinger",
+		"HangingStinger" : "Drooping Stinger",
 "EncyDesc_HangingStinger" : "1. Zero photosynthetic cells detected. Implies carnivorous adaptation to low-light environments. 
 
 2. Follicles along the tentacles are capable of detecting contact with foreign bodies, triggering an electromagnetic charge in the 600 watt range. Prey is likely paralyzed and consumed over many weeks.
@@ -6382,15 +6382,15 @@ Prey: Small fish
 Assessment: Avoid",
 	
 	
-	"Ency_CoralSample" : "CORRUPTED",
+	"CoralSample" : "CORRUPTED",
 "EncyDesc_CoralSample":"CORRUPTED",
 
-	"Ency_BigCoralTubes" : "Giant Coral Tubes",
+	"BigCoralTubes" : "Giant Coral Tubes",
 "EncyDesc_BigCoralTubes" : "The variety of coral formations on 4546B appear to be different solutions to the same problem of maximizing water and nutrient flow throughout the colony. These particular variants funnel water down a tube, filtering nutrients as they pass. Their size suggests they have been highly successful.
 
 Assessment: Coral tube samples are rich in calcium, exploitable in bleach fabrication",
 
-		"Ency_TableCoral" : "Table Coral",
+		"TableCoral" : "Table Coral",
 "EncyDesc_TableCoral" : "Each disk is an individual colony of microorganisms, filtering nutrients from the water. 
 
 Growth patterns indicate the colonies are in direct competition for positions with superior current or light. Unlike other coral species its structure is malleable, softly pulsating as it pumps nutrients to its extremities, and only turning rigid when it senses physical assault.
@@ -6400,22 +6400,22 @@ The jewel-like nodes in the surface are concentrated build-ups of rare minerals 
 Assessment: Exploitable in computer chip fabrication",
 
 
-	"Ency_CoralShellPlate" : "Coral Shell Plate",
+	"CoralShellPlate" : "Coral Shell Plate",
 "EncyDesc_CoralShellPlate" : "This variant of coral has adapted to survive in close proximity to other corals, filtering nutrients from the water and sharing them via a spore-like substance which grows around the base.
 
 Assessment: No practical applications discovered",
 
 
-	"Ency_EarthenCoralTubes" : "Earthen Coral Tubes",
+	"EarthenCoralTubes" : "Earthen Coral Tubes",
 "EncyDesc_EarthenCoralTubes" : "Genetic resemblances to the giant coral tubes encountered elsewhere suggests evolutionary divergence approximately 100,000 years ago, with this subspecies being substantially lower in calcium content, and specializing in growing in smaller, denser packs at deeper levels. 
 
 Assessment: No practical applications discovered",
 
 
-		"Ency_FloatingStones" : "Anchor Pods",
+		"FloatingStones" : "Anchor Pods",
 "EncyDesc_FloatingStones" : "These unusual flora specimens have been encountered exclusively on the deep reefs. They consist of a large, spherical, gas-filled membrane, anchored to the sea floor by its root system. At these depths it is unlikely this structure is designed to enhance access to sunlight, but rather the pods' ability to propagate. Once the pods attain sufficient height they burst, releasing spores which catch the currents and disperse around the local area.",
 
-    "Ency_AcidMushroom" : "Acid Mushroom",
+    "AcidMushroom" : "Acid Mushroom",
 "EncyDesc_AcidMushroom" : "A common, spore-bearing fungi species. The flesh contains a highly acidic compound which leaches into the water if the outer skin is penetrated.
 
 It is not clear which predator species necessitated such extreme counter-measures, but the acid mushroom's numbers suggest it has successfully deterred most of them.
@@ -6424,33 +6424,33 @@ Assessment: Inedible - Acid has applications in battery fabrication",
 
 
 //https://us.v-cdn.net/5019629/uploads/editor/zw/um8f6271xbc0.png
-		"Ency_BlueAmoeba" : "Amoeboid",
+		"BlueAmoeba" : "Amoeboid",
 "EncyDesc_BlueAmoeba" : "A simple, non-sentient organism, found attached to land with high levels of fossilized organic matter. It feeds on this matter until it reaches maturity, at which point it divides to create two new, genetically identical offspring, and the cycle continues.",
 
 //https://us.v-cdn.net/5019629/uploads/editor/yn/gow82snazxg5.png
-		"Ency_RedTipRockThings" : "Pyrocoral",
+		"RedTipRockThings" : "Pyrocoral",
 "EncyDesc_RedTipRockThings" : "This coral species is unlike any other encountered on 4546B in so far as it relies on magma flow rather than water current to deliver nutrients. As lava rises up from the planet's core and erupts at vents, this coral forms around the base until eventually it has surrounded the entire vent. Lava is then funneled up through the coral, allowing it to siphon minerals and heat as it goes.",
 
 //https://us.v-cdn.net/5019629/uploads/editor/mq/bdnrhx6p4snb.png
-		"Ency_BlueTipLostRiverPlant" : "Crab Claw Kelp",
+		"BlueTipLostRiverPlant" : "Crab Claw Kelp",
 "EncyDesc_BlueTipLostRiverPlant" : "A blue-tipped kelp species which tends to grow in or near to acidic brine pools on the ocean floor. These brine pools are hazardous to most lifeforms, however the crab claw has adapted by developing a thick, inflexible root system which can withstand the environment, and which raises the sensitive blue feeding nodules above the level of the brine.",
 
 
 //https://us.v-cdn.net/5019629/uploads/editor/yg/wuheklngfcse.png
-		"Ency_BlueLostRiverLilly" : "Brine Lily",
+		"BlueLostRiverLilly" : "Brine Lily",
 "EncyDesc_BlueLostRiverLilly" : "These lily-like plants have evolved to take advantage of the relative density of the acidic brine pools encountered near the ocean floor to float safely on the surface. Tendril-like roots extend down into the brine, drawing essential salts and minerals from the water.",
 
 
 
 
-		"Ency_Creepvine" : "Creepvine",
+		"Creepvine" : "Creepvine",
 "EncyDesc_Creepvine" : "A kelp species concentrated in large forests, in shallow, sandy waters. Loose roots anchor the plant to the sea floor, from where it grows steadily toward the surface in pursuit of sunlight.
 
 The stem is fibrous and rich in iron, making it both a viable base material for fabrication of textiles, as well as a basic foodstuff.
 
 Assessment: Vital alien resource - Edible - Construction Applications",
 
-		"Ency_CreepvineSeeds" : "Creepvine Seeds",
+		"CreepvineSeeds" : "Creepvine Seeds",
 "EncyDesc_CreepvineSeeds" : "Mature creepvine plants that have survived the predation of small herbivores produce these bioluminescent seed clusters, which may be knocked loose by currents or consumed and later deposited by predators. 
 
 The embryo is surrounded by a thick oil and silicone layer, which would disperse into the ground as the outer skin deteriorated. This may provide the seedling with the nutrients it needs to survive the low-light conditions on the sea bed.
@@ -6460,7 +6460,7 @@ Assessment: Vital alien resource - Construction Applications",
 
 
 
-	"Ency_TigerPlant" : "Tiger Plant",
+	"TigerPlant" : "Tiger Plant",
 "EncyDesc_TigerPlant" : "This plant has adapted to sense fluctuations in the water at up to 15m, and is capable both of prehensile movement of its tubes, as well as the propelling of thorns at speeds of up to 10m/s.
 
 Although capable of incapacitating small herbivores, this plant lacks carnivorous digestive organs. Would-be predators caught in its defensive perimeter serve as a warning to other herbivores not to approach; and then as they decompose they serve as fertilizer for the tiger plant.
@@ -6468,7 +6468,7 @@ Although capable of incapacitating small herbivores, this plant lacks carnivorou
 Assessment: Avoid or incapacitate",
 
 
-	"Ency_BloodGrass" : "Blood Grass",
+	"BloodGrass" : "Blood Grass",
 "EncyDesc_BloodGrass" : "A common sea grass adapted to shallow, sandy environments. 
 
 - Likely to grow wherever the ground is too loose or the ocean surface too far for creepvines to take hold
@@ -6478,7 +6478,7 @@ Assessment: Avoid or incapacitate",
 
 Assessment: Presence supports healthy biodiversity",
 
-	"Ency_TreeLeech" : "Tree Leech",
+	"TreeLeech" : "Tree Leech",
 "EncyDesc_TreeLeech" : "Parasitic, fungus-like growth found attached to other lifeforms. An enzyme is released by the organism which dissolves a hole in the skin of the host, from which it leeches nutrients directly.
 
 Outer, tooth-lined jaw serves no identified purpose. May be used during a different stage of the organism's lifecycle.
@@ -6486,7 +6486,7 @@ Outer, tooth-lined jaw serves no identified purpose. May be used during a differ
 Assessment: Exploitable fungal enzymes",
 
 
-	"Ency_TreeMushroom" : "Tree Mushrooms",
+	"TreeMushroom" : "Tree Mushrooms",
 "EncyDesc_TreeMushroom" : "Analysis of these large organic structures reveals a microcosm of co-operating, co-habiting and competing lifeforms.
 
 The main trunk is a species of coral, some colonies up to 50,000 years old. The caps which line it share more in common with earth fungi. Other organisms grow on the structure wherever there is space and light.
@@ -6505,7 +6505,7 @@ Assessment: Exploitable",
 /////EGGS/////
 //////////////
 
-"Ency_UnknownEgg" : "Alien Eggs",
+"UnknownEgg" : "Alien Eggs",
 "EncyDesc_UnknownEgg" : "Evidence suggests that a substantial number, if not all of the local species reproduce through egg-laying. Eggs can be found resting on the seafloor, buried beneath detritus, or even wedged into cracks in the rock. 
 
 Different species likely favor different biomes as their nesting grounds. Eggs discovered in the wild are in some form of natural stasis, likely awaiting ideal conditions in which to hatch, or the delivery of some vital enzyme which will kick start the process.
@@ -6524,56 +6524,56 @@ It is impossible to calculate the species of the egg from the exterior, however 
 ////  LAND PLANTS ////
 //////////////////////
 
- 	"Ency_HangingFruitTree" : "Lantern Tree",
+ 	"HangingFruitTree" : "Lantern Tree",
 "EncyDesc_HangingFruitTree" : "A conglomeration of individual vines which rely on one another for structural support. Grows exclusively on fertile land. Each vine produces orange, lantern-shaped fruits with minimal nutrition and hydration value.
 
 Assessment: Edible in an emergency",
 
- 	"Ency_BulboTree" : "Bulbo Tree",
+ 	"BulboTree" : "Bulbo Tree",
 "EncyDesc_BulboTree" : "A bulb-based flora which roots to the ground and sprouts turquoise leaves. Analysis suggests the sap produced by this plant is poisonous to insects, but can be harvested and consumed by humans for its high water-content.
 
 Assessment: Edible, high water content",
 
- 	"Ency_PinkMushroom" : "Pink Cap",
+ 	"PinkMushroom" : "Pink Cap",
 "EncyDesc_PinkMushroom" : "A land-based fungus species with harvestable spores. Inedible.",
 
- 	"Ency_PurpleRattle" : "Speckled Rattler",
+ 	"PurpleRattle" : "Speckled Rattler",
 "EncyDesc_PurpleRattle" : "A brittle land-plant containing large spores which generate a characteristic rattle when the plant is shaken. This may act to ward off predators, or even encourage predation as a means of spreading the spores.",
 
- 	"Ency_PurpleVasePlant" : "Ming Plant",
+ 	"PurpleVasePlant" : "Ming Plant",
 "EncyDesc_PurpleVasePlant" : "A hardy specimen which grows on land. The vase-like trunk protects the root system from predation and self-repairs over time, explaining the characteristic cracks on the side.",
 
- 	"Ency_OrangeMushroom" : "Jaffa Cup",
+ 	"OrangeMushroom" : "Jaffa Cup",
 "EncyDesc_OrangeMushroom" : "A common land-fungus found in clusters. Grows quickly, size is limited only by available nutrients and space.",
 
- 	"Ency_VegetablePlant" : "Chinese Potato Plant",
+ 	"VegetablePlant" : "Chinese Potato Plant",
 "EncyDesc_VegetablePlant" : "The Chinese potato is common throughout the China Territories, where synthetic foods are still stigmatized, and there remain large tracts of arable land on which to grow fresh produce. Genetically designed prior to the Expansion, this plant is highly adaptable to different environments, and a staple of new colonies galaxy-wide.
 
 Assessment: Edible",
 
- 	"Ency_MelonPlant" : "Marblemelon Plant",
+ 	"MelonPlant" : "Marblemelon Plant",
 "EncyDesc_MelonPlant" : "This plant collects water from the air rather than relying on its root system, and produces large, fleshy fruits which are both edible, and have atypically high water content.
 
 Assessment: Edible - High water content",
 
- 	"Ency_PinkFlower" : "Voxel Shrub",
+ 	"PinkFlower" : "Voxel Shrub",
 "EncyDesc_PinkFlower" : "A pink-leafed plant with an angular appearance which grows exclusively on land.",
 
- 	"Ency_FernPalm" : "Fern Palm",
+ 	"FernPalm" : "Fern Palm",
 "EncyDesc_FernPalm" : "This specimen was first identified in an artificial growbed on the island. It is not listed in existing flora databases, so it is unclear whether or not it is native to this planet. Genetic code shares some features with other local plantlife, but this may be the result of DNA transfusion rather than natural evolution.",
 
- 	"Ency_OrangePetalsPlant" : "Grub Basket",
+ 	"OrangePetalsPlant" : "Grub Basket",
 "EncyDesc_OrangePetalsPlant" : "An orange-colored land plant which usually contains a thick, protein-rich sludge at its base. This may suggest a carnivorous lifecycle, wherein grubs and insects are attracted to the bright petals, make their way to the center of the plant, but are unable to scale back up the slick inner leaves and are ultimately digested.",
 
 //////////////////////
 ////  SEA PLANTS ////
 //////////////////////
- 	"Ency_WhiteMushroom" : "Deep Shroom",
+ 	"WhiteMushroom" : "Deep Shroom",
 "EncyDesc_WhiteMushroom" : "A discolored relative of the acid mushroom, adapted to low-light conditions. Considerably more acidic than its shallow-dwelling cousin, it may have applications in advanced fabrication.
 
 Assessment: Can be processed into hydrochloric acid",
 
- 	"Ency_KooshBush" : "Bulb Bush",
+ 	"KooshBush" : "Bulb Bush",
 "EncyDesc_KooshBush" : "This aquatic species has evolved to grow in deep, sandy environments, and to conserve its hydration levels against relatively extreme external temperatures. The root system can fragment the shale rock it grows on to form a deep anchor point, allowing predators to graze but not easily uproot the entire plant. 
 
 This grazing will tend to dislodge parts of the plant, and each section is capable of growing into a fully formed adult plant, explaining the concentrations of bulb bushes in some parts of the world.
@@ -6581,70 +6581,70 @@ This grazing will tend to dislodge parts of the plant, and each section is capab
 Assessment: Edible in small quantities - High water content",
 
 
- 	"Ency_GiantKooshBush" : "Giant Bulb Bush",
+ 	"GiantKooshBush" : "Giant Bulb Bush",
 "EncyDesc_GiantKooshBush" : "This vast plant is centuries old. While it dominates the surrounding area, a complex root system below the surface connects it with other bulb bushes in the area. Nutrient flow within this network suggests the giant bulb has adapted to feed the weaker bushes and keep the forest healthy.",
 
- 	"Ency_BluePalm" : "Blue Palm",
+ 	"BluePalm" : "Blue Palm",
 "EncyDesc_BluePalm" : "The blue palm is a common aquatic plant which thrives in shallower waters with high exposure to sunlight. Long fronds intercept light before it can reach the smaller flora on the seabed.",
 
- 	"Ency_SmallFan" : "Pygmy Fan",
+ 	"SmallFan" : "Pygmy Fan",
 "EncyDesc_SmallFan" : "A common, mildly luminescent plant, discovered predominantly in shallower waters.",
 
- 	"Ency_PurpleFan" : "Veined Nettle",
+ 	"PurpleFan" : "Veined Nettle",
 "EncyDesc_PurpleFan" : "A common, shallow-water plant which frequently shows signs of predation around the edges of the leaves. Thick, violet veins carry nutrients to the extremities of the fan, and brightly-colored seeds grow around the base and stem.",
 
- 	"Ency_WrithingWeed" : "Writhing Weed",
+ 	"WrithingWeed" : "Writhing Weed",
 "EncyDesc_WrithingWeed" : "Well-adapted to both shallow waters and cave systems, this plant lives in symbiosis with a coral species which forms around the base of the stems.",
 
- 	"Ency_GabeSFeather" : "Gabe's Feather",
+ 	"GabeSFeather" : "Gabe's Feather",
 "EncyDesc_GabeSFeather" : "This plant grows almost exclusively in deeper waters, where its hand-like leaves have evolved to filter sediment from the environment. It is likely dependent on the excretions of fauna populating the waters above and around it.",
 
- 	"Ency_SeaCrown" : "Sea Crown",
+ 	"SeaCrown" : "Sea Crown",
 "EncyDesc_SeaCrown" : "This plant consists primarily of a large bladder-like sack containing a huge variety of bacterial species, which may enable it to break down complex compounds it draws from the root system. Shares large sections of genetic code with the membrain tree. Environment scans indicate this plant is rare to the point of extinction.",
 
- 	"Ency_MembrainTree" : "Membrain Tree",
+ 	"MembrainTree" : "Membrain Tree",
 "EncyDesc_MembrainTree" : "This entity defies neat categorization. It consists of more than one coral species working in tandem to create an insulated microcosm enclosed within a translucent membrane. Found exclusively growing on basalt rock in the grand reefs, the homeostatic conditions within are considerably warmer and more dense with microbial life than the outside environment, and the bright purple fauna inside will likely die off quickly if exposed.",
 
 
- 	"Ency_EyesPlant" : "Eye Stalk",
+ 	"EyesPlant" : "Eye Stalk",
 "EncyDesc_EyesPlant" : "A cave-dwelling tuber dotted with luminescent, photosensitive 'eyes'. These eyes may in some way direct the twisted growth of the stems themselves, possibly in reaction to other light sources, proximity of cave walls, or other environmental conditions.",
 
- 	"Ency_RedGreenTentacle" : "Ghost Weed",
+ 	"RedGreenTentacle" : "Ghost Weed",
 "EncyDesc_RedGreenTentacle" : "Grows exclusively in deep waters where its pale pigmentation is visible on the fewest wavelengths.",
 
- 	"Ency_PurpleStalk" : "Violet Beau",
+ 	"PurpleStalk" : "Violet Beau",
 "EncyDesc_PurpleStalk" : "A common, luminescent plant which grows in patches on the seabed.",
 
- 	"Ency_RedBasketPlant" : "Rouge Cradle",
+ 	"RedBasketPlant" : "Rouge Cradle",
 "EncyDesc_RedBasketPlant" : "A complex, cave-dwelling flora specimen. The bright yellow core of this plant is protected by a rigid cage, presumably to ward off medium-sized herbivores.",
 
- 	"Ency_RedBush" : "Redwort",
+ 	"RedBush" : "Redwort",
 "EncyDesc_RedBush" : "A common plant adaptable to many different environments, the redwort is a staple part of the diet of many smaller herbivores.",
 
- 	"Ency_RedConePlant" : "Regress Shell",
+ 	"RedConePlant" : "Regress Shell",
 "EncyDesc_RedConePlant" : "This specimen is composed of a complex series of regressing rings, connected by tendrils.",
 
- 	"Ency_ShellGrass" : "Spiked Horn Grass",
+ 	"ShellGrass" : "Spiked Horn Grass",
 "EncyDesc_ShellGrass" : "While it shares a close genetic similarity with blood grass, this species has evolved to house its root system in rigid, horn-shaped enclosures.",
 
- 	"Ency_SpottedLeavesPlant" : "Spotted Dockleaf",
+ 	"SpottedLeavesPlant" : "Spotted Dockleaf",
 "EncyDesc_SpottedLeavesPlant" : "A simple aquatic plant. Chemicals within the leaves act to neutralize poisons and acids found in other local specimens, thereby actively encouraging predation by herbivores, albeit in small quantities. This ensures the plant both spreads its seed, but retains enough surface area on its leaves to survive itself.",
 
- 	"Ency_RedRollPlant" : "Furled Papyrus",
+ 	"RedRollPlant" : "Furled Papyrus",
 "EncyDesc_RedRollPlant" : "The function of the distinctive curled leaves on this aquatic plant is not immediately clear. It is possible the leaves unfurl in low-light conditions, or that they are designed to channel water currents through the main body of the plant, thus enhancing nutrient take-up.",
 
- 	"Ency_PurpleBranches" : "Cave Bush",
+ 	"PurpleBranches" : "Cave Bush",
 "EncyDesc_PurpleBranches" : "A purple, luminescent species which grows well on hardy terrain away from sunlight.",
 
 
- 	"Ency_JellyPlant" : "Gel Sack",
+ 	"JellyPlant" : "Gel Sack",
 "EncyDesc_JellyPlant" : "These organic structures grow on cave walls. The purple sacks which arise from the surface contain a low-density gel laced with spores. These burst from time to time, floating towards the surface and attaching onto the next rock face they encounter.
 
 While the gel sack is edible, its low-density renders it an invaluable advanced construction material.
 
 Assessment: Edible - Aerogel construction applications",
 
- 	"Ency_SnakeMushroom" : "Jellyshroom",
+ 	"SnakeMushroom" : "Jellyshroom",
 "EncyDesc_SnakeMushroom" : "A lifeform unique to a microcosm located in a cave system deep within the grassy plateaus, where a high concentration of carnivorous lifeforms wards off smaller predators.
 
 - Consists of a tough, trunk-like base from which grows a fragile purple membrane
@@ -6655,7 +6655,7 @@ Assessment: Edible - Aerogel construction applications",
 Predators: None identified",
 
 
- 	"Ency_BloodVine" : "Bloodvine",
+ 	"BloodVine" : "Bloodvine",
 "EncyDesc_BloodVine" : "This species of kelp grows in sparse copses, deep on the ocean floor, and provides shelter for an array of distinct fauna and megafauna.
 
 Survival at these depths is challenging, and the lifeforms which make their homes here have developed unusual coping mechanisms, including a bleaching of skin pigment, dependency on naturally occurring metals and oils to adjust to temperature and pressure, and in some cases even electrical defense mechanisms.
@@ -6663,7 +6663,7 @@ Survival at these depths is challenging, and the lifeforms which make their home
 The vibrant red oils which seep from the bloodvine coagulate into semi-hard pustules, which frequently fall loose and form a vital foodstuff for the local ecosystem, or are otherwise reabsorbed into the ground over time.",
 
 
- 	"Ency_BloodRoot" : "Bloodroot",
+ 	"BloodRoot" : "Bloodroot",
 "EncyDesc_BloodRoot" : "These root systems generally extend from one cave wall to another.
 
 1. Coiled Root System:
@@ -6689,7 +6689,7 @@ Both bloodroots and bloodvines produce blood oil pustules, confirming that they 
 //Unlocked at start:
 ////////////////
 
-	"Ency_Scanner" : "Handheld Scanner",
+	"Scanner" : "Handheld Scanner",
 "EncyDesc_Scanner" : "The essential science and survival tool, the scanner can be used to add new blueprints to memory, and analyze unknown entities.
 
 It emits electromagnetic radiation in the specified direction, which is reflected by the environment and then analyzed to determine the physical make-up of the targeted object. It has four primary functions.
@@ -6709,7 +6709,7 @@ The user may run a self-scan to determine their own physical well-being. The sca
 'The Alterra Spectroscope Scanner - Understanding the world so you don't have to.'",
 
 
-	"Ency_Builder" : "Habitat Builder",
+	"Builder" : "Habitat Builder",
 "EncyDesc_Builder" : "The Alterra handheld habitat builder has been an essential tool of xenoscientists, colonists and emergency relief crews across 11 different trans-govs for more than 50 years.
 
 - Habitat modules are hermetically sealed from the outside environment
@@ -6727,7 +6727,7 @@ Primary habitat systems like oxygen generation and flood control, as well as mod
 'Quick-Build Habitats: A home far, far away from home.'",
 
 
-	"Ency_Welder" : "Repair Tool",
+	"Welder" : "Repair Tool",
 "EncyDesc_Welder" : "The repair tool can be targeted at any common device - control panels, habitat modules, radios etc - to stitch wires and seams back together at the atomic level. All good technicians keep one of these under their pillow.
 
 Most people don't care why it works, just that it saved their life that one time - but in case you're curious, it combines scanner and fabricator technologies to determine the proper specifications for the targeted object, and then rearranges the available physical material to match the original specs.
@@ -6735,7 +6735,7 @@ Most people don't care why it works, just that it saved their life that one time
 'The Alterra Repair Tool: Get your fix.'",
 
 
-	"Ency_SolarPanel" : "Solar Panel",
+	"SolarPanel" : "Solar Panel",
 "EncyDesc_SolarPanel" : "Solar power is the most prevalent power source in the galaxy, and so it is no accident that the standard solar panel is the default means of powering a habitat. A power source is a requirement of habitat oxygen generators and other onboard modules.
 
  - Provides limited power for small outposts and survival habitats
@@ -6743,13 +6743,13 @@ Most people don't care why it works, just that it saved their life that one time
  - Power rate relative to sunlight exposure",
  
  
- 	"Ency_Fabricator" : "Fabricator",
+ 	"Fabricator" : "Fabricator",
 "EncyDesc_Fabricator" : "Fabrication technology is the power to rearrange matter at the atomic level. It was the catalyst behind the great expansion, and remains the backbone of the modern world.
 
 Fabricators come in all shapes and sizes, but the most common are small enough to be wall-mounted, and are used for everything from constructing everyday implements to cooking dinner. It is common today for households to keep a store of generic base materials on hand for any eventuality.",
 
  
- 	"Ency_Aquarium" : "Aquarium",
+ 	"Aquarium" : "Aquarium",
 "EncyDesc_Aquarium" : "The aquarium is designed to hold and sustain up to eight small aquatic organisms, and fits inside a regular multipurpose habitat room.
 
 Aquatic creatures make up 70% of all known species, making the aquarium a commonly deployed tool in many exploratory operations. It is just as often used to house livestock for later consumption as it is to hold specimens for xeno research. An automated environment regulation system means there's no need to feed or care for your subjects.
@@ -6757,11 +6757,11 @@ Aquatic creatures make up 70% of all known species, making the aquarium a common
 NB Due to its size the regular aquarium is not rated for breeding applications, and creatures are highly unlikely to mate. Construct a full size alien containment unit for this purpose.",
 
 
- 	"Ency_MVB" : "Mobile Vehicle Bay",
+ 	"MVB" : "Mobile Vehicle Bay",
 "EncyDesc_MVB" : "The mobile vehicle bay is a deployable station equipped with fabrication drones, designed to construct small research and exploration vehicles from raw materials. It is a common tool in almost all industrial, scientific and colonization operations.",
 
 
- 	"Ency_Airpumps" : "Air Pumps",
+ 	"Airpumps" : "Air Pumps",
 "EncyDesc_Airpumps" : "Air pumps can be used to pipe breathable air to a remote location.
 
  - The base-attached airpump can be built at a compatible habitat, and will source oxygen directly from the habitat's oxygen generator
@@ -6774,18 +6774,18 @@ NB Due to its size the regular aquarium is not rated for breeding applications, 
 ////////////////////
 
 
-	"Ency_BulkheadDoor" : "Bulkhead Door",
+	"BulkheadDoor" : "Bulkhead Door",
 "EncyDesc_BulkheadDoor" : "The bulkhead door is designed to separate compartments while reinforcing structural integrity with its solid titanium frame. The door can be opened and closed to seal off compartments in the event of fire or flooding, or simply for privacy.",
 
 
 
-	"Ency_ModificationStation" : "Modification Station",
+	"ModificationStation" : "Modification Station",
 "EncyDesc_ModificationStation" : "Where the standard fabricator atomically rearranges raw materials to form complex devices, the mod station is able to combine complex devices to enhance their function. Most industrial vessels are fitted with a complement of equipment modification stations, which enable engineers to adapt their tools on the fly.
 
 To conserve hard drive space the modification station is excluded by default from most personal emergency blueprint libraries; however extreme environments such as ocean and desert class planets may necessitate the adaptation of basic survival tools for unanticipated applications. For this reason access to a mod station is always recommended.",
 
 
-	"Ency_StasisRifle" : "Stasis Rifle",
+	"StasisRifle" : "Stasis Rifle",
 "EncyDesc_StasisRifle" : "The stasis rifle uses patented technology to slow time around an entity to as near to a full stop as the laws of physics will permit, essentially anchoring the target in place without affecting its internal workings. It is designed to facilitate scientific and engineering operations by expanding the window of opportunity for action in time-sensitive scenarios.
 
 The stasis rifle features an independent, replaceable power cell, and the trigger may be held down to increase the area of effect and duration.
@@ -6800,7 +6800,7 @@ NB May not function correctly on larger lifeforms.
 'The Alterra Stasis Rifle: Life's fast. Why not put it on pause?'",
 
 
-	"Ency_PropulsionCannon" : "Propulsion Cannon",
+	"PropulsionCannon" : "Propulsion Cannon",
 "EncyDesc_PropulsionCannon" : "The propulsion cannon allows technicians to manipulate gravitational forces at ranges of up to 20m. It is commonly used in construction and mining to move materials.
 
 Operating Instructions:
@@ -6812,11 +6812,11 @@ Operating Instructions:
 'The Prop Cannon: Some species are telekinetic. For everyone else, there's Alterra.'",
 
 
-	"Ency_RepulsionCannon" : "Repulsion Cannon",
+	"RepulsionCannon" : "Repulsion Cannon",
 "EncyDesc_RepulsionCannon" : "The repulsion cannon is a modification of the base propulsion cannon which enhances its propulsion effect at the cost of the ability to draw objects closer. It can be fabricated using a modification station, and is commonly employed in self-defense, and as a less-than-lethal firearm.",
 
 
-	"Ency_VMS" : "Vehicle Upgrade Console",
+	"VMS" : "Vehicle Upgrade Console",
 "EncyDesc_VMS" : "This terminal allows vehicles to be customized with different naming and color schemes, and upgrade modules.
 
  - Must be installed in a compatible moonpool module
@@ -6824,7 +6824,7 @@ Operating Instructions:
  - Upgrades include additional defensive capabilities, scanning equipment and storage",
 
 
-	"Ency_Seamoth" : "Seamoth",
+	"Seamoth" : "Seamoth",
 "EncyDesc_Seamoth" : "The seamoth is a one-person vehicle with an independent, replaceable power cell fitted in the rear and a fully customizable design. Low power, multi-directional thrusters enable it to function equally well in sea or space environments. 
 
 Most long-range vessels carry at least two vehicles of this class to facilitate the exploration and exploitation of small astronomical bodies, however they can also be fabricated at a standard mobile vehicle bay.
@@ -6850,11 +6850,11 @@ NB These modules may only be manufactured at a moonpool outfitted with a vehicle
 'The Seamoth: It goes anywhere but land.'",
 
  
- 	"Ency_SeamothConfigs" : "Seamoth Bay Text",
+ 	"SeamothConfigs" : "Seamoth Bay Text",
 "EncyDesc_SeamothConfigs" : "CORRUPTED",
 
 
-	"Ency_Moonpool" : "Moonpool",
+	"Moonpool" : "Moonpool",
 "EncyDesc_Moonpool" : "The moonpool is an essential module for long-term exploration. Its primary function is as a dry dock for small vehicles such as the Seamoth and Prawn suit.
 
 The large central chamber contains a pressurized pool which provides ready access to the surrounding waters, and comes as standard with equipment for raising and recharging a vehicle.
@@ -6869,28 +6869,28 @@ Ratings:
  - High power consumption",
  
  
-    "Ency_BasePlanter" : "Planters & Pots",
+    "BasePlanter" : "Planters & Pots",
     "EncyDesc_BasePlanter" : "Interior planters come in a variety of configurations, and allow for most plant species to be grown in small numbers. For decorative or botanical use.",
  
-    "Ency_FarmingTray" : "Exterior Growbed",
+    "FarmingTray" : "Exterior Growbed",
     "EncyDesc_FarmingTray" : "Advanced synthetic soils allow this growbed to support a huge variety and quantity of alien plantlife, and it can be installed anywhere on land or underwater where there is space.",
     
-    "Ency_PlanterBox" : "Interior Growbed",
+    "PlanterBox" : "Interior Growbed",
     "EncyDesc_PlanterBox" : "Designed for use exclusively inside regulated habitat modules, the interior growbed is more compact than the outdoor version, and features a hydroponic nutrient delivery system.",
     
-    "Ency_WaterFilter" : "Water Filtration System",
+    "WaterFilter" : "Water Filtration System",
     "EncyDesc_WaterFilter" : "The filtration system draws water unfit for human consumption from an external source, atomically splits it into its constituent parts, and outputs consumable liquid water and salts, while disposing of any harmful by-product. It can be built in any compatible habitat module, but has substantial power requirements.
     
 'The Alterra Water Filtration System: Any liquid into pure, refreshing, pH-balanced water? Yes sir, ANY liquid!'",
  
  
- 	"Ency_Techlight" : "Floodlight",
+ 	"Techlight" : "Floodlight",
 "EncyDesc_Techlight" : "The standard issue floodlight is designed to focus a bright beam of light in a single direction, useful in all kinds of industrial and emergency operations. Functions in all known environments.",
 
- 	"Ency_LEDLight" : "Light Stick",
+ 	"LEDLight" : "Light Stick",
 "EncyDesc_LEDLight" : "A mobile, battery-powered LED light, which provides low-level lighting in a 360 degree area, and can be attached to most surfaces.",
 
- 	"Ency_Spotlight" : "Spotlight",
+ 	"Spotlight" : "Spotlight",
 "EncyDesc_Spotlight" : "A permanent lighting solution developed for installation on existing habitats and facilities.
 
 - Automatically rotates on a 180 degree arch
@@ -6898,7 +6898,7 @@ Ratings:
 - Draws electricity from main power",
 
 
-	"Ency_Seaglide" : "Seaglide",
+	"Seaglide" : "Seaglide",
 "EncyDesc_Seaglide" : "The seaglide is a personal transportation device designed for use in oceanic environments.
 
  - Capable of speeds up to 36km/h in standing water
@@ -6909,13 +6909,13 @@ Ratings:
 'The Seaglide: Anything that moves faster underwater is probably trying to eat you.'",
 
 
-	"Ency_LaserCutter" : "Laser Cutter",
+	"LaserCutter" : "Laser Cutter",
 "EncyDesc_LaserCutter" : "The ultra high frequency laser cutter is tuned specifically to cut through titanium and plasteel based materials at a thickness of up to 10cm. This makes it an essential tool for construction, salvage and rescue operations, but ineffective on natural obstacles.
 
 'The Alterra Laser Cutter: Who called the locksmith?'",
 
 
-	"Ency_Bioreactor" : "Bioreactor",
+	"Bioreactor" : "Bioreactor",
 "EncyDesc_Bioreactor" : "On planets where organic matter is plentiful but sunlight is not, a reliable bioreactor will frequently prove the most efficient power solution.
 
  - May be installed in any multipurpose habitat room
@@ -6928,7 +6928,7 @@ Ratings:
  
 
  
-	"Ency_ThermalPlant" : "Thermal Plant",
+	"ThermalPlant" : "Thermal Plant",
 "EncyDesc_ThermalPlant" : "The first rule of survival in hostile environments is to work with the resources available. If it's 800 degrees outside and you're in danger of burning to death at any moment you may as well get some cheap, reliable energy out of it.
 
  - Converts heat energy into electricity
@@ -6938,7 +6938,7 @@ Ratings:
 'The Thermal Power Plant: It's hot'.",
  
  
-	"Ency_NuclearReactor" : "Nuclear Reactor",
+	"NuclearReactor" : "Nuclear Reactor",
 "EncyDesc_NuclearReactor" : "Renewable energy sources will usually be sufficient for maintaining a small outpost. For everything else there's nuclear power. 
 
  - Powered by up to four replaceable uranium reactor rods
@@ -6950,7 +6950,7 @@ Nuclear is ideal for energy-intensive operations such as:
  - Industrial outposts operating multiple docks and heavy machinery
  - Research stations housing live specimens",
 
-	"Ency_Cyclops" : "Cyclops",
+	"Cyclops" : "Cyclops",
 "EncyDesc_Cyclops" : "The cyclops is the most popular and reliable deep-sea submersible in the galaxy. By comparison to the competition it can be crewed by just one pilot, hence the name.
 
 It features:
@@ -6980,7 +6980,7 @@ NB The cyclops does NOT feature:
   - Emergency ballast: In the event of full system failure this vehicle WILL sink",
 
 
-	"Ency_MapRoom" : "Scanner Room",
+	"MapRoom" : "Scanner Room",
 "EncyDesc_MapRoom" : "This advanced habitat module can transform a small outpost into a burgeoning science and exploration station.
 
  - A 3D display in the center of the room stores local topographical data
@@ -6990,7 +6990,7 @@ NB The cyclops does NOT feature:
  - Upgrade console may be used to enhance the module's functions",
 
  
-	"Ency_WaterPark" : "Alien Containment",
+	"WaterPark" : "Alien Containment",
 "EncyDesc_WaterPark" : "Despite huge, Alterra-led advancements in stellar technology, exploring new worlds still has its challenges, and alien lifeforms are one of them. That's why we built the alien containment unit. The unit is designed primarily to breed larger or more dangerous species.
 
 Technical Provisions:
@@ -7010,7 +7010,7 @@ Warnings:
  - Never tap the glass: you don't know what will tap back, or how hard",
 
  
-	"Ency_Exo" : "Prawn Suit (Mk.III)",
+	"Exo" : "Prawn Suit (Mk.III)",
 "EncyDesc_Exo" : "The Pressure Re-Active Waterproof Nano Suit is a range of mechs designed to protect the pilot from extreme environments. The Mk.III is the latest iteration, and has so far only been rolled out by Alterra for their own high-value, phasegate-related operations.
 
  - The suit is fully insulated from the outside environment
@@ -7021,7 +7021,7 @@ Warnings:
 'The Prawn Suit: It's got you covered.'",
 
 
-	    "Ency_StillSuit" : "Water Filtration Suit",
+	    "StillSuit" : "Water Filtration Suit",
 "EncyDesc_StillSuit" : "The industry standard Water Filtration suit is designed to minimize water loss while exploring hostile environments, by filtering and recycling bodily fluids.
 
 - Reclaimed water is stored in containers for later consumption, normal production rate is 2 bottles per day
@@ -7032,7 +7032,7 @@ Warnings:
 'The Water Filtration Suit: Because drinking reclaimed urine is better than death by dehydration.'",
 
 
-	    "Ency_RadSuit" : "Radiation Suit",
+	    "RadSuit" : "Radiation Suit",
 "EncyDesc_RadSuit" : "This suit fully protects against the effects of radiation during land, sea and space exploration.
 
 - Safety rated up to 400 Sv/hr
@@ -7042,7 +7042,7 @@ Warnings:
 'The Radiation Suit: A necessary precaution in a post-MAD world.'",
 
 
-	    "Ency_ReinforcedSuit" : "Reinforced Dive Suit",
+	    "ReinforcedSuit" : "Reinforced Dive Suit",
 "EncyDesc_ReinforcedSuit" : "This suit is reinforced with synthetic fibers to reduce incoming physical and thermal damage.
 
 - Shock absorption reduces physical impact velocity by approximately 50%
@@ -7052,7 +7052,7 @@ Warnings:
 'The Reinforced Dive Suit: Why take chances, when you can take Alterra?'",
 
 
-	    "Ency_Decoy" : "Creature Decoy",
+	    "Decoy" : "Creature Decoy",
 "EncyDesc_Decoy" : "This advanced deployable is a catch-all solution for mimicking the behavior of a living creature, for purposes of scientific research or predator evasion.
 
 - Vibrates, cycles air and water, and sends out randomized, high-frequency sound waves to emulate a living organism
@@ -7061,7 +7061,7 @@ Warnings:
 - Attracts predators of all kinds",
 
 
-	    "Ency_Rocket" : "Neptune Escape Rocket",
+	    "Rocket" : "Neptune Escape Rocket",
 "EncyDesc_Rocket" : "This blueprint set was developed at Alterra headquarters specifically to get you off 4546B and back to the nearest phasegate. It takes into account local gravity, astronomical data and available resources, and is piloted by AI. It may be adapted to employ whatever power source is available - but it will require a lot of it.
 
 It consists of five independently constructible elements:
@@ -7084,7 +7084,7 @@ Warning: Onboard AI will not launch if local threats are detected.
 Warning: The use of alien materials to power the craft may increase its range in unpredictable ways.",
 
 
-	    "Ency_TimeCapsule" : "Time Capsule",
+	    "TimeCapsule" : "Time Capsule",
 "EncyDesc_TimeCapsule" : "These sturdy containers are designed to store written and photographic evidence for later retrieval, in addition to a number of small items. Time capsules are often fabricated by marooned survivors seeking either to aid those who find themselves in the same predicament in the future, or to leave evidence of their plight which may be found long after their bodies have disintegrated.
 
 Most emergency escape vehicles are equipped with a time capsule by default, usually found in the cockpit, and be jettisoned on take off. Alterra requests time capsules be stocked with tools and resources which will aid those who may discover them in the future.",
