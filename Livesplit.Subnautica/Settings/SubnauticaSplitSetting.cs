@@ -160,6 +160,8 @@ namespace Livesplit.Subnautica
         AuroraExitSplit,
         [Description("HCG Sparse Split (includes clip A and C)"), ToolTip("Splits when you enter the main base with a ruby (includes clip A and C)")]
         HCGSparseSplit,
+        [Description("Reactor Core Repair Split"), ToolTip("Splits when you repair the aurora reactor core")]
+        ReactorCoreRepairSplit,
     }
     public class ToolTipAttribute : Attribute
     {

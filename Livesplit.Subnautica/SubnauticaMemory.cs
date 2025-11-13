@@ -49,6 +49,7 @@ namespace Livesplit.Subnautica
         public Pointer<bool> IsAnimationPlaying;
         public Pointer<bool> DamageEffectsShowing;
         public Pointer<bool> RocketLaunching;
+        public Pointer<bool> RadiationFixed;
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
         public Pointer<IntPtr> MainMenu;
@@ -173,6 +174,7 @@ namespace Livesplit.Subnautica
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && KnownTech.Contains(TechType.RocketBase) },
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
+                { SplitName.ReactorCoreRepairSplit,    () => RadiationFixed.New && !RadiationFixed.Old },
             };
         }
 
@@ -364,6 +366,9 @@ namespace Livesplit.Subnautica
             #region Rocket Launching
             RocketLaunching = ptrFactory.Make<bool>("LaunchRocket", "launchStarted");
             #endregion Rocket Launching
+            #region RadiationFixed
+            RadiationFixed = ptrFactory.Make<bool>("LeakingRadiation", "main", "radiationFixed");
+            #endregion RadiationFixed
 
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
