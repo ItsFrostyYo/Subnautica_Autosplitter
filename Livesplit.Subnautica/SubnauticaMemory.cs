@@ -174,12 +174,12 @@ namespace Livesplit.Subnautica
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && KnownTech.Contains(TechType.RocketBase) },
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
-                { SplitName.ReactorCoreRepairSplit,    () => RadiationFixed.New && !RadiationFixed.Old },
+                { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
             };
         }
 
         public override bool Update()
-        {           
+        {
             if(!pointersInitialized)
                 return base.Update();
 
@@ -835,7 +835,7 @@ namespace Livesplit.Subnautica
         private readonly float[] deathClipABounds = { 33f, 65f, -20f, -8f, 118f, 96f };
         private readonly float[] deathClipCBounds = { -155f, -133f, -20f, -10f, 73f, 96f };
         private readonly float[] enterClipABounds = { 48f, 55f, -20f, -5f, 106f, 111f };
-        private readonly float[] enterClipCBounds = { -142f, -132f, -20f, -5f, 82f, 90f };
+        private readonly float[] enterClipCBounds = { -144f, -132f, -20f, -5f, 78f, 90f };
         #endregion
     }
 }

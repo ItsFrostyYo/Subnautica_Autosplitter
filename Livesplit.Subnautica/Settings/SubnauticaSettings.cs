@@ -231,16 +231,16 @@ namespace Livesplit.Subnautica
         {
             switch (setting)
             {
-                case SubnauticaItemSplit s:
+                case SubnauticaItemSplit _:
                     BindCombo(setting.ComboBox, alpha ? itemsAlpha.Value : items.Value, setting.ComboBox.SelectedValue);
                     break;
-                case SubnauticaBlueprintSplit s:
+                case SubnauticaBlueprintSplit _:
                     BindCombo(setting.ComboBox, alpha ? blueprintsAlpha.Value : blueprints.Value, setting.ComboBox.SelectedValue);
                     break;
-                case SubnauticaEncySplit s:
+                case SubnauticaEncySplit _:
                     BindCombo(setting.ComboBox, alpha ? encyEntriesAlpha.Value : encyEntries.Value, setting.ComboBox.SelectedValue);
                     break;
-                case SubnauticaBiomeSplit s:
+                case SubnauticaBiomeSplit _:
                     BindCombo(setting.ComboBox, alpha ? biomesAlpha.Value : biomes.Value, setting.ComboBox.SelectedValue);
                     BindCombo(setting.ComboBox2, alpha ? biomesAlpha.Value : biomes.Value, setting.ComboBox2.SelectedValue ?? setting.ComboBox.SelectedValue);
                     break;

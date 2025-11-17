@@ -15,7 +15,7 @@ namespace Livesplit.Subnautica.Settings
         public Func<SubnauticaSplitSetting> Func { get; set; }
         public SelectSplitType(SubnauticaSettings settings)
         {
-            InitializeComponent();           
+            InitializeComponent();
             var items = new List<SplitType>
             {
                 new SplitType { Text = "Prefabricated", Func = settings.CreatePrefabSplit },

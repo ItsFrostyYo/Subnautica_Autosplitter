@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.2.1.6">
+        <files>
+            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+        </files>
+        <changelog>
+        <change>Fix HCG Sparse Split</change>
+        </changelog>
+    </update>
     <update version="2.2.1.5">
         <files>
             <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
