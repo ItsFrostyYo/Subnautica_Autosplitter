@@ -1,4 +1,4 @@
-﻿namespace Livesplit.Subnautica.Settings
+﻿namespace LiveSplit.Subnautica.Settings
 {
     partial class SelectSplitType
     {
@@ -60,7 +60,7 @@
             this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.button1_Click);
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // btnOK
             // 
@@ -68,12 +68,13 @@
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 3;
-            this.btnOK.Text = "Ok";
+            this.btnOK.Text = "OK";
             this.btnOK.UseVisualStyleBackColor = true;
-            this.btnOK.Click += new System.EventHandler(this.button2_Click);
+            this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
             // SelectSplitType
             // 
+            this.AcceptButton = this.btnOK;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(330, 94);

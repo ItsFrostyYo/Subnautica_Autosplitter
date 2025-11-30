@@ -1,6 +1,6 @@
-﻿namespace Livesplit.Subnautica
+﻿namespace LiveSplit.Subnautica
 {
-    partial class SubnauticaBlueprintSplit
+    partial class SubnauticaItemSplit
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,15 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaBlueprintSplit));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaItemSplit));
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
-            this.cboBlueprint = new System.Windows.Forms.ComboBox();
+            this.cboItem = new System.Windows.Forms.ComboBox();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.picHandle = new System.Windows.Forms.PictureBox();
             this.l_name = new System.Windows.Forms.Label();
-            this.cbSplitOnce = new System.Windows.Forms.CheckBox();
-            this.BtnCondition = new System.Windows.Forms.Button();
+            this.BtnOptions = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,14 +58,14 @@
             this.btnRemove.TabIndex = 10;
             this.btnRemove.UseVisualStyleBackColor = true;
             // 
-            // cboBlueprint
+            // cboItem
             // 
-            this.cboBlueprint.FormattingEnabled = true;
-            this.cboBlueprint.Location = new System.Drawing.Point(29, 18);
-            this.cboBlueprint.Name = "cboBlueprint";
-            this.cboBlueprint.Size = new System.Drawing.Size(246, 21);
-            this.cboBlueprint.TabIndex = 9;
-            this.cboBlueprint.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
+            this.cboItem.FormattingEnabled = true;
+            this.cboItem.Location = new System.Drawing.Point(29, 18);
+            this.cboItem.Name = "cboItem";
+            this.cboItem.Size = new System.Drawing.Size(246, 21);
+            this.cboItem.TabIndex = 9;
+            this.cboItem.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
             // 
             // ToolTips
             // 
@@ -89,50 +88,36 @@
             this.l_name.AutoSize = true;
             this.l_name.Location = new System.Drawing.Point(26, 2);
             this.l_name.Name = "l_name";
-            this.l_name.Size = new System.Drawing.Size(48, 13);
+            this.l_name.Size = new System.Drawing.Size(51, 13);
             this.l_name.TabIndex = 18;
-            this.l_name.Text = "Blueprint";
+            this.l_name.Text = "Inventory";
             // 
-            // cbSplitOnce
+            // BtnOptions
             // 
-            this.cbSplitOnce.AutoSize = true;
-            this.cbSplitOnce.Checked = true;
-            this.cbSplitOnce.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbSplitOnce.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbSplitOnce.Location = new System.Drawing.Point(283, 18);
-            this.cbSplitOnce.Name = "cbSplitOnce";
-            this.cbSplitOnce.Size = new System.Drawing.Size(85, 20);
-            this.cbSplitOnce.TabIndex = 19;
-            this.cbSplitOnce.Text = "Split once";
-            this.cbSplitOnce.UseVisualStyleBackColor = true;
-            this.cbSplitOnce.CheckedChanged += new System.EventHandler(this.cbSplitOnce_CheckedChanged);
+            this.BtnOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnOptions.Location = new System.Drawing.Point(376, 16);
+            this.BtnOptions.Name = "BtnOptions";
+            this.BtnOptions.Size = new System.Drawing.Size(26, 23);
+            this.BtnOptions.TabIndex = 21;
+            this.BtnOptions.Text = "⚙";
+            this.BtnOptions.UseVisualStyleBackColor = true;
+            this.BtnOptions.Click += new System.EventHandler(this.BtnOptions_Click);
             // 
-            // BtnCondition
-            // 
-            this.BtnCondition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnCondition.Location = new System.Drawing.Point(374, 16);
-            this.BtnCondition.Name = "BtnCondition";
-            this.BtnCondition.Size = new System.Drawing.Size(26, 23);
-            this.BtnCondition.TabIndex = 21;
-            this.BtnCondition.Text = "▼";
-            this.BtnCondition.UseVisualStyleBackColor = true;
-            // 
-            // SubnauticaBlueprintSplit
+            // SubnauticaItemSplit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.BtnCondition);
-            this.Controls.Add(this.cbSplitOnce);
+            this.Controls.Add(this.BtnOptions);
             this.Controls.Add(this.l_name);
             this.Controls.Add(this.picHandle);
             this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.btnRemove);
-            this.Controls.Add(this.cboBlueprint);
+            this.Controls.Add(this.cboItem);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "SubnauticaBlueprintSplit";
+            this.Name = "SubnauticaItemSplit";
             this.Size = new System.Drawing.Size(469, 47);
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).EndInit();
             this.ResumeLayout(false);
@@ -143,11 +128,10 @@
         #endregion
         public System.Windows.Forms.Button btnEdit;
         public System.Windows.Forms.Button btnRemove;
-        public System.Windows.Forms.ComboBox cboBlueprint;
+        public System.Windows.Forms.ComboBox cboItem;
         private System.Windows.Forms.ToolTip ToolTips;
         private System.Windows.Forms.PictureBox picHandle;
         private System.Windows.Forms.Label l_name;
-        private System.Windows.Forms.CheckBox cbSplitOnce;
-        public System.Windows.Forms.Button BtnCondition;
+        public System.Windows.Forms.Button BtnOptions;
     }
 }

@@ -1,38 +1,56 @@
-﻿using System;
+﻿using LiveSplit.Subnautica.Settings;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public partial class SubnauticaItemSplit : SubnauticaSplitSetting
-    {
-        public ItemSplit _split = new ItemSplit(InventoryItem.None, true);
+    {        
+        public ItemSplit _split;
 
         private int mX = 0;
         private int mY = 0;
         private bool isDragging = false;
 
-        public SubnauticaItemSplit()
+        public SubnauticaItemSplit() : this(new ItemSplit(InventoryItem.None, onlySplitOnce: true, isSubCondition: false)) { }
+        public SubnauticaItemSplit(ItemSplit split)
         {
             InitializeComponent();
+
+            _split = split ?? new ItemSplit(InventoryItem.None, onlySplitOnce: true, isSubCondition: false);
+
             cboItem.DropDownStyle = ComboBoxStyle.DropDownList;
             cboItem.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
             cboItem.DisplayMember = "Display";
             cboItem.ValueMember = "Value";
         }
 
-        private void cboName_SelectedIndexChanged(object sender, EventArgs e)
+        private void BtnOptions_Click(object sender, EventArgs e)
         {
-            if (cboItem.SelectedValue is InventoryItem t)
-                _split.Item = t;
+            var splitSettings = new SubnauticaItemSplitSettings(_split);
+            var settings = new SplitSettingsDialog(splitSettings) { StartPosition = FormStartPosition.CenterParent };
+
+            if (settings.ShowDialog() == DialogResult.OK)
+            {
+                _split.OnlySplitOnce = splitSettings.OnlySplitOnce;
+                _split.PickUp = splitSettings.PickUp;
+                _split.Conditions = splitSettings.Splits;
+                _split.Count = splitSettings.Count;
+                _split.IsCount = splitSettings.IsCount;
+            }
         }
 
-        private void cbSplitOnce_CheckedChanged(object sender, EventArgs e)
+        private void cboName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _split.OnlySplitOnce = cbSplitOnce.Checked;
+            if (IsLoading)
+                return;
+
+            if (cboItem.SelectedValue is InventoryItem t)
+                _split.Item = t;
         }
 
         private void picHandle_MouseMove(object sender, MouseEventArgs e)
@@ -61,7 +79,6 @@ namespace Livesplit.Subnautica
         }
 
         public override ComboBox ComboBox => this.cboItem;
-        public override CheckBox CbSplitOnce => this.cbSplitOnce;
         public override Button BtnEdit => this.btnEdit;
         public override Button BtnRemove => this.btnRemove;
         public override SplitName SplitName => SplitName.Inventory;
@@ -71,13 +88,18 @@ namespace Livesplit.Subnautica
     public class ItemSplit : SubnauticaSplit
     {
         public InventoryItem Item { get; set; }
+        public bool PickUp { get; set; } = true;
+        public int Count { get; set; } = 1;
+        public bool IsCount { get; set; }
 
-        public ItemSplit(InventoryItem item, bool onlySplitOnce)
+        public ItemSplit(InventoryItem item, bool onlySplitOnce, bool isSubCondition)
         {
             Item = item;
             this.OnlySplitOnce = onlySplitOnce;
             this.SplitName = SplitName.Inventory;
+            this.IsSubCondition = isSubCondition;
         }
-        public override string GetDescription() => $"{Localization.GetDisplayName(Item)} in Inventory Split";
+        public override string GetDescription() => 
+            PickUp ? $"Pickup {Localization.GetDisplayName(Item)} Split" : $"Drop {Localization.GetDisplayName(Item)} Split";
     }
 }

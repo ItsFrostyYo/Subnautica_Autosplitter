@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public enum PDATab
     {

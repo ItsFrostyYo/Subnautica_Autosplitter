@@ -1,4 +1,4 @@
-﻿namespace Livesplit.Subnautica
+﻿namespace LiveSplit.Subnautica
 {
     partial class SubnauticaSettings
     {
@@ -46,8 +46,8 @@
             this.chkCreativeStart = new System.Windows.Forms.CheckBox();
             this.chkIntroStart = new System.Windows.Forms.CheckBox();
             this.SortBy_GroupBox = new System.Windows.Forms.GroupBox();
-            this.rdAlpha = new System.Windows.Forms.RadioButton();
-            this.rdType = new System.Windows.Forms.RadioButton();
+            this.RdAlpha = new System.Windows.Forms.RadioButton();
+            this.RdType = new System.Windows.Forms.RadioButton();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
@@ -94,6 +94,8 @@
             this.flowMain.DragDrop += new System.Windows.Forms.DragEventHandler(this.flowMain_DragDrop);
             this.flowMain.DragEnter += new System.Windows.Forms.DragEventHandler(this.flowMain_DragEnter);
             this.flowMain.DragOver += new System.Windows.Forms.DragEventHandler(this.flowMain_DragOver);
+            this.flowMain.DragLeave += new System.EventHandler(this.flowMain_DragLeave);
+            this.flowMain.Paint += new System.Windows.Forms.PaintEventHandler(this.flowMain_Paint);
             // 
             // flowOptions
             // 
@@ -211,7 +213,7 @@
             this.btnAddSplit.TabIndex = 0;
             this.btnAddSplit.Text = "Add Split";
             this.btnAddSplit.UseVisualStyleBackColor = true;
-            this.btnAddSplit.Click += new System.EventHandler(this.btnAddSplit_Click);
+            this.btnAddSplit.Click += new System.EventHandler(this.BtnAddSplit_Click);
             // 
             // StartReset_GroupBox
             // 
@@ -273,8 +275,8 @@
             // 
             // SortBy_GroupBox
             // 
-            this.SortBy_GroupBox.Controls.Add(this.rdAlpha);
-            this.SortBy_GroupBox.Controls.Add(this.rdType);
+            this.SortBy_GroupBox.Controls.Add(this.RdAlpha);
+            this.SortBy_GroupBox.Controls.Add(this.RdType);
             this.SortBy_GroupBox.Location = new System.Drawing.Point(6, 15);
             this.SortBy_GroupBox.Name = "SortBy_GroupBox";
             this.SortBy_GroupBox.Size = new System.Drawing.Size(116, 81);
@@ -282,29 +284,29 @@
             this.SortBy_GroupBox.TabStop = false;
             this.SortBy_GroupBox.Text = "Sort Split Selects By";
             // 
-            // rdAlpha
+            // RdAlpha
             // 
-            this.rdAlpha.AutoSize = true;
-            this.rdAlpha.Checked = true;
-            this.rdAlpha.Location = new System.Drawing.Point(6, 42);
-            this.rdAlpha.Name = "rdAlpha";
-            this.rdAlpha.Size = new System.Drawing.Size(83, 17);
-            this.rdAlpha.TabIndex = 3;
-            this.rdAlpha.TabStop = true;
-            this.rdAlpha.Text = "Alphabetical";
-            this.rdAlpha.UseVisualStyleBackColor = true;
-            this.rdAlpha.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
+            this.RdAlpha.AutoSize = true;
+            this.RdAlpha.Checked = true;
+            this.RdAlpha.Location = new System.Drawing.Point(6, 42);
+            this.RdAlpha.Name = "RdAlpha";
+            this.RdAlpha.Size = new System.Drawing.Size(83, 17);
+            this.RdAlpha.TabIndex = 3;
+            this.RdAlpha.TabStop = true;
+            this.RdAlpha.Text = "Alphabetical";
+            this.RdAlpha.UseVisualStyleBackColor = true;
+            this.RdAlpha.CheckedChanged += new System.EventHandler(this.RdSort_CheckedChanged);
             // 
-            // rdType
+            // RdType
             // 
-            this.rdType.AutoSize = true;
-            this.rdType.Location = new System.Drawing.Point(6, 19);
-            this.rdType.Name = "rdType";
-            this.rdType.Size = new System.Drawing.Size(49, 17);
-            this.rdType.TabIndex = 2;
-            this.rdType.Text = "Type";
-            this.rdType.UseVisualStyleBackColor = true;
-            this.rdType.CheckedChanged += new System.EventHandler(this.radio_CheckedChanged);
+            this.RdType.AutoSize = true;
+            this.RdType.Location = new System.Drawing.Point(6, 19);
+            this.RdType.Name = "RdType";
+            this.RdType.Size = new System.Drawing.Size(49, 17);
+            this.RdType.TabIndex = 2;
+            this.RdType.Text = "Type";
+            this.RdType.UseVisualStyleBackColor = true;
+            this.RdType.CheckedChanged += new System.EventHandler(this.RdSort_CheckedChanged);
             // 
             // ToolTips
             // 
@@ -350,8 +352,8 @@
         private System.Windows.Forms.Button btnAddSplit;
         private System.Windows.Forms.GroupBox StartReset_GroupBox;
         private System.Windows.Forms.GroupBox SortBy_GroupBox;
-        private System.Windows.Forms.RadioButton rdAlpha;
-        private System.Windows.Forms.RadioButton rdType;
+        private System.Windows.Forms.RadioButton RdAlpha;
+        private System.Windows.Forms.RadioButton RdType;
         private System.Windows.Forms.CheckBox chkCreativeStart;
         private System.Windows.Forms.CheckBox chkIntroStart;
         private System.Windows.Forms.ToolTip ToolTips;

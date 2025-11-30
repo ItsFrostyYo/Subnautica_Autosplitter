@@ -1,4 +1,4 @@
-﻿namespace Livesplit.Subnautica
+﻿namespace LiveSplit.Subnautica
 {
     public enum InventoryItem
     {

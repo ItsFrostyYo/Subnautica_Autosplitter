@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public class SubnauticaSplitSetting : UserControl
     {
+        public Func<bool> IsLoadingGetter { get; set; }
+        public bool IsLoading => IsLoadingGetter?.Invoke() ?? false;
+        public bool IsSubCondition { get; set; } = false;
         public virtual ComboBox ComboBox { get; }
         public virtual ComboBox ComboBox2 { get; }
-        public virtual CheckBox CbSplitOnce { get; }
         public virtual Button BtnEdit { get; }
         public virtual Button BtnRemove { get; }
         public virtual SplitName SplitName { get; }
@@ -79,20 +81,37 @@ namespace Livesplit.Subnautica
             }
             return Biome.None;
         }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if (e.Button == MouseButtons.Left)
+                DoDragDrop(this, DragDropEffects.Move);
+        }
     }    
     
     public class SubnauticaSplit
     {
         public SplitName SplitName { get; set; }
         public bool OnlySplitOnce { get; set; }
+        public bool IsSubCondition { get; set; }
+        public List<SubnauticaSplit> Conditions { get; set; } = new List<SubnauticaSplit>();
         public virtual string GetDescription() => "Split";
+        public virtual SubnauticaSplit DeepCopy()
+        {
+            var copy = (SubnauticaSplit)this.MemberwiseClone();
+            copy.Conditions = Conditions?.Select(c => c.DeepCopy()).ToList() ?? new List<SubnauticaSplit>();
+
+            return copy;
+        }
     }
 
     public enum SplitName
     {
         [Description("None"), ToolTip("None")]
         None,
-        [Description("Inventory Split"), ToolTip("Splits when you have a certain item in the inventory")]
+        [Description("Inventory Split"), ToolTip("Splits when you pickup/drop a certain item")]
         Inventory,
         [Description("Blueprint Split"), ToolTip("Splits when you have a certain blueprint unlocked")]
         Blueprint,

@@ -7,8 +7,8 @@
     <ProjectGuid>{2C1210E7-0CE3-450E-95CE-27026BCDE375}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Livesplit.Subnautica</RootNamespace>
-    <AssemblyName>Livesplit.Subnautica</AssemblyName>
+    <RootNamespace>LiveSplit.Subnautica</RootNamespace>
+    <AssemblyName>LiveSplit.Subnautica</AssemblyName>
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -33,22 +33,27 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CustomFontDialog">
-      <HintPath>..\..\..\..\Downloads\Prime95\CustomFontDialog.dll</HintPath>
+    <Reference Include="CustomFontDialog, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.34\CustomFontDialog.dll</HintPath>
     </Reference>
     <Reference Include="LiveSplit.Core">
       <HintPath>F:\Programms\LiveSplit_1.8.33\LiveSplit.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.34\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\Programms\LiveSplit_1.8.35\System.Memory.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.34\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\Programms\LiveSplit_1.8.35\System.Text.Json.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\LiveSplit_1.8.34\System.Text.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -91,46 +96,85 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SelectSplitType.cs">
+    <Compile Include="Settings\BiomeSplit\SubnauticaBiomeSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\BiomeSplit\SubnauticaBiomeSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaBiomeSplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\BlueprintSplit\SubnauticaBlueprintSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\BlueprintSplit\SubnauticaBlueprintSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaBlueprintSplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\EncySplit\SubnauticaEncySplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\EncySplit\SubnauticaEncySplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaEncySplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ItemSplit\SubnauticaItemSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\ItemSplit\SubnauticaItemSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaItemSplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\Dialogs\SplitSettingsDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Settings\SelectSplitType.Designer.cs">
+    <Compile Include="Settings\Dialogs\SplitSettingsDialog.Designer.cs">
+      <DependentUpon>SplitSettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\Dialogs\SelectSplitType.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings\Dialogs\SelectSplitType.Designer.cs">
       <DependentUpon>SelectSplitType.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SplitGenerator.cs">
+    <Compile Include="Settings\PrefabSplit\SubnauticaPrefabSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\PrefabSplit\SubnauticaPrefabSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaPrefabSplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SubnauticaBaseSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\Dialogs\SplitGenerator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Settings\SplitGenerator.Designer.cs">
+    <Compile Include="Settings\Dialogs\SplitGenerator.Designer.cs">
       <DependentUpon>SplitGenerator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaBiomeSplit.cs">
+    <Compile Include="Settings\BiomeSplit\SubnauticaBiomeSplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaBiomeSplit.Designer.cs">
+    <Compile Include="Settings\BiomeSplit\SubnauticaBiomeSplit.Designer.cs">
       <DependentUpon>SubnauticaBiomeSplit.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaBlueprintSplit.cs">
+    <Compile Include="Settings\BlueprintSplit\SubnauticaBlueprintSplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaBlueprintSplit.Designer.cs">
+    <Compile Include="Settings\BlueprintSplit\SubnauticaBlueprintSplit.Designer.cs">
       <DependentUpon>SubnauticaBlueprintSplit.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaEncySplit.cs">
+    <Compile Include="Settings\EncySplit\SubnauticaEncySplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaEncySplit.Designer.cs">
+    <Compile Include="Settings\EncySplit\SubnauticaEncySplit.Designer.cs">
       <DependentUpon>SubnauticaEncySplit.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaItemSplit.cs">
+    <Compile Include="Settings\ItemSplit\SubnauticaItemSplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaItemSplit.Designer.cs">
+    <Compile Include="Settings\ItemSplit\SubnauticaItemSplit.Designer.cs">
       <DependentUpon>SubnauticaItemSplit.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings\SubnauticaPrefabSplit.cs">
+    <Compile Include="Settings\PrefabSplit\SubnauticaPrefabSplit.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Settings\SubnauticaPrefabSplit.Designer.cs">
+    <Compile Include="Settings\PrefabSplit\SubnauticaPrefabSplit.Designer.cs">
       <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings\SubnauticaSplitSetting.cs">
@@ -171,25 +215,43 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SelectSplitType.resx">
+    <EmbeddedResource Include="Settings\BiomeSplit\SubnauticaBiomeSplitSettings.resx">
+      <DependentUpon>SubnauticaBiomeSplitSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\BlueprintSplit\SubnauticaBlueprintSplitSettings.resx">
+      <DependentUpon>SubnauticaBlueprintSplitSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\EncySplit\SubnauticaEncySplitSettings.resx">
+      <DependentUpon>SubnauticaEncySplitSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\ItemSplit\SubnauticaItemSplitSettings.resx">
+      <DependentUpon>SubnauticaItemSplitSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\Dialogs\SplitSettingsDialog.resx">
+      <DependentUpon>SplitSettingsDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\Dialogs\SelectSplitType.resx">
       <DependentUpon>SelectSplitType.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaBiomeSplit.resx">
+    <EmbeddedResource Include="Settings\BiomeSplit\SubnauticaBiomeSplit.resx">
       <DependentUpon>SubnauticaBiomeSplit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaBlueprintSplit.resx">
+    <EmbeddedResource Include="Settings\BlueprintSplit\SubnauticaBlueprintSplit.resx">
       <DependentUpon>SubnauticaBlueprintSplit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaEncySplit.resx">
+    <EmbeddedResource Include="Settings\EncySplit\SubnauticaEncySplit.resx">
       <DependentUpon>SubnauticaEncySplit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\PrefabSplit\SubnauticaPrefabSplitSettings.resx">
+      <DependentUpon>SubnauticaPrefabSplitSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\SubnauticaSettings.resx">
       <DependentUpon>SubnauticaSettings.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaItemSplit.resx">
+    <EmbeddedResource Include="Settings\ItemSplit\SubnauticaItemSplit.resx">
       <DependentUpon>SubnauticaItemSplit.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Settings\SubnauticaPrefabSplit.resx">
+    <EmbeddedResource Include="Settings\PrefabSplit\SubnauticaPrefabSplit.resx">
       <DependentUpon>SubnauticaPrefabSplit.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
@@ -203,8 +265,6 @@
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1_cattrs.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v2.txt" />
     <EmbeddedResource Include="Resources\EncyMappingMarch2023.txt" />
-    <Content Include="Splits\Presets.xml" />
-    <Content Include="Splits\Splits.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

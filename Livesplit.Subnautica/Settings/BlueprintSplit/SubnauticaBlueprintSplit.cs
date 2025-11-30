@@ -5,34 +5,48 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public partial class SubnauticaBlueprintSplit : SubnauticaSplitSetting
     {
-        public BlueprintSplit _split = new BlueprintSplit(Unlockable.None, true);
+        public BlueprintSplit _split;
 
         private int mX = 0;
         private int mY = 0;
         private bool isDragging = false;
 
-        public SubnauticaBlueprintSplit()
+        public SubnauticaBlueprintSplit() : this(new BlueprintSplit(Unlockable.None, onlySplitOnce: true, isSubCondition: false)) { }
+        public SubnauticaBlueprintSplit(BlueprintSplit blueprintSplit)
         {
             InitializeComponent();
+
+            _split = blueprintSplit ?? new BlueprintSplit(Unlockable.None, onlySplitOnce: true, isSubCondition: false);
+
             cboBlueprint.DropDownStyle = ComboBoxStyle.DropDownList;
             cboBlueprint.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
             cboBlueprint.DisplayMember = "Display";
             cboBlueprint.ValueMember = "Value";
         }
 
-        private void cboName_SelectedIndexChanged(object sender, EventArgs e)
+        private void BtnOptions_Click(object sender, EventArgs e)
         {
-            if (cboBlueprint.SelectedValue is Unlockable u)
-                _split.Blueprint = u;
+            var splitSettings = new SubnauticaBlueprintSplitSettings(_split);
+            var settings = new SplitSettingsDialog(splitSettings) { StartPosition = FormStartPosition.CenterParent };
+
+            if (settings.ShowDialog() == DialogResult.OK)
+            {
+                _split.OnlySplitOnce = splitSettings.OnlySplitOnce;
+                _split.Conditions = splitSettings.Splits;
+            }
         }
 
-        private void cbSplitOnce_CheckedChanged(object sender, EventArgs e)
+        private void cboName_SelectedIndexChanged(object sender, EventArgs e)
         {
-            _split.OnlySplitOnce = cbSplitOnce.Checked;
+            if (IsLoading)
+                return;
+
+            if (cboBlueprint.SelectedValue is Unlockable u)
+                _split.Blueprint = u;
         }
 
         private void picHandle_MouseMove(object sender, MouseEventArgs e)
@@ -61,7 +75,6 @@ namespace Livesplit.Subnautica
         }
 
         public override ComboBox ComboBox => this.cboBlueprint;
-        public override CheckBox CbSplitOnce => this.cbSplitOnce;
         public override Button BtnEdit => this.btnEdit;
         public override Button BtnRemove => this.btnRemove;
         public override SplitName SplitName => SplitName.Blueprint;
@@ -72,11 +85,12 @@ namespace Livesplit.Subnautica
     {
         public Unlockable Blueprint { get; set; }
 
-        public BlueprintSplit(Unlockable bp, bool onlySplitOnce)
+        public BlueprintSplit(Unlockable bp, bool onlySplitOnce, bool isSubCondition)
         {
             Blueprint = bp;
             this.OnlySplitOnce = onlySplitOnce;
             this.SplitName = SplitName.Blueprint;
+            this.IsSubCondition = isSubCondition;
         }
         public override string GetDescription() => $"{Localization.GetDisplayName(Blueprint)} unlock Split";
     }

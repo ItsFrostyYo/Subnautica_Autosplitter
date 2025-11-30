@@ -17,16 +17,13 @@ using Voxif.Helpers.Unity;
 using Voxif.IO;
 using Voxif.Memory;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public class SubnauticaMemory : Memory
     {
         protected override string[] ProcessNames => new string[] { "Subnautica" };
 
-        public InventoryItem CurrentItemToCheck { get; set; }
-        public Unlockable CurrentBlueprintToCheck { get; set; }
-        public EncyEntry CurrentEncyEntryToCheck { get; set; }
-        public (Biome biome1, Biome biome2) CurrentBiomesToCheck { get; set; }
+        public Checks Checks;
 
         private IMonoHelper mono;
 
@@ -41,6 +38,7 @@ namespace Livesplit.Subnautica
         //string[] EncyMappingMarch2023;
 
         public readonly Dictionary<SplitName, Func<bool>> splitConditions;
+        public readonly Dictionary<SplitName, Func<bool>> subConditions;
 
         private SubnauticaSettings settings;
 
@@ -52,6 +50,8 @@ namespace Livesplit.Subnautica
         public Pointer<bool> RadiationFixed;
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
+        public Pointer<float> TimeToStartCountdown;
+        public Pointer<float> TimeToStartWarning;
         public Pointer<IntPtr> MainMenu;
         private Pointer<IntPtr> knowntechPtr;
         private Pointer<IntPtr> pdaMappingPtr;
@@ -134,16 +134,36 @@ namespace Livesplit.Subnautica
             };
 
             this.settings = settings;
-            
+
+            subConditions = new Dictionary<SplitName, Func<bool>>
+            {
+                { SplitName.Inventory,            () => !Checks.InvChecks.IsCount && PlayerInventory.ContainsKey(Checks.InvChecks.Item.ConvertTo<TechType>()) || Checks.InvChecks.IsCount && PlayerInventory.GetCount(Checks.InvChecks.Item.ConvertTo<TechType>()) == Checks.InvChecks.Count },
+                { SplitName.Blueprint,            () => KnownTech.Contains(Checks.Blueprint.ConvertTo<TechType>()) },
+                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(Checks.EncyEntry) },
+                { SplitName.Biome,                () => string.Equals(BiomeString.New, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) || Checks.Biomes.Biome1 == Biome.Any },
+            };
+
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => PlayerInventory.GetCount(CurrentItemToCheck.ConvertTo<TechType>()) > PlayerInventoryOld.GetCount(CurrentItemToCheck.ConvertTo<TechType>()) },
-                { SplitName.Blueprint,            () => KnownTech.Contains(CurrentBlueprintToCheck.ConvertTo<TechType>()) && !KnownTechOld.Contains(CurrentBlueprintToCheck.ConvertTo<TechType>()) },
-                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(CurrentEncyEntryToCheck) && !EncyclopediaOld.Contains(CurrentEncyEntryToCheck) },
-                { SplitName.Biome,                () => (CurrentBiomesToCheck.biome1 == Biome.Any && CurrentBiomesToCheck.biome2 == Biome.Any && BiomeString.Changed) ||
-                                                        (CurrentBiomesToCheck.biome1 == Biome.Any && string.Equals(BiomeString.New, CurrentBiomesToCheck.biome2.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
-                                                        (CurrentBiomesToCheck.biome2 == Biome.Any && string.Equals(BiomeString.Old, CurrentBiomesToCheck.biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
-                                                        (string.Equals(BiomeString.New, CurrentBiomesToCheck.biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, CurrentBiomesToCheck.biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
+                { SplitName.Inventory,            () => { 
+                                                        var inv = Checks.InvChecks;
+                                                        var techType = inv.Item.ConvertTo<TechType>();
+
+                                                        int current  = PlayerInventory.GetCount(techType);
+                                                        int previous = PlayerInventoryOld.GetCount(techType);
+
+                                                        bool changedInRightDirection = inv.Pickup ? current > previous : current < previous;
+                                                        if (!inv.IsCount)
+                                                            return changedInRightDirection;
+
+                                                        return current == inv.Count && changedInRightDirection; 
+                                                        } },
+                { SplitName.Blueprint,            () => KnownTech.Contains(Checks.Blueprint.ConvertTo<TechType>()) && !KnownTechOld.Contains(Checks.Blueprint.ConvertTo<TechType>()) },
+                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(Checks.EncyEntry) && !EncyclopediaOld.Contains(Checks.EncyEntry) },
+                { SplitName.Biome,                () => (Checks.Biomes.Biome1 == Biome.Any && Checks.Biomes.Biome2 == Biome.Any && BiomeString.Changed) ||
+                                                        (Checks.Biomes.Biome1 == Biome.Any && string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
+                                                        (Checks.Biomes.Biome2 == Biome.Any && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
+                                                        (string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
@@ -369,6 +389,10 @@ namespace Livesplit.Subnautica
             #region RadiationFixed
             RadiationFixed = ptrFactory.Make<bool>("LeakingRadiation", "main", "radiationFixed");
             #endregion RadiationFixed
+            #region Explosion Time
+            TimeToStartCountdown = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartCountdown");
+            TimeToStartWarning = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartWarning");
+            #endregion Explosion Time
 
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
@@ -478,7 +502,22 @@ namespace Livesplit.Subnautica
                 UpdateEncyclopedia();
         }
         private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
-        private bool Needs(params SplitName[] required) => required.Any(r => settings.Splits.Select(s => s.SplitName).Contains(r));
+        private bool Needs(params SplitName[] required)
+        {
+            if (settings?.Splits == null || settings.Splits.Count == 0)
+                return false;
+
+            var usedSplitNames = new HashSet<SplitName>();
+
+            foreach (var split in settings.Splits)
+            {
+                usedSplitNames.Add(split.SplitName);
+
+                foreach (var conditionSplit in SubnauticaComponent.GetAllConditionSplits(split))
+                    usedSplitNames.Add(conditionSplit.SplitName);
+            }
+            return required.Any(usedSplitNames.Contains);
+        }
         #endregion Memory stuff
         #region World/Player Checks
         public bool IsInMainMenu() => posX.Current == 0 && posZ.Current == 0 && posY.Current == 1.75f;

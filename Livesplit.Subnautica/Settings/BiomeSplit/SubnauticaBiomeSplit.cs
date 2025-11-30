@@ -5,19 +5,34 @@ using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public partial class SubnauticaBiomeSplit : SubnauticaSplitSetting
     {
-        public BiomeSplit _split = new BiomeSplit((Biome.None, Biome.None), true);
+        public BiomeSplit _split;
 
         private int mX = 0;
         private int mY = 0;
         private bool isDragging = false;
 
-        public SubnauticaBiomeSplit()
+        public SubnauticaBiomeSplit() : this(new BiomeSplit((Biome.None, Biome.None), onlySplitOnce: true, isSubCondition: false)) { }
+        public SubnauticaBiomeSplit(BiomeSplit biomeSplit)
         {
             InitializeComponent();
+
+            _split = biomeSplit ?? new BiomeSplit((Biome.None, Biome.None), onlySplitOnce: true, isSubCondition: false);
+
+            if (_split.IsSubCondition)
+            {
+                ComboBox2.Visible = false;
+                pictureBox1.Visible = false;
+                picHandle.Left = 3;
+                picHandle.Top = 13;
+                btnEdit.Top = 16;
+                btnRemove.Top = 16;
+                BtnOptions.Top = 16;
+            }
+
             cboBiome1.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
             cboBiome1.DisplayMember = "Display";
             cboBiome1.ValueMember = "Value";
@@ -27,13 +42,23 @@ namespace Livesplit.Subnautica
             cboBiome2.ValueMember = "Value";
         }
 
-        private void cbSplitOnce_CheckedChanged(object sender, EventArgs e)
+        private void BtnOptions_Click(object sender, EventArgs e)
         {
-            _split.OnlySplitOnce = cbSplitOnce.Checked;
+            var splitSettings = new SubnauticaBiomeSplitSettings(_split);
+            var settings = new SplitSettingsDialog(splitSettings) { StartPosition = FormStartPosition.CenterParent };
+
+            if (settings.ShowDialog() == DialogResult.OK)
+            {
+                _split.OnlySplitOnce = splitSettings.OnlySplitOnce;
+                _split.Conditions = splitSettings.Splits;
+            }
         }
 
         private void cboBiome_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (IsLoading)
+                return;
+
             if (cboBiome1.SelectedValue is Biome biome1 && cboBiome2.SelectedValue is Biome biome2)
             {
                 _split.Biomes.Biome1 = biome1;
@@ -68,7 +93,6 @@ namespace Livesplit.Subnautica
 
         public override ComboBox ComboBox => this.cboBiome1;
         public override ComboBox ComboBox2 => this.cboBiome2;
-        public override CheckBox CbSplitOnce => this.cbSplitOnce;
         public override Button BtnEdit => this.btnEdit;
         public override Button BtnRemove => this.btnRemove;
         public override SplitName SplitName => SplitName.Biome;
@@ -79,11 +103,12 @@ namespace Livesplit.Subnautica
     {
         public (Biome Biome1, Biome Biome2) Biomes;
 
-        public BiomeSplit((Biome biome1, Biome biome2) biomes, bool onlySplitOnce)
+        public BiomeSplit((Biome biome1, Biome biome2) biomes, bool onlySplitOnce, bool isSubCondition)
         {
             Biomes.Biome1 = biomes.biome1;
             Biomes.Biome2 = biomes.biome2;
             this.OnlySplitOnce = onlySplitOnce;
+            this.IsSubCondition = isSubCondition;
             this.SplitName = SplitName.Biome;
         }
         public override string GetDescription() => $"From {Biomes.Biome1} to {Biomes.Biome2} Split";

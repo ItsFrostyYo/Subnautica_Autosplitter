@@ -8,12 +8,12 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public static class Localization
     {
         private static IReadOnlyDictionary<string, string> _translations = new Dictionary<string, string>();
-        private const string ResourcePath = "Livesplit.Subnautica.Resources.English.json";
+        private const string ResourcePath = "LiveSplit.Subnautica.Resources.English.json";
 
         private static string StripJsonComments(string s)
         {

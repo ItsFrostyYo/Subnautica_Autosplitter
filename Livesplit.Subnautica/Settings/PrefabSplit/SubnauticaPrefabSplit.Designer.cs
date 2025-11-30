@@ -1,6 +1,6 @@
-﻿namespace Livesplit.Subnautica
+﻿namespace LiveSplit.Subnautica
 {
-    partial class SubnauticaEncySplit
+    partial class SubnauticaPrefabSplit
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,15 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaEncySplit));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubnauticaPrefabSplit));
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
-            this.cboEncy = new System.Windows.Forms.ComboBox();
+            this.cboName = new System.Windows.Forms.ComboBox();
             this.ToolTips = new System.Windows.Forms.ToolTip(this.components);
-            this.picHandle = new System.Windows.Forms.PictureBox();
             this.l_name = new System.Windows.Forms.Label();
-            this.cbSplitOnce = new System.Windows.Forms.CheckBox();
-            this.BtnCondition = new System.Windows.Forms.Button();
+            this.picHandle = new System.Windows.Forms.PictureBox();
+            this.BtnOptions = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).BeginInit();
             this.SuspendLayout();
             // 
@@ -59,24 +58,34 @@
             this.btnRemove.TabIndex = 10;
             this.btnRemove.UseVisualStyleBackColor = true;
             // 
-            // cboEncy
+            // cboName
             // 
-            this.cboEncy.FormattingEnabled = true;
-            this.cboEncy.Location = new System.Drawing.Point(29, 18);
-            this.cboEncy.Name = "cboEncy";
-            this.cboEncy.Size = new System.Drawing.Size(246, 21);
-            this.cboEncy.TabIndex = 9;
-            this.cboEncy.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
+            this.cboName.FormattingEnabled = true;
+            this.cboName.Location = new System.Drawing.Point(29, 18);
+            this.cboName.Name = "cboName";
+            this.cboName.Size = new System.Drawing.Size(246, 21);
+            this.cboName.TabIndex = 9;
+            this.cboName.SelectedIndexChanged += new System.EventHandler(this.cboName_SelectedIndexChanged);
             // 
             // ToolTips
             // 
             this.ToolTips.ShowAlways = true;
             // 
+            // l_name
+            // 
+            this.l_name.AutoSize = true;
+            this.l_name.Location = new System.Drawing.Point(26, 2);
+            this.l_name.Name = "l_name";
+            this.l_name.Size = new System.Drawing.Size(70, 13);
+            this.l_name.TabIndex = 17;
+            this.l_name.Text = "Prefabricated";
+            // 
             // picHandle
             // 
+            this.picHandle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.picHandle.Cursor = System.Windows.Forms.Cursors.SizeAll;
             this.picHandle.Image = ((System.Drawing.Image)(resources.GetObject("picHandle.Image")));
-            this.picHandle.Location = new System.Drawing.Point(3, 12);
+            this.picHandle.Location = new System.Drawing.Point(3, 13);
             this.picHandle.Name = "picHandle";
             this.picHandle.Size = new System.Drawing.Size(20, 20);
             this.picHandle.TabIndex = 15;
@@ -84,55 +93,32 @@
             this.picHandle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseDown);
             this.picHandle.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picHandle_MouseMove);
             // 
-            // l_name
+            // BtnOptions
             // 
-            this.l_name.AutoSize = true;
-            this.l_name.Location = new System.Drawing.Point(26, 2);
-            this.l_name.Name = "l_name";
-            this.l_name.Size = new System.Drawing.Size(71, 13);
-            this.l_name.TabIndex = 18;
-            this.l_name.Text = "Encyclopedia";
+            this.BtnOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.BtnOptions.Location = new System.Drawing.Point(376, 16);
+            this.BtnOptions.Name = "BtnOptions";
+            this.BtnOptions.Size = new System.Drawing.Size(26, 23);
+            this.BtnOptions.TabIndex = 21;
+            this.BtnOptions.Text = "⚙";
+            this.BtnOptions.UseVisualStyleBackColor = true;
+            this.BtnOptions.Click += new System.EventHandler(this.BtnOptions_Click);
             // 
-            // cbSplitOnce
-            // 
-            this.cbSplitOnce.AutoSize = true;
-            this.cbSplitOnce.Checked = true;
-            this.cbSplitOnce.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbSplitOnce.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbSplitOnce.Location = new System.Drawing.Point(283, 18);
-            this.cbSplitOnce.Name = "cbSplitOnce";
-            this.cbSplitOnce.Size = new System.Drawing.Size(85, 20);
-            this.cbSplitOnce.TabIndex = 19;
-            this.cbSplitOnce.Text = "Split once";
-            this.cbSplitOnce.UseVisualStyleBackColor = true;
-            this.cbSplitOnce.CheckedChanged += new System.EventHandler(this.cbSplitOnce_CheckedChanged);
-            // 
-            // BtnCondition
-            // 
-            this.BtnCondition.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.BtnCondition.Location = new System.Drawing.Point(376, 16);
-            this.BtnCondition.Name = "BtnCondition";
-            this.BtnCondition.Size = new System.Drawing.Size(26, 23);
-            this.BtnCondition.TabIndex = 20;
-            this.BtnCondition.Text = "▼";
-            this.BtnCondition.UseVisualStyleBackColor = true;
-            // 
-            // SubnauticaEncySplit
+            // SubnauticaPrefabSplit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.Controls.Add(this.BtnCondition);
-            this.Controls.Add(this.cbSplitOnce);
+            this.Controls.Add(this.BtnOptions);
             this.Controls.Add(this.l_name);
             this.Controls.Add(this.picHandle);
             this.Controls.Add(this.btnEdit);
             this.Controls.Add(this.btnRemove);
-            this.Controls.Add(this.cboEncy);
+            this.Controls.Add(this.cboName);
             this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "SubnauticaEncySplit";
+            this.Name = "SubnauticaPrefabSplit";
             this.Size = new System.Drawing.Size(469, 47);
             ((System.ComponentModel.ISupportInitialize)(this.picHandle)).EndInit();
             this.ResumeLayout(false);
@@ -143,11 +129,10 @@
         #endregion
         public System.Windows.Forms.Button btnEdit;
         public System.Windows.Forms.Button btnRemove;
-        public System.Windows.Forms.ComboBox cboEncy;
+        public System.Windows.Forms.ComboBox cboName;
         private System.Windows.Forms.ToolTip ToolTips;
-        private System.Windows.Forms.PictureBox picHandle;
         private System.Windows.Forms.Label l_name;
-        private System.Windows.Forms.CheckBox cbSplitOnce;
-        public System.Windows.Forms.Button BtnCondition;
+        private System.Windows.Forms.PictureBox picHandle;
+        public System.Windows.Forms.Button BtnOptions;
     }
 }

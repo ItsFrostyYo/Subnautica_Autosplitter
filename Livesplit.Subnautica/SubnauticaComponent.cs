@@ -1,19 +1,21 @@
 ﻿using LiveSplit.Model;
+using LiveSplit.Options;
 using LiveSplit.Subnautica;
 using LiveSplit.UI.Components;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows.Forms;
 using Voxif.AutoSplitter;
 using Voxif.IO;
 
-namespace Livesplit.Subnautica
+namespace LiveSplit.Subnautica
 {
     public class SubnauticaComponent : Voxif.AutoSplitter.Component
     {
-        private SubnauticaMemory memory;
-        private LiveSplitState _state;
+        private readonly SubnauticaMemory memory;
+        private readonly LiveSplitState _state;
         private readonly TimerModel timerModel;
         public readonly HashSet<SubnauticaSplit> alreadySplit = new HashSet<SubnauticaSplit>();
 
@@ -35,7 +37,8 @@ namespace Livesplit.Subnautica
 
         public override bool Update()
         {
-            settings.UpdateExploBtnContent();
+            UpdateExploTime();
+
             if (!memory.Update() || !memory.pointersInitialized)
                 return false;
             TryResetOnMainMenu();
@@ -75,26 +78,31 @@ namespace Livesplit.Subnautica
 
             for (int i = 0; i < splits.Count; i++)
             {
-                if (settings.Ordered && i != alreadySplit.Count)
+                if (SubnauticaSettings.Ordered && i != alreadySplit.Count)
                     continue;
 
                 var split = splits[i];
 
-                memory.CurrentItemToCheck = InventoryItem.None;
-                memory.CurrentBlueprintToCheck = Unlockable.None;
-                memory.CurrentEncyEntryToCheck = EncyEntry.None;
-                memory.CurrentBiomesToCheck = (Biome.None, Biome.None);
+                memory.Checks = Checks.CreateDefault();
 
-                switch (split)
+                IEnumerable<SubnauticaSplit> conditionsSplits = GetAllConditionSplits(split);
+                bool allConditionsMet = true;
+
+                foreach (var conditionSplit in conditionsSplits)
                 {
-                    case ItemSplit itemSplit:    memory.CurrentItemToCheck      = itemSplit.Item;    break;
-                    case BlueprintSplit bpSplit: memory.CurrentBlueprintToCheck = bpSplit.Blueprint; break;
-                    case EncySplit encySplit:    memory.CurrentEncyEntryToCheck = encySplit.Entry;   break;
-                    case BiomeSplit biomeSplit:  memory.CurrentBiomesToCheck    = biomeSplit.Biomes; break;
-                    default: break;
+                    SetToSearchObjects(conditionSplit);
+                    if (memory.subConditions.TryGetValue(conditionSplit.SplitName, out var subCondition) && !subCondition())
+                    {
+                        allConditionsMet = false;
+                        break;
+                    }
                 }
 
-                if (memory.splitConditions.TryGetValue(split.SplitName, out var condition) && condition() && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
+                SetToSearchObjects(split);
+                if (allConditionsMet 
+                    && memory.splitConditions.TryGetValue(split.SplitName, out var condition) 
+                    && condition()
+                    && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
                 {
                     alreadySplit.Add(split);
                     logger.Log($"{split.GetDescription()} triggered");
@@ -102,6 +110,37 @@ namespace Livesplit.Subnautica
                 }
             }
             return false;
+        }
+
+        public static IEnumerable<SubnauticaSplit> GetAllConditionSplits(SubnauticaSplit split)
+        {
+            if (split?.Conditions == null)
+                yield break;
+
+            foreach (var c in split.Conditions.Where(c => c.IsSubCondition))
+            {
+                yield return c;
+
+                foreach (var nested in GetAllConditionSplits(c))
+                    yield return nested;
+            }
+        }
+
+        private void SetToSearchObjects(SubnauticaSplit split)
+        {
+            switch (split)
+            {
+                case ItemSplit itemSplit:
+                    memory.Checks.InvChecks.Item = itemSplit.Item;
+                    memory.Checks.InvChecks.Count = itemSplit.Count;
+                    memory.Checks.InvChecks.IsCount = itemSplit.IsCount;
+                    memory.Checks.InvChecks.Pickup = itemSplit.PickUp;
+                    break;
+                case BlueprintSplit bpSplit: memory.Checks.Blueprint = bpSplit.Blueprint; break;
+                case EncySplit encySplit: memory.Checks.EncyEntry = encySplit.Entry; break;
+                case BiomeSplit biomeSplit: memory.Checks.Biomes = biomeSplit.Biomes; break;
+                default: break;
+            }
         }
 
         public override bool Loading() => memory.ShouldPause();
@@ -157,5 +196,51 @@ namespace Livesplit.Subnautica
         {
             alreadySplit.Clear();
         }
+
+        private void UpdateExploTime()
+        {
+            string text = TimeSpan.FromSeconds(0).ToString(@"h\:mm\:ss");
+
+            if (memory.pointersInitialized)
+            {
+                float explosionTimeFloat = memory.TimeToStartCountdown.New - memory.TimeToStartWarning.New;
+                TimeSpan explosionTime = TimeSpan.FromSeconds(explosionTimeFloat);
+                text = explosionTime.ToString(@"h\:mm\:ss");
+            }
+
+            settings.UpdateTextComponent("Explosion Time", text);
+            settings.UpdateExploBtnContent();
+        }
+    }
+
+    public struct Checks
+    {
+        public InvChecks InvChecks;
+        public Unlockable Blueprint;
+        public EncyEntry EncyEntry;
+        public (Biome Biome1, Biome Biome2) Biomes;
+
+        public static Checks CreateDefault() =>
+            new Checks()
+            {
+                InvChecks = new InvChecks
+                {
+                    Item = InventoryItem.None,
+                    Pickup = false,
+                    Count = 1,
+                    IsCount = false,
+                },
+                Blueprint = Unlockable.None,
+                EncyEntry = EncyEntry.None,
+                Biomes = (Biome.None, Biome.None)
+            };
+    }
+
+    public struct InvChecks
+    {
+        public InventoryItem Item;
+        public bool Pickup;
+        public int Count;
+        public bool IsCount;
     }
 }
