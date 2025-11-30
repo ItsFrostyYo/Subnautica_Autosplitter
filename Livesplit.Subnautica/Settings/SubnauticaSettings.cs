@@ -25,7 +25,8 @@ namespace LiveSplit.Subnautica
         public bool Reset { get; set; }
         public bool AskForGoldSave { get; set; }
         public bool SRCLoadtimes { get; set; }
-        public static bool Ordered { get; set; }
+        public static bool OrderedLiveSplit { get; set; }
+        public static bool OrderedAutoSplits { get; set; }
 
         public override FlowLayoutPanel MainPanel => flowMain;
         public override FlowLayoutPanel Options => flowOptions;
@@ -146,7 +147,8 @@ namespace LiveSplit.Subnautica
             Reset = chkReset.Checked;
             AskForGoldSave = chkAskForGoldSave.Checked;
             SRCLoadtimes = chkSRCLoadtimes.Checked;
-            Ordered = cbOrdered.Checked;
+            OrderedLiveSplit = cbOrderedLiveSplit.Checked;
+            OrderedAutoSplits = cbOrderedAutoSplits.Checked;
 
             base.UpdateSplits();
         }
@@ -160,7 +162,8 @@ namespace LiveSplit.Subnautica
             AddBool(document, xmlSettings, "Reset", Reset);
             AddBool(document, xmlSettings, "AskForGoldSave", AskForGoldSave);
             AddBool(document, xmlSettings, "SRCLoadtimes", SRCLoadtimes);
-            AddBool(document, xmlSettings, "Ordered", Ordered);
+            AddBool(document, xmlSettings, "OrderedLiveSplit", OrderedLiveSplit);
+            AddBool(document, xmlSettings, "OrderedAutoSplits", OrderedAutoSplits);
 
             XmlElement xmlSplits = document.CreateElement("Splits");
             xmlSettings.AppendChild(xmlSplits);
@@ -239,7 +242,8 @@ namespace LiveSplit.Subnautica
                     Reset = ReadBool(settings, "Reset");
                     AskForGoldSave = ReadBool(settings, "AskForGoldSave");
                     SRCLoadtimes = ReadBool(settings, "SRCLoadtimes");
-                    Ordered = ReadBool(settings, "Ordered");
+                    OrderedLiveSplit = ReadBool(settings, "OrderedLiveSplit");
+                    OrderedAutoSplits = ReadBool(settings, "OrderedAutoSplits");
 
                     Splits.Clear();
                     foreach (XmlNode splitNode in splitsNode.SelectNodes("Split"))
@@ -334,7 +338,8 @@ namespace LiveSplit.Subnautica
             chkReset.Checked = Reset;
             chkAskForGoldSave.Checked = AskForGoldSave;
             chkSRCLoadtimes.Checked = SRCLoadtimes;
-            cbOrdered.Checked = Ordered;
+            cbOrderedLiveSplit.Checked = OrderedLiveSplit;
+            cbOrderedAutoSplits.Checked = OrderedAutoSplits;
 
             base.LoadSettings();
             IsLoading = false;
@@ -350,6 +355,22 @@ namespace LiveSplit.Subnautica
         {
             var n = root.SelectSingleNode($".//{name}");
             return n != null && bool.TryParse(n.InnerText, out var b) ? b : def;
+        }
+
+        private void cbOrderedLiveSplit_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbOrderedLiveSplit.Checked && cbOrderedAutoSplits.Checked)
+                cbOrderedAutoSplits.Checked = false;
+
+            ControlChanged(sender, e);
+        }
+
+        private void cbOrderedAutoSplits_CheckedChanged(object sender, EventArgs e)
+        {
+            if (cbOrderedAutoSplits.Checked && cbOrderedLiveSplit.Checked)
+                cbOrderedLiveSplit.Checked = false;
+
+            ControlChanged(sender, e);
         }
     }   
 }

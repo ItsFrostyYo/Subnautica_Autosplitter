@@ -45,7 +45,7 @@ namespace LiveSplit.Subnautica
             Count = split.Count;
             IsCount = split.IsCount;
 
-            ChkSplitOnce.Enabled = !(split.IsSubCondition || SubnauticaSettings.Ordered);
+            ChkSplitOnce.Enabled = !(split.IsSubCondition || SubnauticaSettings.OrderedLiveSplit || SubnauticaSettings.OrderedAutoSplits);
             RdPickUp.Enabled = !split.IsSubCondition;
             RdDrop.Enabled = !split.IsSubCondition;
 

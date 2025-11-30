@@ -78,7 +78,7 @@ namespace LiveSplit.Subnautica
 
             for (int i = 0; i < splits.Count; i++)
             {
-                if (SubnauticaSettings.Ordered && i != alreadySplit.Count)
+                if ((SubnauticaSettings.OrderedAutoSplits && i != alreadySplit.Count) || (SubnauticaSettings.OrderedLiveSplit && i != _state.CurrentSplitIndex))
                     continue;
 
                 var split = splits[i];
@@ -102,7 +102,7 @@ namespace LiveSplit.Subnautica
                 if (allConditionsMet 
                     && memory.splitConditions.TryGetValue(split.SplitName, out var condition) 
                     && condition()
-                    && !(split.OnlySplitOnce && alreadySplit.Contains(split)))
+                    && !(split.OnlySplitOnce && !SubnauticaSettings.OrderedAutoSplits && !SubnauticaSettings.OrderedLiveSplit && alreadySplit.Contains(split)))
                 {
                     alreadySplit.Add(split);
                     logger.Log($"{split.GetDescription()} triggered");

@@ -39,7 +39,7 @@ namespace LiveSplit.Subnautica
             Splits = split.Conditions != null ? split.Conditions.Select(c => c.DeepCopy()).ToList() : new List<SubnauticaSplit>();
             OnlySplitOnce = split.OnlySplitOnce;
 
-            if (split.IsSubCondition || SubnauticaSettings.Ordered)
+            if (split.IsSubCondition || SubnauticaSettings.OrderedLiveSplit || SubnauticaSettings.OrderedAutoSplits)
                 ChkSplitOnce.Enabled = false;
 
             LoadSettings();

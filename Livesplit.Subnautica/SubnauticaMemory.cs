@@ -174,11 +174,11 @@ namespace LiveSplit.Subnautica
                 { SplitName.FuelReservesSplit,    () => KnownTech.Contains(TechType.RocketStage3) && !KnownTechOld.Contains(TechType.RocketStage3) },
                 { SplitName.GunDeactivationSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(gunBounds) },
                 { SplitName.BaseDeathSplit,       () => Health.New <= 0 && Health.Old > 0 && (IsWithinBounds(deathClipABounds) || IsWithinBounds(deathClipCBounds)) },
-                { SplitName.LeaveKelpForestSplit, () => IsWithinBounds(teethBounds) && PlayerInventory.ContainsKey(TechType.CreepvinePiece) },
+                { SplitName.LeaveKelpForestSplit, () => IsWithinBounds(teethBounds) && !IsWithinBounds(teethBounds, old: true) && PlayerInventory.ContainsKey(TechType.CreepvinePiece) },
                 { SplitName.FourToothSplit,       () => PlayerInventory.GetCount(TechType.StalkerTooth) == 4 && PlayerInventoryOld.GetCount(TechType.StalkerTooth) != 4 },
                 { SplitName.AuroraDeathSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraBiomeSplit) && Health.New <= 0 && Health.Old > 0 && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.New)},
                 { SplitName.RocketUnlockSplit,    () => KnownTech.Contains(TechType.RocketBase) && !KnownTechOld.Contains(TechType.RocketBase) },
-                { SplitName.MountainDescendSplit, () => IsWithinBounds(mountainBounds) },
+                { SplitName.MountainDescendSplit, () => IsWithinBounds(mountainBounds) && !IsWithinBounds(mountainBounds, old: true) },
                 { SplitName.IonDeathSplit,        () => Health.New <= 0 && Health.Old > 0 && new[] { "Precursor_LavaCastleBase", "PrecursorThermalRoom" }.Contains(BiomeString.New) },
                 { SplitName.GunDeathSplit,        () => Health.New <= 0 && Health.Old > 0 && BiomeString.New == "Precursor_Gun_ControlRoom" },
                 { SplitName.SparseDeathSplit,     () => Health.New <= 0 && Health.Old > 0 && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(BiomeString.New) },
@@ -191,7 +191,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.AuroraBiomeSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(BiomeString.New) },
                 { SplitName.EyestalkSplit,        () => PlayerInventory.ContainsKey(TechType.EyesPlantSeed) && !PlayerInventoryOld.ContainsKey(TechType.EyesPlantSeed) },
                 { SplitName.IonUnlockSplit,       () => KnownTech.Contains(TechType.PrecursorIonBattery) && !KnownTechOld.Contains(TechType.PrecursorIonBattery) },
-                { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && KnownTech.Contains(TechType.RocketBase) },
+                { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && !IsWithinBounds(auroraExitBounds, old: true) && KnownTech.Contains(TechType.RocketBase) },
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
                 { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
@@ -560,11 +560,11 @@ namespace LiveSplit.Subnautica
             Encyclopedia = ReadPDAEncyMapping();
         }
 
-        private bool IsWithinBounds(float[] bounds)
+        private bool IsWithinBounds(float[] bounds, bool old = false)
         {
-            float x = posX.Current;
-            float y = posY.Current;
-            float z = posZ.Current;
+            float x = old ? posX.Current : posX.Old;
+            float y = old ? posY.Current : posY.Old;
+            float z = old ? posZ.Current : posZ.Old;
             if (x >= Math.Min(bounds[0], bounds[1]) && x <= Math.Max(bounds[0], bounds[1]) &&
                 y >= Math.Min(bounds[2], bounds[3]) && y <= Math.Max(bounds[2], bounds[3]) &&
                 z >= Math.Min(bounds[4], bounds[5]) && z <= Math.Max(bounds[4], bounds[5]))
