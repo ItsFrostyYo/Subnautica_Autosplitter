@@ -2,7 +2,7 @@
 <updates>
     <update version="2.3.0.0">
         <files>
-            <file path="Components/Livesplit.Subnautica.dll" status="changed"/>
+            <file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
         </files>
         <changelog>
         <change>Improve Ship Explosion Time</change>
