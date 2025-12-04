@@ -58,7 +58,9 @@ namespace LiveSplit.Subnautica
         private Pointer<IntPtr> goalsPtr;
         public Pointer<int> PDATab;
         public Pointer<int> GameMode;
+        public Pointer<int> CraftedNode;
         public StringPointer BiomeString;
+
 
 
         public Dictionary<TechType, int> PlayerInventory = new Dictionary<TechType, int>();
@@ -208,6 +210,8 @@ namespace LiveSplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
+
+            logger.Log((TechType)CraftedNode.New);
 
             return base.Update();
         }
@@ -393,6 +397,13 @@ namespace LiveSplit.Subnautica
             TimeToStartCountdown = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartCountdown");
             TimeToStartWarning = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartWarning");
             #endregion Explosion Time
+            #region Crafted Node
+            Pointer<IntPtr> uGUI_CraftingMenuPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "craftingMenu");
+            int off_craftedNode = mono.GetFieldOffset(mono.FindClass("uGUI_CraftingMenu"), "craftedNode");
+            //int off_techType = mono.GetFieldOffset(mono.FindClass("Node"), "techType");
+            Pointer<IntPtr> craftedNodePtr = ptrFactory.Make<IntPtr>(uGUI_CraftingMenuPtr, off_craftedNode);
+            CraftedNode = ptrFactory.Make<int>(craftedNodePtr, 0x34);
+            #endregion Crafted Node
 
             #region Memory Watchers
             DeepPointer loadingScreenPtr;
