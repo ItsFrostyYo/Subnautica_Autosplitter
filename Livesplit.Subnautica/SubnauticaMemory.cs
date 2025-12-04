@@ -158,7 +158,7 @@ namespace LiveSplit.Subnautica
                                                         if (!inv.IsCount)
                                                             return changedInRightDirection;
 
-                                                        return current == inv.Count && changedInRightDirection; 
+                                                        return current == inv.Count && changedInRightDirection;
                                                         } },
                 { SplitName.Blueprint,            () => KnownTech.Contains(Checks.Blueprint.ConvertTo<TechType>()) && !KnownTechOld.Contains(Checks.Blueprint.ConvertTo<TechType>()) },
                 { SplitName.Encyclopedia,         () => Encyclopedia.Contains(Checks.EncyEntry) && !EncyclopediaOld.Contains(Checks.EncyEntry) },
@@ -210,8 +210,6 @@ namespace LiveSplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-
-            logger.Log((TechType)CraftedNode.New);
 
             return base.Update();
         }
