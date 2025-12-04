@@ -562,9 +562,9 @@ namespace LiveSplit.Subnautica
 
         private bool IsWithinBounds(float[] bounds, bool old = false)
         {
-            float x = old ? posX.Current : posX.Old;
-            float y = old ? posY.Current : posY.Old;
-            float z = old ? posZ.Current : posZ.Old;
+            float x = old ? posX.Old : posX.Current;
+            float y = old ? posY.Old : posY.Current;
+            float z = old ? posZ.Old : posZ.Current;
             if (x >= Math.Min(bounds[0], bounds[1]) && x <= Math.Max(bounds[0], bounds[1]) &&
                 y >= Math.Min(bounds[2], bounds[3]) && y <= Math.Max(bounds[2], bounds[3]) &&
                 z >= Math.Min(bounds[4], bounds[5]) && z <= Math.Max(bounds[4], bounds[5]))
