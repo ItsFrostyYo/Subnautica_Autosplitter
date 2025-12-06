@@ -49,7 +49,7 @@ namespace LiveSplit.Subnautica
         public Pointer<bool> DamageEffectsShowing;
         public Pointer<bool> RocketLaunching;
         public Pointer<bool> RadiationFixed;        
-        public Pointer<bool> IsPlayerJumping;  // 2023 0x24      
+        public Pointer<bool> IsPlayerJumping;   
 
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
@@ -57,6 +57,7 @@ namespace LiveSplit.Subnautica
         public Pointer<float> TimeToStartWarning;
 
         public Pointer<IntPtr> MainMenu;
+        public Pointer<IntPtr> CraftingMenu;
         private Pointer<IntPtr> knowntechPtr;
         private Pointer<IntPtr> pdaMappingPtr;
         private Pointer<IntPtr> goalsPtr;
@@ -107,7 +108,6 @@ namespace LiveSplit.Subnautica
         public MemoryWatcher<bool> isPortalLoading = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isEggsHatching = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isNotInWater = new MemoryWatcher<bool>(IntPtr.Zero);
-        public MemoryWatcher<int> isFabiOpen = new MemoryWatcher<int>(IntPtr.Zero); // 2 means that the esc menu is open
         public MemoryWatcher<float> walkDir = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> strafeDir = new MemoryWatcher<float>(IntPtr.Zero);
         public MemoryWatcher<float> posX = new MemoryWatcher<float>(IntPtr.Zero);
@@ -216,8 +216,6 @@ namespace LiveSplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
-
-            logger.Log($"isJumping: {IsPlayerJumping.New} |||| isloading: {IsLoadingScreenShowing.New} |||| intro: {IsIntroCinematicActive.New}");
 
             return base.Update();
         }
@@ -408,7 +406,7 @@ namespace LiveSplit.Subnautica
             TimeToStartCountdown = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartCountdown");
             TimeToStartWarning = ptrFactory.Make<float>("CrashedShipExploder", "main", "timeToStartWarning");
             #endregion Explosion Time
-            #region Crafted Node
+            #region Crafted Menu/Node
             Pointer<IntPtr> uGUI_CraftingMenuPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "craftingMenu");
             int off_craftedNode = mono.GetFieldOffset(mono.FindClass("uGUI_CraftingMenu"), "craftedNode");
             Pointer<IntPtr> craftedNodePtr = ptrFactory.Make<IntPtr>(uGUI_CraftingMenuPtr, off_craftedNode);
@@ -418,7 +416,8 @@ namespace LiveSplit.Subnautica
             else
                 CraftedNode = ptrFactory.Make<int>(craftedNodePtr, 0x34);
 
-            #endregion Crafted Node
+            CraftingMenu = ptrFactory.Make<IntPtr>(uGUI_CraftingMenuPtr, mono.GetFieldOffset(mono.FindClass("uGUI_CraftingMenu"), "_client"));
+            #endregion Crafted Menu/Node
             #region Player Mode
             PlayerMode = ptrFactory.Make<int>("Player", "main", "mode");
             #endregion Player Mode
@@ -433,7 +432,6 @@ namespace LiveSplit.Subnautica
             DeepPointer portalLoadingPtr;
             DeepPointer hatchPtr;
             DeepPointer notInWaterPtr;
-            DeepPointer fabiPtr;
             DeepPointer walkDirPtr;
             DeepPointer strafePtr;
             DeepPointer posXPtr;
@@ -446,7 +444,6 @@ namespace LiveSplit.Subnautica
                     portalLoadingPtr = new DeepPointer("Subnautica.exe", 0x142B740, 0x8, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x304A30, 0x88, 0x18, 0x158, 0x498, 0x108);
                     notInWaterPtr = new DeepPointer("Subnautica.exe", 0x14BC6A0, 0x7C);
-                    fabiPtr = new DeepPointer("mono.dll", 0x296BC8, 0x20, 0xA58, 0x20);
                     walkDirPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0xA0);
                     strafePtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x158, 0x40, 0x160);
                     posXPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C0);
@@ -458,7 +455,6 @@ namespace LiveSplit.Subnautica
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x10, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x2CED70, 0x78, 0x18, 0x190, 0x4D8, 0xB0, 0x20, 0x28);
                     notInWaterPtr = new DeepPointer("UnityPlayer.dll", 0x18AB130, 0x48, 0x0, 0x68);
-                    fabiPtr = new DeepPointer("UnityPlayer.dll", 0x183BF48, 0x8, 0x10, 0x30, 0x30, 0x28, 0x128);
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x17FBC28, 0x30, 0x150);
                     posXPtr = new DeepPointer("UnityPlayer.dll", 0x1839CE0, 0x28, 0x10, 0x150, 0xA58);
@@ -470,7 +466,6 @@ namespace LiveSplit.Subnautica
             isPortalLoading = new MemoryWatcher<bool>(portalLoadingPtr);
             isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
-            isFabiOpen = new MemoryWatcher<int>(fabiPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
             posX = new MemoryWatcher<float>(posXPtr);
@@ -488,7 +483,6 @@ namespace LiveSplit.Subnautica
             {
                 walkDir.Update(game.Process);
                 strafeDir.Update(game.Process);
-                isFabiOpen.Update(game.Process);
             }
 
             isPortalLoading.Update(game.Process);

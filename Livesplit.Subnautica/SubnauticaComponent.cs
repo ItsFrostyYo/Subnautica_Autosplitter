@@ -39,7 +39,24 @@ namespace LiveSplit.Subnautica
         {
             UpdateExploTime();
 
-            if (!memory.Update() || !memory.pointersInitialized)
+            bool ok;
+
+            try
+            {
+                ok = memory.Update();
+            }
+            catch (Win32Exception ex)
+            {
+                logger.Log($"Win32Exception in memory.Update: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                logger.Log($"Unexpected exception in memory.Update: {ex}");
+                return false;
+            }
+
+            if (!ok || !memory.pointersInitialized)
                 return false;
 
             TryResetOnMainMenu();
@@ -65,8 +82,8 @@ namespace LiveSplit.Subnautica
                 // Start of Jump
                 if (memory.IsPlayerJumping.New && memory.IsPlayerJumping.Changed) { logger.Log("Start of Jump"); memory.startedTimerBefore = true; return true; }
 
-                // Start of Fabricator
-                if (memory.isFabiOpen.Current == 1 && memory.isFabiOpen.Old == 0) { logger.Log("Start of Fabricator"); memory.startedTimerBefore = true; return true; }
+                // Start of Crafting Menu
+                if (memory.CraftingMenu.New != IntPtr.Zero && memory.CraftingMenu.Old == IntPtr.Zero) { logger.Log("Start of Crafting Menu"); memory.startedTimerBefore = true; return true; }
 
                 // Start of PDA
                 if ((PDATab)memory.PDATab.New != PDATab.None && memory.PDATab.Changed) { logger.Log("Start of PDA"); memory.startedTimerBefore = true; return true; }
