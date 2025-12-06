@@ -16,6 +16,7 @@ namespace LiveSplit.Subnautica.Settings
         public SelectSplitType(SubnauticaBaseSettings settings, bool isSubCondition)
         {
             InitializeComponent();
+
             var items = new List<SplitType>
             {                
                 new SplitType { Text = "Inventory", Func = settings.CreateItemSplit },
@@ -23,7 +24,13 @@ namespace LiveSplit.Subnautica.Settings
                 new SplitType { Text = "Encyclopedia", Func = settings.CreateEncySplit },
                 new SplitType { Text = "Biome", Func = settings.CreateBiomeSplit },
             };
-            if (!isSubCondition) items.Add(new SplitType { Text = "Prefabricated", Func = settings.CreatePrefabSplit });
+
+            if (!isSubCondition)
+            {
+                items.Add(new SplitType { Text = "Prefabricated", Func = settings.CreatePrefabSplit });
+                items.Add(new SplitType { Text = "Craft", Func = settings.CreateCraftSplit });
+            }
+
             cboSplitType.DisplayMember = nameof(SplitType.Text);
             cboSplitType.ValueMember = nameof(SplitType.Func);
             cboSplitType.DataSource = items;

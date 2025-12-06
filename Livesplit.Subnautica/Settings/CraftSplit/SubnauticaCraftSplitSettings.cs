@@ -10,10 +10,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LiveSplit.Subnautica
 {
-    public partial class SubnauticaEncySplitSettings : SubnauticaBaseSettings
+    public partial class SubnauticaCraftSplitSettings : SubnauticaBaseSettings
     {
         public bool OnlySplitOnce { get; private set; }
 
@@ -31,7 +32,7 @@ namespace LiveSplit.Subnautica
         private void flowMain_DragOver(object sender, DragEventArgs e) => flowMainDragOver(sender, e);
         private void RdSort_CheckedChanged(object sender, EventArgs e) => RdSortCheckedChanged(sender, e);
 
-        public SubnauticaEncySplitSettings(EncySplit split)
+        public SubnauticaCraftSplitSettings(CraftSplit split)
         {
             InitializeComponent();
 

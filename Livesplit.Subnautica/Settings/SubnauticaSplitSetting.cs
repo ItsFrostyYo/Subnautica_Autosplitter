@@ -119,6 +119,8 @@ namespace LiveSplit.Subnautica
         Encyclopedia,
         [Description("Biome Split"), ToolTip("Splits when you have enter a certain biome from a certain biome")]
         Biome,
+        [Description("Craft Split"), ToolTip("Splits when you start crafting an item from a crafting menu")]
+        Craft,
         [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
         RocketSplit,
         [Description("Portal Split"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
@@ -181,6 +183,8 @@ namespace LiveSplit.Subnautica
         HCGSparseSplit,
         [Description("Reactor Core Repair Split"), ToolTip("Splits when you repair the aurora reactor core")]
         ReactorCoreRepairSplit,
+        /*[Description("Chair%"), ToolTip("Splits when you sit")]
+        ChairSplit,*/
     }
     public class ToolTipAttribute : Attribute
     {

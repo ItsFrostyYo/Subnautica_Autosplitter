@@ -41,7 +41,9 @@ namespace LiveSplit.Subnautica
 
             if (!memory.Update() || !memory.pointersInitialized)
                 return false;
+
             TryResetOnMainMenu();
+
             return true;
         }
 
@@ -55,10 +57,13 @@ namespace LiveSplit.Subnautica
             {
                 if (memory.DamageEffectsShowing.New && !memory.DamageEffectsShowing.Old) { logger.Log("Start of damageEffectsShowing"); memory.startedTimerBefore = true; return true; }
             }
-            if (settings.CreativeStart && !memory.isLoadingScreen.Current && !memory.isInMainMenu)
+            if (settings.CreativeStart && !memory.IsLoadingScreenShowing.New && !memory.IsIntroCinematicActive.New && !memory.isInMainMenu)
             {
                 // Start of Move
                 if ((memory.walkDir.Current != 0 && memory.walkDir.Old == 0) || (memory.strafeDir.Current != 0 && memory.strafeDir.Old == 0)) { logger.Log("Start of Move"); memory.startedTimerBefore = true; return true; }
+
+                // Start of Jump
+                if (memory.IsPlayerJumping.New && memory.IsPlayerJumping.Changed) { logger.Log("Start of Jump"); memory.startedTimerBefore = true; return true; }
 
                 // Start of Fabricator
                 if (memory.isFabiOpen.Current == 1 && memory.isFabiOpen.Old == 0) { logger.Log("Start of Fabricator"); memory.startedTimerBefore = true; return true; }
@@ -85,12 +90,12 @@ namespace LiveSplit.Subnautica
 
                 memory.Checks = Checks.CreateDefault();
 
-                IEnumerable<SubnauticaSplit> conditionsSplits = GetAllConditionSplits(split);
+                IEnumerable<SubnauticaSplit> conditionsSplits = GetAllConditions(split);
                 bool allConditionsMet = true;
 
                 foreach (var conditionSplit in conditionsSplits)
                 {
-                    SetToSearchObjects(conditionSplit);
+                    SetCheckObjects(conditionSplit);
                     if (memory.subConditions.TryGetValue(conditionSplit.SplitName, out var subCondition) && !subCondition())
                     {
                         allConditionsMet = false;
@@ -98,7 +103,7 @@ namespace LiveSplit.Subnautica
                     }
                 }
 
-                SetToSearchObjects(split);
+                SetCheckObjects(split);
                 if (allConditionsMet 
                     && memory.splitConditions.TryGetValue(split.SplitName, out var condition) 
                     && condition()
@@ -112,7 +117,7 @@ namespace LiveSplit.Subnautica
             return false;
         }
 
-        public static IEnumerable<SubnauticaSplit> GetAllConditionSplits(SubnauticaSplit split)
+        public static IEnumerable<SubnauticaSplit> GetAllConditions(SubnauticaSplit split)
         {
             if (split?.Conditions == null)
                 yield break;
@@ -121,12 +126,12 @@ namespace LiveSplit.Subnautica
             {
                 yield return c;
 
-                foreach (var nested in GetAllConditionSplits(c))
+                foreach (var nested in GetAllConditions(c))
                     yield return nested;
             }
         }
 
-        private void SetToSearchObjects(SubnauticaSplit split)
+        private void SetCheckObjects(SubnauticaSplit split)
         {
             switch (split)
             {
@@ -139,6 +144,7 @@ namespace LiveSplit.Subnautica
                 case BlueprintSplit bpSplit: memory.Checks.Blueprint = bpSplit.Blueprint; break;
                 case EncySplit encySplit: memory.Checks.EncyEntry = encySplit.Entry; break;
                 case BiomeSplit biomeSplit: memory.Checks.Biomes = biomeSplit.Biomes; break;
+                case CraftSplit craftSplit: memory.Checks.Craftable = craftSplit.Craftable; break;
                 default: break;
             }
         }
@@ -219,6 +225,7 @@ namespace LiveSplit.Subnautica
         public Unlockable Blueprint;
         public EncyEntry EncyEntry;
         public (Biome Biome1, Biome Biome2) Biomes;
+        public Craftable Craftable;
 
         public static Checks CreateDefault() =>
             new Checks()

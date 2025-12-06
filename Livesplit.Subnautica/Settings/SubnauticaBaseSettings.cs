@@ -126,7 +126,7 @@ namespace LiveSplit.Subnautica
         private static readonly StringComparer AlphaComparer = StringComparer.OrdinalIgnoreCase;
 
         public static readonly Lazy<IReadOnlyList<ComboItem<SplitName>>> Prefabs =
-            new Lazy<IReadOnlyList<ComboItem<SplitName>>>(() => BuildEnumList<SplitName>(5, e => e.GetDescription()));
+            new Lazy<IReadOnlyList<ComboItem<SplitName>>>(() => BuildEnumList<SplitName>(6, e => e.GetDescription()));
 
         public static readonly Lazy<IReadOnlyList<ComboItem<InventoryItem>>> Items =
             new Lazy<IReadOnlyList<ComboItem<InventoryItem>>>(() => BuildEnumList<InventoryItem>(1, e => Localization.GetDisplayName(e)));
@@ -139,6 +139,9 @@ namespace LiveSplit.Subnautica
 
         public static readonly Lazy<IReadOnlyList<ComboItem<Biome>>> Biomes =
             new Lazy<IReadOnlyList<ComboItem<Biome>>>(() => BuildEnumList<Biome>(1, e => Localization.GetDisplayName(e)));
+
+        public static readonly Lazy<IReadOnlyList<ComboItem<Craftable>>> Craftables =
+            new Lazy<IReadOnlyList<ComboItem<Craftable>>>(() => BuildEnumList<Craftable>(1, e => Localization.GetDisplayName(e)));
 
         public static readonly Lazy<IReadOnlyList<ComboItem<SplitName>>> PrefabAlpha =
             new Lazy<IReadOnlyList<ComboItem<SplitName>>>(() => Prefabs.Value.OrderBy(x => x.Display ?? string.Empty, AlphaComparer).ToList());
@@ -154,6 +157,9 @@ namespace LiveSplit.Subnautica
 
         public static readonly Lazy<IReadOnlyList<ComboItem<Biome>>> BiomesAlpha =
             new Lazy<IReadOnlyList<ComboItem<Biome>>>(() => Biomes.Value.OrderBy(x => x.Display ?? string.Empty, AlphaComparer).ToList());
+
+        public static readonly Lazy<IReadOnlyList<ComboItem<Craftable>>> CraftablesAlpha =
+            new Lazy<IReadOnlyList<ComboItem<Craftable>>>(() => Craftables.Value.OrderBy(x => x.Display ?? string.Empty, AlphaComparer).ToList());
 
         public void AddHandlers(SubnauticaSplitSetting setting)
         {
@@ -186,6 +192,9 @@ namespace LiveSplit.Subnautica
                     BindCombo(setting.ComboBox, alpha ? BiomesAlpha.Value : Biomes.Value, setting.ComboBox.SelectedValue);
                     BindCombo(setting.ComboBox2, alpha ? BiomesAlpha.Value : Biomes.Value, setting.ComboBox2.SelectedValue ?? setting.ComboBox.SelectedValue);
                     break;
+                case SubnauticaCraftSplit _:
+                    BindCombo(setting.ComboBox, alpha ? CraftablesAlpha.Value : Craftables.Value, setting.ComboBox.SelectedValue);
+                    break;
                 default:
                     BindCombo(setting.ComboBox, alpha ? PrefabAlpha.Value : Prefabs.Value, setting.ComboBox.SelectedValue);
                     break;
@@ -217,6 +226,7 @@ namespace LiveSplit.Subnautica
         public SubnauticaItemSplit CreateItemSplit(bool isSubCondition) => CreateSplit<SubnauticaItemSplit, InventoryItem>(Alpha.Checked ? ItemsAlpha.Value : Items.Value, s => s.cboItem, isSubCondition);
         public SubnauticaBlueprintSplit CreateBlueprintSplit(bool isSubCondition) => CreateSplit<SubnauticaBlueprintSplit, Unlockable>(Alpha.Checked ? BlueprintsAlpha.Value : Blueprints.Value, s => s.cboBlueprint, isSubCondition);
         public SubnauticaEncySplit CreateEncySplit(bool isSubCondition) => CreateSplit<SubnauticaEncySplit, EncyEntry>(Alpha.Checked ? EncyEntriesAlpha.Value : EncyEntries.Value, s => s.cboEncy, isSubCondition);
+        public SubnauticaCraftSplit CreateCraftSplit(bool isSubCondition) => CreateSplit<SubnauticaCraftSplit, Craftable>(Alpha.Checked ? CraftablesAlpha.Value : Craftables.Value, s => s.cboCraftables, isSubCondition);
         public SubnauticaBiomeSplit CreateBiomeSplit(bool isSubCondition)
         {
             var setting = new SubnauticaBiomeSplit();
@@ -353,6 +363,12 @@ namespace LiveSplit.Subnautica
                             ApplyDataSources(setting, Alpha.Checked);
                             setting.ComboBox.SelectedValue = ((BiomeSplit)setting.Split).Biomes.Biome1;
                             setting.ComboBox2.SelectedValue = ((BiomeSplit)setting.Split).Biomes.Biome2;
+                            break;
+
+                        case CraftSplit s:
+                            setting = new SubnauticaCraftSplit(s) { IsLoadingGetter = () => this.IsLoading };
+                            ApplyDataSources(setting, Alpha.Checked);
+                            setting.ComboBox.SelectedValue = ((CraftSplit)setting.Split).Craftable;
                             break;
 
                         case PrefabSplit s:
@@ -599,6 +615,8 @@ namespace LiveSplit.Subnautica
                 return (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaEncySplit));
             if (e.Data.GetDataPresent(typeof(SubnauticaBiomeSplit)))
                 return (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaBiomeSplit));
+            if (e.Data.GetDataPresent(typeof(SubnauticaCraftSplit)))
+                return (SubnauticaSplitSetting)e.Data.GetData(typeof(SubnauticaCraftSplit));
 
             return null;
         }

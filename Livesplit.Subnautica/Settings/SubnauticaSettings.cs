@@ -206,6 +206,9 @@ namespace LiveSplit.Subnautica
                 case BiomeSplit biomeSplit:
                     xmlValue.InnerText = $"{biomeSplit.Biomes.Biome1}:{biomeSplit.Biomes.Biome2}";
                     break;
+                case CraftSplit craftSplit:
+                    xmlValue.InnerText = craftSplit.Craftable.ToString();
+                    break;
                 default:
                     xmlValue.InnerText = split.SplitName.ToString();
                     break;
@@ -293,14 +296,17 @@ namespace LiveSplit.Subnautica
                             ((ItemSplit)split).Count = count;
                     }
                     break;
+
                 case SplitName.Blueprint:
                     var blueprint = SubnauticaSplitSetting.GetTechType(value);
                     split = new BlueprintSplit(blueprint.ConvertTo<Unlockable>(), onlySplitOnce, isSubCondition);                    
                     break;
+
                 case SplitName.Encyclopedia:
                     var encyEntry = SubnauticaSplitSetting.GetEncyEntry(value);
                     split = new EncySplit(encyEntry, onlySplitOnce, isSubCondition);
                     break;
+
                 case SplitName.Biome:
                     if (values.Length >= 2)
                     {
@@ -311,6 +317,12 @@ namespace LiveSplit.Subnautica
                     }
                     else return null;
                     break;
+
+                case SplitName.Craft:
+                    var craftable = SubnauticaSplitSetting.GetTechType(value);
+                    split = new CraftSplit(craftable.ConvertTo<Craftable>(), onlySplitOnce, isSubCondition);
+                    break;
+
                 default:
                     split = new PrefabSplit(splitName, onlySplitOnce, isSubCondition);
                     break;

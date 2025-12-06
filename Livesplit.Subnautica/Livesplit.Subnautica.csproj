@@ -68,11 +68,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums\Biome.cs" />
+    <Compile Include="Enums\Craftable.cs" />
     <Compile Include="Enums\EncyMapping2023.cs" />
     <Compile Include="Enums\GameModeOption.cs" />
     <Compile Include="Enums\InvItems.cs" />
     <Compile Include="Enums\PDATab.cs" />
     <Compile Include="Enums\GameVersion.cs" />
+    <Compile Include="Enums\PlayerMode.cs" />
     <Compile Include="Enums\Unlockable.cs" />
     <Compile Include="Localization.cs" />
     <Compile Include="ManualComponents\FontTextComponent.cs" />
@@ -107,6 +109,18 @@
     </Compile>
     <Compile Include="Settings\BlueprintSplit\SubnauticaBlueprintSplitSettings.Designer.cs">
       <DependentUpon>SubnauticaBlueprintSplitSettings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\CraftSplit\SubnauticaCraftSplit.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\CraftSplit\SubnauticaCraftSplit.Designer.cs">
+      <DependentUpon>SubnauticaCraftSplit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\CraftSplit\SubnauticaCraftSplitSettings.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Settings\CraftSplit\SubnauticaCraftSplitSettings.Designer.cs">
+      <DependentUpon>SubnauticaCraftSplitSettings.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings\EncySplit\SubnauticaEncySplitSettings.cs">
       <SubType>UserControl</SubType>
@@ -220,6 +234,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\BlueprintSplit\SubnauticaBlueprintSplitSettings.resx">
       <DependentUpon>SubnauticaBlueprintSplitSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\CraftSplit\SubnauticaCraftSplit.resx">
+      <DependentUpon>SubnauticaCraftSplit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings\CraftSplit\SubnauticaCraftSplitSettings.resx">
+      <DependentUpon>SubnauticaCraftSplitSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\EncySplit\SubnauticaEncySplitSettings.resx">
       <DependentUpon>SubnauticaEncySplitSettings.cs</DependentUpon>

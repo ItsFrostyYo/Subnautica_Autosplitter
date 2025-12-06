@@ -45,23 +45,28 @@ namespace LiveSplit.Subnautica
         #region Pointer stuff
         public Pointer<bool> IsIntroCinematicActive; // true in main menu sometimes
         public Pointer<bool> IsAnimationPlaying;
+        public Pointer<bool> IsLoadingScreenShowing;
         public Pointer<bool> DamageEffectsShowing;
         public Pointer<bool> RocketLaunching;
-        public Pointer<bool> RadiationFixed;
+        public Pointer<bool> RadiationFixed;        
+        public Pointer<bool> IsPlayerJumping;  // 2023 0x24      
+
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
         public Pointer<float> TimeToStartCountdown;
         public Pointer<float> TimeToStartWarning;
+
         public Pointer<IntPtr> MainMenu;
         private Pointer<IntPtr> knowntechPtr;
         private Pointer<IntPtr> pdaMappingPtr;
         private Pointer<IntPtr> goalsPtr;
+
         public Pointer<int> PDATab;
         public Pointer<int> GameMode;
         public Pointer<int> CraftedNode;
+        public Pointer<int> PlayerMode;
+
         public StringPointer BiomeString;
-
-
 
         public Dictionary<TechType, int> PlayerInventory = new Dictionary<TechType, int>();
         public Dictionary<TechType, int> PlayerInventoryOld = new Dictionary<TechType, int>();
@@ -99,7 +104,6 @@ namespace LiveSplit.Subnautica
         bool useLegacyDict = false;
         LegacyDictOffsets legacy_off;
 
-        public MemoryWatcher<bool> isLoadingScreen = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isPortalLoading = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isEggsHatching = new MemoryWatcher<bool>(IntPtr.Zero);
         public MemoryWatcher<bool> isNotInWater = new MemoryWatcher<bool>(IntPtr.Zero);
@@ -166,6 +170,7 @@ namespace LiveSplit.Subnautica
                                                         (Checks.Biomes.Biome1 == Biome.Any && string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
                                                         (Checks.Biomes.Biome2 == Biome.Any && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
                                                         (string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
+                { SplitName.Craft,                () =>  string.Equals(Checks.Craftable.ToString(), ((TechType)CraftedNode.New).ToString(), StringComparison.OrdinalIgnoreCase) && CraftedNode.Changed },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
@@ -197,12 +202,13 @@ namespace LiveSplit.Subnautica
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
                 { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
+                //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
             };
         }
 
         public override bool Update()
         {
-            if(!pointersInitialized)
+            if(!pointersInitialized || game == null)
                 return base.Update();
 
             UpdateMemoryWatchers();
@@ -210,6 +216,8 @@ namespace LiveSplit.Subnautica
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
                 startedTimerBefore = false;
+
+            logger.Log($"isJumping: {IsPlayerJumping.New} |||| isloading: {IsLoadingScreenShowing.New} |||| intro: {IsIntroCinematicActive.New}");
 
             return base.Update();
         }
@@ -247,6 +255,7 @@ namespace LiveSplit.Subnautica
             this.mono = mono;
             var ptrFactory = new MonoNestedPointerFactory(game, mono);
 
+
             #region Intro Cinematic
             Pointer<IntPtr> introCinematicPtr = ptrFactory.Make<IntPtr>("EscapePod", "main", "introCinematic");
             IntPtr pccKlass = mono.FindClass("PlayerCinematicController");
@@ -256,6 +265,11 @@ namespace LiveSplit.Subnautica
             #region Is Animation Playing
             IsAnimationPlaying = ptrFactory.Make<bool>("Player", "main", "_cinematicModeActive");
             #endregion Is Animation Playing
+            #region IsLoadingScreenShowing
+            Pointer<IntPtr> uGUI_SceneLoadingPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "loading");
+            int off_isLoading = mono.GetFieldOffset(mono.FindClass("uGUI_SceneLoading"), "isLoading");
+            IsLoadingScreenShowing = ptrFactory.Make<bool>(uGUI_SceneLoadingPtr, off_isLoading);
+            #endregion IsLoadingScreenShowing
             #region Time Cured
             TimeCured = ptrFactory.Make<float>("Player", "main", "timePlayerInfectionCured");
             #endregion
@@ -327,7 +341,6 @@ namespace LiveSplit.Subnautica
                     //  force legacy on 2018
                     if (gameVersion == GameVersion.Sept2018)
                     {
-                        // resolve legacy offsets and bail out of entries logic
                         int off_table = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "table" }, s => s.IndexOf("table", StringComparison.OrdinalIgnoreCase) >= 0);
                         int off_linkSlots = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "linkSlots" }, s => s.IndexOf("link", StringComparison.OrdinalIgnoreCase) >= 0);
                         int off_keySlots = unity.ResolveFieldOffsetByNameOrPredicate(dictKlass, new[] { "keySlots" }, s => s.IndexOf("key", StringComparison.OrdinalIgnoreCase) >= 0);
@@ -398,13 +411,25 @@ namespace LiveSplit.Subnautica
             #region Crafted Node
             Pointer<IntPtr> uGUI_CraftingMenuPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "craftingMenu");
             int off_craftedNode = mono.GetFieldOffset(mono.FindClass("uGUI_CraftingMenu"), "craftedNode");
-            //int off_techType = mono.GetFieldOffset(mono.FindClass("Node"), "techType");
             Pointer<IntPtr> craftedNodePtr = ptrFactory.Make<IntPtr>(uGUI_CraftingMenuPtr, off_craftedNode);
-            CraftedNode = ptrFactory.Make<int>(craftedNodePtr, 0x34);
+
+            if (gameVersion == GameVersion.Sept2018)
+                CraftedNode = ptrFactory.Make<int>(craftedNodePtr, mono.GetFieldOffset("uGUI_CraftNode", "techType0"));
+            else
+                CraftedNode = ptrFactory.Make<int>(craftedNodePtr, 0x34);
+
             #endregion Crafted Node
+            #region Player Mode
+            PlayerMode = ptrFactory.Make<int>("Player", "main", "mode");
+            #endregion Player Mode
+            #region IsPlayerJumping
+            Pointer<IntPtr> groundMotorPtr = ptrFactory.Make<IntPtr>("Player", "main", "groundMotor");
+            int off_jumping = mono.GetFieldOffset(mono.FindClass("GroundMotor"), "jumping");
+            Pointer<IntPtr> jumpingPtr = ptrFactory.Make<IntPtr>(groundMotorPtr, off_jumping);
+            IsPlayerJumping = ptrFactory.Make<bool>(jumpingPtr, 0x24);
+            #endregion IsPlayerJumping
 
             #region Memory Watchers
-            DeepPointer loadingScreenPtr;
             DeepPointer portalLoadingPtr;
             DeepPointer hatchPtr;
             DeepPointer notInWaterPtr;
@@ -418,7 +443,6 @@ namespace LiveSplit.Subnautica
             switch (gameVersion)
             {
                 case GameVersion.Sept2018:
-                    loadingScreenPtr = new DeepPointer("mono.dll", 0x266180, 0x50, 0x2C0, 0x0, 0x30, 0x8, 0x18, 0x20, 0x10, 0x44);
                     portalLoadingPtr = new DeepPointer("Subnautica.exe", 0x142B740, 0x8, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x304A30, 0x88, 0x18, 0x158, 0x498, 0x108);
                     notInWaterPtr = new DeepPointer("Subnautica.exe", 0x14BC6A0, 0x7C);
@@ -431,7 +455,6 @@ namespace LiveSplit.Subnautica
                     break;
 
                 default: // GameVersion.Mar2023
-                    loadingScreenPtr = new DeepPointer("UnityPlayer.dll", 0x18AB2E0, 0x430, 0x8, 0x10, 0x48, 0x30, 0x7AC);
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x10, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x2CED70, 0x78, 0x18, 0x190, 0x4D8, 0xB0, 0x20, 0x28);
                     notInWaterPtr = new DeepPointer("UnityPlayer.dll", 0x18AB130, 0x48, 0x0, 0x68);
@@ -444,7 +467,6 @@ namespace LiveSplit.Subnautica
                     break;
             }
 
-            isLoadingScreen = new MemoryWatcher<bool>(loadingScreenPtr);
             isPortalLoading = new MemoryWatcher<bool>(portalLoadingPtr);
             isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
@@ -467,7 +489,6 @@ namespace LiveSplit.Subnautica
                 walkDir.Update(game.Process);
                 strafeDir.Update(game.Process);
                 isFabiOpen.Update(game.Process);
-                isLoadingScreen.Update(game.Process);
             }
 
             isPortalLoading.Update(game.Process);
@@ -522,7 +543,7 @@ namespace LiveSplit.Subnautica
             {
                 usedSplitNames.Add(split.SplitName);
 
-                foreach (var conditionSplit in SubnauticaComponent.GetAllConditionSplits(split))
+                foreach (var conditionSplit in SubnauticaComponent.GetAllConditions(split))
                     usedSplitNames.Add(conditionSplit.SplitName);
             }
             return required.Any(usedSplitNames.Contains);

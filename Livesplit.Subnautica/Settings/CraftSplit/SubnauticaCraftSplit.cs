@@ -7,30 +7,30 @@ using System.Windows.Forms;
 
 namespace LiveSplit.Subnautica
 {
-    public partial class SubnauticaEncySplit : SubnauticaSplitSetting
+    public partial class SubnauticaCraftSplit : SubnauticaSplitSetting
     {
-        public EncySplit _split;
+        public CraftSplit _split;
 
         private int mX = 0;
         private int mY = 0;
         private bool isDragging = false;
 
-        public SubnauticaEncySplit() : this(new EncySplit(EncyEntry.None, onlySplitOnce: true, isSubCondition: false)) { }
-        public SubnauticaEncySplit(EncySplit encySplit)
+        public SubnauticaCraftSplit() : this(new CraftSplit(Craftable.None, onlySplitOnce: true, isSubCondition: false)) { }
+        public SubnauticaCraftSplit(CraftSplit craftSplit)
         {
             InitializeComponent();
 
-            _split = encySplit ?? new EncySplit(EncyEntry.None, onlySplitOnce: true, isSubCondition: false);
+            _split = craftSplit ?? new CraftSplit(Craftable.None, onlySplitOnce: true, isSubCondition: false);
 
-            cboEncy.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboEncy.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
-            cboEncy.DisplayMember = "Display";
-            cboEncy.ValueMember = "Value";
+            cboCraftables.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboCraftables.MouseWheel += (o, e) => ((HandledMouseEventArgs)e).Handled = true;
+            cboCraftables.DisplayMember = "Display";
+            cboCraftables.ValueMember = "Value";
         }
 
         private void BtnOptions_Click(object sender, EventArgs e)
         {
-            var splitSettings = new SubnauticaEncySplitSettings(_split);
+            var splitSettings = new SubnauticaCraftSplitSettings(_split);
             var settings = new SplitSettingsDialog(splitSettings) { StartPosition = FormStartPosition.CenterParent };
 
             if (settings.ShowDialog() == DialogResult.OK)
@@ -45,8 +45,8 @@ namespace LiveSplit.Subnautica
             if (IsLoading)
                 return;
 
-            if (cboEncy.SelectedValue is EncyEntry entry)
-                _split.Entry = entry;
+            if (cboCraftables.SelectedValue is Craftable craftable)
+                _split.Craftable = craftable;
         }
 
         private void picHandle_MouseMove(object sender, MouseEventArgs e)
@@ -74,24 +74,24 @@ namespace LiveSplit.Subnautica
             isDragging = false;
         }
 
-        public override ComboBox ComboBox => this.cboEncy;
+        public override ComboBox ComboBox => this.cboCraftables;
         public override Button BtnEdit => this.btnEdit;
         public override Button BtnRemove => this.btnRemove;
-        public override SplitName SplitName => SplitName.Craft;
+        public override SplitName SplitName => SplitName.Encyclopedia;
         public override SubnauticaSplit Split => this._split;
     }
 
-    public class EncySplit : SubnauticaSplit
+    public class CraftSplit : SubnauticaSplit
     {
-        public EncyEntry Entry { get; set; }
+        public Craftable Craftable { get; set; }
 
-        public EncySplit(EncyEntry entry, bool onlySplitOnce, bool isSubCondition)
+        public CraftSplit(Craftable craftable, bool onlySplitOnce, bool isSubCondition)
         {
-            Entry = entry;
+            Craftable = craftable;
             this.OnlySplitOnce = onlySplitOnce;
-            this.SplitName = SplitName.Encyclopedia;
+            this.SplitName = SplitName.Craft;
             this.IsSubCondition = isSubCondition;
         }
-        public override string GetDescription() => $"{Localization.GetDisplayName(Entry)} in Encyclopedia Split";
+        public override string GetDescription() => $"Craft {Localization.GetDisplayName(Craftable)}";
     }
 }
