@@ -197,7 +197,6 @@ namespace LiveSplit.Subnautica
                 { SplitName.PCFPoolSplit,         () => BiomeString.New == "Prison_Aquarium_Upper" && BiomeString.Old == "Prison_Moonpool" },
                 { SplitName.SparseBiomeSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.SparseDeathSplit) && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(BiomeString.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(BiomeString.New) },
                 { SplitName.AuroraBiomeSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(BiomeString.New) },
-                { SplitName.EyestalkSplit,        () => PlayerInventory.ContainsKey(TechType.EyesPlantSeed) && !PlayerInventoryOld.ContainsKey(TechType.EyesPlantSeed) },
                 { SplitName.IonUnlockSplit,       () => KnownTech.Contains(TechType.PrecursorIonBattery) && !KnownTechOld.Contains(TechType.PrecursorIonBattery) },
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && !IsWithinBounds(auroraExitBounds, old: true) && KnownTech.Contains(TechType.RocketBase) },
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },

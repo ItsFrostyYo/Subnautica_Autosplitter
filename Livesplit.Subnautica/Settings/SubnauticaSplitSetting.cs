@@ -111,39 +111,39 @@ namespace LiveSplit.Subnautica
     {
         [Description("None"), ToolTip("None")]
         None,
-        [Description("Inventory Split"), ToolTip("Splits when you pickup/drop a certain item")]
+        [Description("Inventory"), ToolTip("Splits when you pickup/drop a certain item")]
         Inventory,
-        [Description("Blueprint Split"), ToolTip("Splits when you have a certain blueprint unlocked")]
+        [Description("Blueprint"), ToolTip("Splits when you have a certain blueprint unlocked")]
         Blueprint,
-        [Description("Encyclopedia Split"), ToolTip("Splits when you have a certain entry in the encyclopedia unlocked")]
+        [Description("Encyclopedia"), ToolTip("Splits when you have a certain entry in the encyclopedia unlocked")]
         Encyclopedia,
-        [Description("Biome Split"), ToolTip("Splits when you have enter a certain biome from a certain biome")]
+        [Description("Biome"), ToolTip("Splits when you have enter a certain biome from a certain biome")]
         Biome,
-        [Description("Craft Split"), ToolTip("Splits when you start crafting a certain item from a crafting menu")]
+        [Description("Craft"), ToolTip("Splits when you start crafting a certain item from a crafting menu")]
         Craft,
-        [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
+        [Description("Rocket Launch"), ToolTip("Splits when you start the Neptune Rocket")]
         RocketSplit,
-        [Description("Portal Split"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
+        [Description("Prison Portal"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
         PortalSplit,
-        [Description("Hatch Split"), ToolTip("Splits when you hatch the eggs in the prison aquarium")]
+        [Description("Hatch Eggs"), ToolTip("Splits when you hatch the eggs in the prison aquarium")]
         HatchSplit,
-        [Description("Cure Split"), ToolTip("Splits when you cure yourself")]
+        [Description("Cure"), ToolTip("Splits when you cure yourself")]
         CureSplit,
-        [Description("Neptune Launch Platform Split"), ToolTip("Splits when you build the Neptune Launch Platform")]
+        [Description("Build Neptune Launch Platform"), ToolTip("Splits when you build the Neptune Launch Platform")]
         NeptuneLaunchPlatform,
-        [Description("Gantry Split"), ToolTip("Splits when you build the gantry section of the Neptune Rocket")]
+        [Description("Build Gantry Section"), ToolTip("Splits when you build the gantry section of the Neptune Rocket")]
         GantrySplit,
-        [Description("Boosters Split"), ToolTip("Splits when you build the boosters section of the Neptune Rocket")]
+        [Description("Build Boosters Section"), ToolTip("Splits when you build the boosters section of the Neptune Rocket")]
         BoostersSplit,
-        [Description("Fuel Reserves Split"), ToolTip("Splits when you build the fuel reserves section of the Neptune Rocket")]
+        [Description("Build Fuel Reserves Section"), ToolTip("Splits when you build the fuel reserves section of the Neptune Rocket")]
         FuelReservesSplit,
-        [Description("Mountain Descend Split"), ToolTip("Splits when you descend under the arch after getting out of bounds")]
+        [Description("Descend at Mountain"), ToolTip("Splits when you descend under the arch after getting out of bounds")]
         MountainDescendSplit,
-        [Description("PCF Tablet Split"), ToolTip("Splits when you insert the tablet at the PCF entrance")]
+        [Description("Insert PCF Tablet"), ToolTip("Splits when you insert the tablet at the PCF entrance")]
         PCFTabletSplit,
-        [Description("PCF Pool Split"), ToolTip("Splits when you enter the prison aquarium the normal way")]
+        [Description("Enter PCF Pool"), ToolTip("Splits when you enter the prison aquarium the normal way")]
         PCFPoolSplit,
-        [Description("Gun Deactivation Split"), ToolTip("Splits when you deactivate the gun")]
+        [Description("Deactivate Gun"), ToolTip("Splits when you deactivate the gun")]
         GunDeactivationSplit,
         [Description("Glitchless Shallows Split"), ToolTip("Split when you exit the main base with an extra High Capacity O2 tank in your inventory")]
         SGLShallowsSplit,
@@ -151,39 +151,37 @@ namespace LiveSplit.Subnautica
         SGLBaseSplit,
         [Description("Base Death Split (includes Clip A and Clip C)"), ToolTip("Splits when you die next to the main base (includes Clip A and Clip C)")]
         BaseDeathSplit,
-        [Description("Gun Death Split"), ToolTip("Splits when you die in the gun room")]
+        [Description("Gun Death"), ToolTip("Splits when you die in the gun room")]
         GunDeathSplit,
-        [Description("Aurora Death Split"), ToolTip("Splits when you die in the Aurora")]
+        [Description("Aurora Death"), ToolTip("Splits when you die in the Aurora")]
         AuroraDeathSplit,
-        [Description("Sparse Death Split"), ToolTip("Splits when you die in the biomes: Sea Treader Path or Sparse Reef")]
+        [Description("Sparse Death"), ToolTip("Splits when you die in the biomes: Sea Treader Path or Sparse Reef")]
         SparseDeathSplit,
-        [Description("Death Split"), ToolTip("Splits when you die")]
+        [Description("Death"), ToolTip("Splits when you die")]
         DeathSplit,
-        [Description("Ion Death Split"), ToolTip("Splits when you die in the Alien Thermal Plant")]
+        [Description("Alien Thermal Plant Death"), ToolTip("Splits when you die in the Alien Thermal Plant")]
         IonDeathSplit,
-        [Description("Ion Unstuck Split"), ToolTip("Splits when you unstuck in the Ion BP room")]
+        [Description("Alien Thermal Plant Unstuck"), ToolTip("Splits when you unstuck in the Ion BP room")]
         IonUnstuckSplit,
-        [Description("Ion Unlock Split"), ToolTip("Splits when you unlock the Ion BP")]
+        [Description("Unlock Ion Blueprints"), ToolTip("Splits when you unlock the Ion BP")]
         IonUnlockSplit,
-        [Description("Rocket Unlock Split"), ToolTip("Splits when you unlock the Neptune Rocket")]
+        [Description("Unlock Rocket"), ToolTip("Splits when you unlock the Neptune Rocket")]
         RocketUnlockSplit,
-        [Description("Leave Kelp Forest Split"), ToolTip("Splits when you leave the Kelp Forest with one or more Creepvine samples")]
+        [Description("Leave Kelp Forest (Alt. Tooth Split)"), ToolTip("Splits when you leave the Kelp Forest with one or more Creepvine samples")]
         LeaveKelpForestSplit,
-        [Description("4-Tooth Split"), ToolTip("Splits when you collect four Stalker teeth")]
+        [Description("Collect 4 Stalker Teeth"), ToolTip("Splits when you collect four Stalker teeth")]
         FourToothSplit,
-        [Description("Upper Tablet Split"), ToolTip("Splits when you grab the purple tablet above the Alien Gun Entrence")]
+        [Description("Collect Upper Tablet"), ToolTip("Splits when you grab the purple tablet above the Alien Gun Entrence")]
         UpperTabletSplit,
-        [Description("Sparse Biome Change Split"), ToolTip("Splits when the biome changes from Sparse to Shallows or Kelp Forest")]
+        [Description("Sparse Biome Change"), ToolTip("Splits when the biome changes from Sparse to Shallows or Kelp Forest")]
         SparseBiomeSplit,
-        [Description("Aurora Biome Change Split"), ToolTip("Splits when the biome changes from Aurora to Shallows or Kelp Forest")]
+        [Description("Aurora Biome Change"), ToolTip("Splits when the biome changes from Aurora to Shallows or Kelp Forest")]
         AuroraBiomeSplit,
-        [Description("Eyestalk Split"), ToolTip("Splits when you collect an Eyestalk Sample")]
-        EyestalkSplit,
-        [Description("Aurora Exit Split"), ToolTip("Splits when you exit the Aurora through the old patch hole after unlocking the rocket")]
+        [Description("Exit Aurora at Patch Hole"), ToolTip("Splits when you exit the Aurora through the old patch hole after unlocking the rocket")]
         AuroraExitSplit,
         [Description("HCG Sparse Split (includes clip A and C)"), ToolTip("Splits when you enter the main base with a ruby (includes clip A and C)")]
         HCGSparseSplit,
-        [Description("Reactor Core Repair Split"), ToolTip("Splits when you repair the aurora reactor core")]
+        [Description("Repair Reactor Core"), ToolTip("Splits when you repair the aurora reactor core")]
         ReactorCoreRepairSplit,
         /*[Description("Chair%"), ToolTip("Splits when you sit")]
         ChairSplit,*/

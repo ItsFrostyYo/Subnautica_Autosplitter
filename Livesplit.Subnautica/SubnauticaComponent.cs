@@ -97,7 +97,7 @@ namespace LiveSplit.Subnautica
                 return false;
 
             var splits = settings.Splits;
-
+            
             for (int i = 0; i < splits.Count; i++)
             {
                 if ((SubnauticaSettings.OrderedAutoSplits && i != alreadySplit.Count) || (SubnauticaSettings.OrderedLiveSplit && i != _state.CurrentSplitIndex))
