@@ -269,8 +269,8 @@
             this.chkCreativeStart.Size = new System.Drawing.Size(90, 17);
             this.chkCreativeStart.TabIndex = 1;
             this.chkCreativeStart.Text = "Creative Start";
-            this.ToolTips.SetToolTip(this.chkCreativeStart, "Starts the timer when you move horizontally, open your PDA or interact with the f" +
-        "abricator");
+            this.ToolTips.SetToolTip(this.chkCreativeStart, "Starts the timer when you move horizontally, jump, open your PDA or interact with" +
+        " the fabricator");
             this.chkCreativeStart.UseVisualStyleBackColor = true;
             this.chkCreativeStart.CheckedChanged += new System.EventHandler(this.ControlChanged);
             // 

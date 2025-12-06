@@ -119,7 +119,7 @@ namespace LiveSplit.Subnautica
         Encyclopedia,
         [Description("Biome Split"), ToolTip("Splits when you have enter a certain biome from a certain biome")]
         Biome,
-        [Description("Craft Split"), ToolTip("Splits when you start crafting an item from a crafting menu")]
+        [Description("Craft Split"), ToolTip("Splits when you start crafting a certain item from a crafting menu")]
         Craft,
         [Description("Rocket Split"), ToolTip("Splits when you start the Neptune Rocket")]
         RocketSplit,
@@ -129,6 +129,8 @@ namespace LiveSplit.Subnautica
         HatchSplit,
         [Description("Cure Split"), ToolTip("Splits when you cure yourself")]
         CureSplit,
+        [Description("Neptune Launch Platform Split"), ToolTip("Splits when you build the Neptune Launch Platform")]
+        NeptuneLaunchPlatform,
         [Description("Gantry Split"), ToolTip("Splits when you build the gantry section of the Neptune Rocket")]
         GantrySplit,
         [Description("Boosters Split"), ToolTip("Splits when you build the boosters section of the Neptune Rocket")]
