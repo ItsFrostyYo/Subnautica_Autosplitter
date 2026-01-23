@@ -74,6 +74,9 @@
         CyclopsFabricator = 1556, // 0x00000614
         CyclopsThermalReactorModule = 1557, // 0x00000615
         CyclopsHullModule3 = 1558, // 0x00000616
+        Seamoth = 2000, // 0x000007D0
+        Exosuit = 2001, // 0x000007D1
+        Cyclops = 2003, // 0x000007D3
         VehiclePowerUpgradeModule = 2101, // 0x00000835
         SeamothSolarCharge = 2102, // 0x00000836
         VehicleStorageModule = 2103, // 0x00000837
