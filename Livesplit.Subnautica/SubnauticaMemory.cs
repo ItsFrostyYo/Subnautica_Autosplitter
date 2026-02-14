@@ -217,6 +217,8 @@ namespace LiveSplit.Subnautica
             if (isInMainMenu)
                 startedTimerBefore = false;
 
+            logger.Log(BiomeString.New);
+
             return base.Update();
         }
 

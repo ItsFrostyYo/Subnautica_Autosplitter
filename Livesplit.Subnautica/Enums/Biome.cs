@@ -14,6 +14,7 @@
         CrashZone_Mesa,
         CrashZone_NoLoot,
         CrashZone_Trench,
+        crashedShip,
         CrashedShip_Interior_Cargo,
         CrashedShip_Interior_Dark,
         CrashedShip_Interior_Elevator,
