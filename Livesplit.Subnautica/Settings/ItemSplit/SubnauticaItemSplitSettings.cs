@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LiveSplit.Subnautica
 {
@@ -80,6 +79,8 @@ namespace LiveSplit.Subnautica
             chkCount.Checked = IsCount;
             tbCount.Text = Count.ToString();
             tbCount.Enabled = IsCount;
+            RdPickUp.Checked = PickUp;
+            RdDrop.Checked = !PickUp;
 
             base.LoadSettings();
             IsLoading = false;
