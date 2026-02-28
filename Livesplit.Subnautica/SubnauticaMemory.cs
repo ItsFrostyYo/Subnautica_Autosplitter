@@ -2,15 +2,9 @@
 using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using Voxif.AutoSplitter;
 using Voxif.Helpers.Unity;
@@ -23,7 +17,7 @@ namespace LiveSplit.Subnautica
     {
         protected override string[] ProcessNames => new string[] { "Subnautica" };
 
-        public Checks Checks;
+        public SubnauticaSplit CurrentSplitToCheck { get; set; }
 
         private IMonoHelper mono;
 
@@ -33,6 +27,7 @@ namespace LiveSplit.Subnautica
         private readonly Stopwatch _afterLoad = new Stopwatch();
         private int prePortalDelayMs = 0;
         private int postPortalDelayMs = 0;
+        private const int maxInventoryTimeWithoutChangingMs = 1000;
         public bool pointersInitialized;
         public GameVersion gameVersion;
         //string[] EncyMappingMarch2023;
@@ -40,7 +35,12 @@ namespace LiveSplit.Subnautica
         public readonly Dictionary<SplitName, Func<bool>> splitConditions;
         public readonly Dictionary<SplitName, Func<bool>> subConditions;
 
-        private SubnauticaSettings settings;
+        private readonly Queue<(Dictionary<TechType, int> Inventory, DateTime TimeAdded)> inventoryStates = new Queue<(Dictionary<TechType, int> Inventory, DateTime TimeAdded)>();
+
+        private readonly SubnauticaSettings settings;
+
+        readonly Dictionary<TechType, InvChangeInfo> curPickUpCounts = new Dictionary<TechType, InvChangeInfo>();
+        readonly Dictionary<TechType, InvChangeInfo> curDropCounts = new Dictionary<TechType, InvChangeInfo>();
 
         #region Pointer stuff
         public Pointer<bool> IsIntroCinematicActive; // true in main menu sometimes
@@ -88,8 +88,7 @@ namespace LiveSplit.Subnautica
         int arr_data_base;
         int off_itemGroup_id;
         int dict_off_version;
-        int dict_off_count;
-        int off_entry_unlocked;
+
 
         IntPtr invStaticKlass;
         int invStaticOffset;
@@ -143,34 +142,43 @@ namespace LiveSplit.Subnautica
 
             subConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => !Checks.InvChecks.IsCount && PlayerInventory.ContainsKey(Checks.InvChecks.Item.ConvertTo<TechType>()) || Checks.InvChecks.IsCount && PlayerInventory.GetCount(Checks.InvChecks.Item.ConvertTo<TechType>()) == Checks.InvChecks.Count },
-                { SplitName.Blueprint,            () => KnownTech.Contains(Checks.Blueprint.ConvertTo<TechType>()) },
-                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(Checks.EncyEntry) },
-                { SplitName.Biome,                () => string.Equals(BiomeString.New, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) || Checks.Biomes.Biome1 == Biome.Any },
+                { SplitName.Inventory,            () => !((ItemSplit)CurrentSplitToCheck).IsCount && PlayerInventory.ContainsKey(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) || ((ItemSplit)CurrentSplitToCheck).IsCount && PlayerInventory.GetCount(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) == ((ItemSplit)CurrentSplitToCheck).Count },
+                { SplitName.Blueprint,            () => KnownTech.Contains(((BlueprintSplit)CurrentSplitToCheck).Blueprint.ConvertTo<TechType>()) },
+                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(((EncySplit)CurrentSplitToCheck).Entry) },
+                { SplitName.Biome,                () => string.Equals(BiomeString.New, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) || ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1 == Biome.Any },
             };
 
             splitConditions = new Dictionary<SplitName, Func<bool>>
             {
                 { SplitName.Inventory,            () => { 
-                                                        var inv = Checks.InvChecks;
+                                                        var inv = (ItemSplit)CurrentSplitToCheck;
                                                         var techType = inv.Item.ConvertTo<TechType>();
 
-                                                        int current  = PlayerInventory.GetCount(techType);
-                                                        int previous = PlayerInventoryOld.GetCount(techType);
+                                                        int currentPickUpChange = curPickUpCounts.TryGetValue(techType, out InvChangeInfo infP) ? infP.Count : 0;
+                                                        int currentDropChange = curDropCounts.TryGetValue(techType, out InvChangeInfo infD) ? infD.Count : 0;
 
-                                                        bool changedInRightDirection = inv.Pickup ? current > previous : current < previous;
+                                                        int change = inv.PickUp ? currentPickUpChange : -currentDropChange;
+                                                        bool changedInRightDirection = change > 0;
+                    int curCount = PlayerInventory.GetCount(techType);
+                    int oldCount = PlayerInventoryOld.GetCount(techType);
+
                                                         if (!inv.IsCount)
-                                                            return changedInRightDirection;
+                                                            return curCount != oldCount && changedInRightDirection;
 
-                                                        return current == inv.Count && changedInRightDirection;
+                                                        if (inv.AlreadySplitInvChanging)
+                                                            return false;
+
+                                                        bool split = change >= inv.Count && changedInRightDirection;
+                                                        inv.AlreadySplitInvChanging = split;
+                                                        return split;
                                                         } },
-                { SplitName.Blueprint,            () => KnownTech.Contains(Checks.Blueprint.ConvertTo<TechType>()) && !KnownTechOld.Contains(Checks.Blueprint.ConvertTo<TechType>()) },
-                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(Checks.EncyEntry) && !EncyclopediaOld.Contains(Checks.EncyEntry) },
-                { SplitName.Biome,                () => (Checks.Biomes.Biome1 == Biome.Any && Checks.Biomes.Biome2 == Biome.Any && BiomeString.Changed) ||
-                                                        (Checks.Biomes.Biome1 == Biome.Any && string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
-                                                        (Checks.Biomes.Biome2 == Biome.Any && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
-                                                        (string.Equals(BiomeString.New, Checks.Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, Checks.Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
-                { SplitName.Craft,                () =>  string.Equals(Checks.Craftable.ToString(), ((TechType)CraftedNode.New).ToString(), StringComparison.OrdinalIgnoreCase) && CraftedNode.Changed },
+                { SplitName.Blueprint,            () => KnownTech.Contains(((BlueprintSplit)CurrentSplitToCheck).Blueprint.ConvertTo<TechType>()) && !KnownTechOld.Contains(((BlueprintSplit)CurrentSplitToCheck).Blueprint.ConvertTo<TechType>()) },
+                { SplitName.Encyclopedia,         () => Encyclopedia.Contains(((EncySplit)CurrentSplitToCheck).Entry) && !EncyclopediaOld.Contains(((EncySplit)CurrentSplitToCheck).Entry) },
+                { SplitName.Biome,                () => (((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1 == Biome.Any && ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2 == Biome.Any && BiomeString.Changed) ||
+                                                        (((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1 == Biome.Any && string.Equals(BiomeString.New, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
+                                                        (((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2 == Biome.Any && string.Equals(BiomeString.Old, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
+                                                        (string.Equals(BiomeString.New, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
+                { SplitName.Craft,                () =>  string.Equals(((CraftSplit)CurrentSplitToCheck).Craftable.ToString(), ((TechType)CraftedNode.New).ToString(), StringComparison.OrdinalIgnoreCase) && CraftedNode.Changed },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
@@ -208,8 +216,11 @@ namespace LiveSplit.Subnautica
 
         public override bool Update()
         {
-            if(!pointersInitialized || game == null)
-                return base.Update();
+            if (!base.Update())
+                return false;
+
+            if (!pointersInitialized || game == null)
+                return false;
 
             UpdateMemoryWatchers();
 
@@ -217,10 +228,7 @@ namespace LiveSplit.Subnautica
             if (isInMainMenu)
                 startedTimerBefore = false;
 
-            foreach(var item in PlayerInventory.Keys)
-                logger.Log(item);
-
-            return base.Update();
+            return true;
         }
 
         #region Memory stuff
@@ -579,6 +587,77 @@ namespace LiveSplit.Subnautica
         {
             PlayerInventoryOld = PlayerInventory;
             PlayerInventory = ReadInventoryCounts();
+
+            Dictionary<TechType, int> changedItems =
+                PlayerInventory.Keys
+                    .Union(PlayerInventoryOld.Keys)
+                    .Select(key =>
+                    {
+                        PlayerInventory.TryGetValue(key, out int newCount);
+                        PlayerInventoryOld.TryGetValue(key, out int oldCount);
+
+                        return new
+                        {
+                            Key = key,
+                            Delta = newCount - oldCount
+                        };
+                    })
+                    .Where(x => x.Delta != 0)
+                    .ToDictionary(x => x.Key, x => x.Delta);
+
+            TechType pickedUpItem = changedItems.FirstOrDefault(kvp => kvp.Value > 0).Key;
+            TechType droppedItem = changedItems.FirstOrDefault(kvp => kvp.Value < 0).Key;
+
+            foreach (var key in curPickUpCounts.Keys.ToList())
+                if (curPickUpCounts[key].ElapsedTime.ElapsedMilliseconds > maxInventoryTimeWithoutChangingMs)
+                {
+                    var correspongingSplit = settings.Splits
+                        .OfType<ItemSplit>()
+                        .FirstOrDefault(s => s.Item.ConvertTo<TechType>() == key);
+
+                    if (correspongingSplit != null)
+                        correspongingSplit.AlreadySplitInvChanging = false;
+
+                    curPickUpCounts.Remove(key);
+                }
+
+
+            foreach (var key in curDropCounts.Keys.ToList())
+                if (curDropCounts[key].ElapsedTime.ElapsedMilliseconds > maxInventoryTimeWithoutChangingMs)
+                {
+                    var correspongingSplit = settings.Splits
+                        .OfType<ItemSplit>()
+                        .FirstOrDefault(s => s.Item.ConvertTo<TechType>() == key);
+
+                    if (correspongingSplit != null)
+                        correspongingSplit.AlreadySplitInvChanging = false;
+
+                    curDropCounts.Remove(key);
+                }
+
+            foreach (var changedItem in changedItems)
+            {
+                if (changedItem.Value > 0)
+                    HandleChange(curPickUpCounts, changedItem.Key, changedItem.Value);
+                else
+                    HandleChange(curDropCounts, changedItem.Key, changedItem.Value);
+            }
+            
+
+            void HandleChange(Dictionary<TechType, InvChangeInfo> dict,
+                      TechType key,
+                      int amount)
+            {
+                if (dict.TryGetValue(key, out var info))
+                {
+                    info.Count += amount;
+                    info.ElapsedTime.Restart();
+                }
+                else
+                {
+                    dict[key] = new InvChangeInfo(amount, Stopwatch.StartNew());
+                }
+            }
         }
 
         private void UpdateEncyclopedia()
@@ -903,5 +982,17 @@ namespace LiveSplit.Subnautica
         private readonly float[] enterClipABounds = { 48f, 55f, -20f, -5f, 106f, 111f };
         private readonly float[] enterClipCBounds = { -144f, -132f, -20f, -5f, 78f, 90f };
         #endregion
+    }
+
+    public class InvChangeInfo
+    {
+        public int Count { get; set; }
+        public Stopwatch ElapsedTime { get; }
+
+        public InvChangeInfo(int count, Stopwatch elapsedTime)
+        {
+            Count = count;
+            ElapsedTime = elapsedTime ?? throw new ArgumentNullException(nameof(elapsedTime));
+        }
     }
 }

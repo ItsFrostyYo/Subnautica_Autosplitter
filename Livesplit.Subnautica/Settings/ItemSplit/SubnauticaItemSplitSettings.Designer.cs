@@ -112,19 +112,19 @@
             // chkCount
             // 
             this.chkCount.AutoSize = true;
-            this.chkCount.Location = new System.Drawing.Point(81, 20);
+            this.chkCount.Location = new System.Drawing.Point(70, 20);
             this.chkCount.Name = "chkCount";
             this.chkCount.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.chkCount.Size = new System.Drawing.Size(57, 17);
+            this.chkCount.Size = new System.Drawing.Size(86, 17);
             this.chkCount.TabIndex = 3;
-            this.chkCount.Text = ":Count";
+            this.chkCount.Text = ":Min Change";
             this.chkCount.UseVisualStyleBackColor = true;
             this.chkCount.CheckedChanged += new System.EventHandler(this.chkCount_CheckedChanged);
             // 
             // tbCount
             // 
             this.tbCount.Enabled = false;
-            this.tbCount.Location = new System.Drawing.Point(84, 42);
+            this.tbCount.Location = new System.Drawing.Point(73, 43);
             this.tbCount.Name = "tbCount";
             this.tbCount.Size = new System.Drawing.Size(54, 20);
             this.tbCount.TabIndex = 2;

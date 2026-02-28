@@ -93,6 +93,7 @@ namespace LiveSplit.Subnautica
 
         public override bool Split()
         {
+            // TODO: fix only split once shit
             if (!memory.pointersInitialized)
                 return false;
 
@@ -105,14 +106,12 @@ namespace LiveSplit.Subnautica
 
                 var split = splits[i];
 
-                memory.Checks = Checks.CreateDefault();
-
                 IEnumerable<SubnauticaSplit> conditionsSplits = GetAllConditions(split);
                 bool allConditionsMet = true;
 
                 foreach (var conditionSplit in conditionsSplits)
                 {
-                    SetCheckObjects(conditionSplit);
+                    memory.CurrentSplitToCheck = conditionSplit;
                     if (memory.subConditions.TryGetValue(conditionSplit.SplitName, out var subCondition) && !subCondition())
                     {
                         allConditionsMet = false;
@@ -120,7 +119,7 @@ namespace LiveSplit.Subnautica
                     }
                 }
 
-                SetCheckObjects(split);
+                memory.CurrentSplitToCheck = split;
                 if (allConditionsMet 
                     && memory.splitConditions.TryGetValue(split.SplitName, out var condition) 
                     && condition()
@@ -145,24 +144,6 @@ namespace LiveSplit.Subnautica
 
                 foreach (var nested in GetAllConditions(c))
                     yield return nested;
-            }
-        }
-
-        private void SetCheckObjects(SubnauticaSplit split)
-        {
-            switch (split)
-            {
-                case ItemSplit itemSplit:
-                    memory.Checks.InvChecks.Item = itemSplit.Item;
-                    memory.Checks.InvChecks.Count = itemSplit.Count;
-                    memory.Checks.InvChecks.IsCount = itemSplit.IsCount;
-                    memory.Checks.InvChecks.Pickup = itemSplit.PickUp;
-                    break;
-                case BlueprintSplit bpSplit: memory.Checks.Blueprint = bpSplit.Blueprint; break;
-                case EncySplit encySplit: memory.Checks.EncyEntry = encySplit.Entry; break;
-                case BiomeSplit biomeSplit: memory.Checks.Biomes = biomeSplit.Biomes; break;
-                case CraftSplit craftSplit: memory.Checks.Craftable = craftSplit.Craftable; break;
-                default: break;
             }
         }
 
@@ -234,37 +215,5 @@ namespace LiveSplit.Subnautica
             settings.UpdateTextComponent("Explosion Time", text);
             settings.UpdateExploBtnContent();
         }
-    }
-
-    public struct Checks
-    {
-        public InvChecks InvChecks;
-        public Unlockable Blueprint;
-        public EncyEntry EncyEntry;
-        public (Biome Biome1, Biome Biome2) Biomes;
-        public Craftable Craftable;
-
-        public static Checks CreateDefault() =>
-            new Checks()
-            {
-                InvChecks = new InvChecks
-                {
-                    Item = InventoryItem.None,
-                    Pickup = false,
-                    Count = 1,
-                    IsCount = false,
-                },
-                Blueprint = Unlockable.None,
-                EncyEntry = EncyEntry.None,
-                Biomes = (Biome.None, Biome.None)
-            };
-    }
-
-    public struct InvChecks
-    {
-        public InventoryItem Item;
-        public bool Pickup;
-        public int Count;
-        public bool IsCount;
     }
 }

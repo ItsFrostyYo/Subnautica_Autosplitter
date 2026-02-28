@@ -81,6 +81,7 @@ namespace LiveSplit.Subnautica
             tbCount.Enabled = IsCount;
             RdPickUp.Checked = PickUp;
             RdDrop.Checked = !PickUp;
+            ChkSplitOnce.Checked = OnlySplitOnce;
 
             base.LoadSettings();
             IsLoading = false;

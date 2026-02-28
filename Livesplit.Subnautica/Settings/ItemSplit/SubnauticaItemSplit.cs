@@ -90,7 +90,8 @@ namespace LiveSplit.Subnautica
         public InventoryItem Item { get; set; }
         public bool PickUp { get; set; } = true;
         public int Count { get; set; } = 1;
-        public bool IsCount { get; set; }
+        public bool IsCount { get; set; } = false;
+        public bool AlreadySplitInvChanging { get; set; } = false;
 
         public ItemSplit(InventoryItem item, bool onlySplitOnce, bool isSubCondition)
         {
