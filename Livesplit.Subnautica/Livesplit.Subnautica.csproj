@@ -33,39 +33,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CustomFontDialog">
-      <HintPath>H:\Programms\LiveSplit_1.8.35\CustomFontDialog.dll</HintPath>
-    </Reference>
-    <Reference Include="LiveSplit.Core">
-      <HintPath>H:\Programms\LiveSplit_1.8.35\LiveSplit.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>H:\Programms\LiveSplit_1.8.35\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>H:\Programms\LiveSplit_1.8.35\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Text.Json, Version=9.0.0.11, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>H:\Programms\LiveSplit_1.8.35\System.Text.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="UpdateManager">
-      <HintPath>H:\Programms\LiveSplit_1.8.35\UpdateManager.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="Enums\Biome.cs" />
     <Compile Include="Enums\Craftable.cs" />
     <Compile Include="Enums\EncyMapping2023.cs" />
@@ -284,6 +251,36 @@
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v1_cattrs.txt" />
     <EmbeddedResource Include="Voxif.Helpers\Voxif.Helpers.Unity\Mono_v2.txt" />
     <EmbeddedResource Include="Resources\EncyMappingMarch2023.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CustomFontDialog, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\CustomFontDialog.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveSplit.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\LiveSplit.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=10.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UpdateManager, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>G:\Programms\LiveSplit_1.8.35\UpdateManager.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

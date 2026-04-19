@@ -110,7 +110,12 @@ namespace Voxif.AutoSplitter {
         private void OnSplit(object sender, EventArgs e) => OnSplit();
         private void OnReset(object sender, TimerPhase e) => OnReset();
 
-        public virtual void OnStart() { }
+        public virtual void OnStart()
+        {
+            if (!timer.CurrentState.IsGameTimeInitialized)
+                timer.InitializeGameTime();
+        }
+
         public virtual void OnSplit() { }
         public virtual void OnReset() { }
         
