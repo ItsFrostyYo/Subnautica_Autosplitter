@@ -35,8 +35,6 @@ namespace LiveSplit.Subnautica
         public readonly Dictionary<SplitName, Func<bool>> splitConditions;
         public readonly Dictionary<SplitName, Func<bool>> subConditions;
 
-        private readonly Queue<(Dictionary<TechType, int> Inventory, DateTime TimeAdded)> inventoryStates = new Queue<(Dictionary<TechType, int> Inventory, DateTime TimeAdded)>();
-
         private readonly SubnauticaSettings settings;
 
         readonly Dictionary<TechType, InvChangeInfo> curPickUpCounts = new Dictionary<TechType, InvChangeInfo>();
@@ -50,6 +48,7 @@ namespace LiveSplit.Subnautica
         public Pointer<bool> RocketLaunching;
         public Pointer<bool> RadiationFixed;        
         public Pointer<bool> IsPlayerJumping;   
+        public Pointer<bool> IsDying;
 
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
@@ -208,7 +207,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.IonUnlockSplit,       () => KnownTech.Contains(TechType.PrecursorIonBattery) && !KnownTechOld.Contains(TechType.PrecursorIonBattery) },
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && !IsWithinBounds(auroraExitBounds, old: true) && KnownTech.Contains(TechType.RocketBase) },
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
-                { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 },
+                { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 || IsDying.New && !IsDying.Old },
                 { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
             };
@@ -438,6 +437,9 @@ namespace LiveSplit.Subnautica
             Pointer<IntPtr> jumpingPtr = ptrFactory.Make<IntPtr>(groundMotorPtr, off_jumping);
             IsPlayerJumping = ptrFactory.Make<bool>(jumpingPtr, 0x24);
             #endregion IsPlayerJumping
+            #region IsDying
+            IsDying = ptrFactory.Make<bool>("uGUI_PlayerDeath", "main", "active");
+            #endregion IsDying
 
             #region Memory Watchers
             DeepPointer portalLoadingPtr;

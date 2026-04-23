@@ -215,6 +215,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\Dialogs\SplitSettingsDialog.resx">
       <DependentUpon>SplitSettingsDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings\Dialogs\SelectSplitType.resx">
       <DependentUpon>SelectSplitType.cs</DependentUpon>
