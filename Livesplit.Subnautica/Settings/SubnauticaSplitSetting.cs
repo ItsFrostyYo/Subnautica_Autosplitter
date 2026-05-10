@@ -185,6 +185,10 @@ namespace LiveSplit.Subnautica
         ReactorCoreRepairSplit,
         /*[Description("Chair%"), ToolTip("Splits when you sit")]
         ChairSplit,*/
+        [Description("Full Inventory"), ToolTip("Splits when you have a full inventory")]
+        FullInventorySplit,
+        [Description("Throw Flare"), ToolTip("Splits when you throw a flare")]
+        ThrowFlareSplit,
     }
     public class ToolTipAttribute : Attribute
     {

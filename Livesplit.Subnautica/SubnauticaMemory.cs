@@ -39,6 +39,10 @@ namespace LiveSplit.Subnautica
 
         readonly Dictionary<TechType, InvChangeInfo> curPickUpCounts = new Dictionary<TechType, InvChangeInfo>();
         readonly Dictionary<TechType, InvChangeInfo> curDropCounts = new Dictionary<TechType, InvChangeInfo>();
+        private Dictionary<TechType, int> currentInventoryChanges = new Dictionary<TechType, int>();
+        private readonly Stopwatch flareThrowArmedTime = new Stopwatch();
+        private bool flareThrowArmed;
+        private const int maxFlareThrowAnimWindowMs = 1500;
 
         #region Pointer stuff
         public Pointer<bool> IsIntroCinematicActive; // true in main menu sometimes
@@ -54,6 +58,7 @@ namespace LiveSplit.Subnautica
         public Pointer<float> Health;
         public Pointer<float> TimeToStartCountdown;
         public Pointer<float> TimeToStartWarning;
+        public Pointer<float> TimeOfLastToolUseAnim;
 
         public Pointer<IntPtr> MainMenu;
         public Pointer<IntPtr> CraftingMenu;
@@ -67,17 +72,23 @@ namespace LiveSplit.Subnautica
         public Pointer<int> PlayerMode;
 
         public StringPointer BiomeString;
+        public StringPointer ActiveToolName;
 
         public Dictionary<TechType, int> PlayerInventory = new Dictionary<TechType, int>();
         public Dictionary<TechType, int> PlayerInventoryOld = new Dictionary<TechType, int>();
+        public List<TechType> PlayerEquipment = new List<TechType>();
+        public List<TechType> PlayerEquipmentOld = new List<TechType>();
         public List<TechType> KnownTech = new List<TechType>();
         public List<TechType> KnownTechOld = new List<TechType>();
         public List<EncyEntry> Encyclopedia = new List<EncyEntry>();
         public List<EncyEntry> EncyclopediaOld = new List<EncyEntry>();
 
         IntPtr invKlass;
+        IntPtr equipmentKlass;
         IntPtr icKlass;
         int off_container;
+        int off_equipment;
+        int off_equippedCount;
         int off_itemsDict;
         IntPtr itemGroupKlass;
         int off_itemGroup_items;
@@ -141,7 +152,7 @@ namespace LiveSplit.Subnautica
 
             subConditions = new Dictionary<SplitName, Func<bool>>
             {
-                { SplitName.Inventory,            () => !((ItemSplit)CurrentSplitToCheck).IsCount && PlayerInventory.ContainsKey(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) || ((ItemSplit)CurrentSplitToCheck).IsCount && PlayerInventory.GetCount(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) == ((ItemSplit)CurrentSplitToCheck).Count },
+                { SplitName.Inventory,            () => !((ItemSplit)CurrentSplitToCheck).IsCount && HasPlayerItem(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) || ((ItemSplit)CurrentSplitToCheck).IsCount && GetPlayerItemCount(((ItemSplit)CurrentSplitToCheck).Item.ConvertTo<TechType>()) == ((ItemSplit)CurrentSplitToCheck).Count },
                 { SplitName.Blueprint,            () => KnownTech.Contains(((BlueprintSplit)CurrentSplitToCheck).Blueprint.ConvertTo<TechType>()) },
                 { SplitName.Encyclopedia,         () => Encyclopedia.Contains(((EncySplit)CurrentSplitToCheck).Entry) },
                 { SplitName.Biome,                () => string.Equals(BiomeString.New, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) || ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1 == Biome.Any },
@@ -158,11 +169,14 @@ namespace LiveSplit.Subnautica
 
                                                         int change = inv.PickUp ? currentPickUpChange : -currentDropChange;
                                                         bool changedInRightDirection = change > 0;
-                    int curCount = PlayerInventory.GetCount(techType);
-                    int oldCount = PlayerInventoryOld.GetCount(techType);
+                                                        int curCount = GetPlayerItemCount(techType);
+                                                        int oldCount = GetPlayerItemCountOld(techType);
 
                                                         if (!inv.IsCount)
-                                                            return curCount != oldCount && changedInRightDirection;
+                                                        {
+                                                            int currentChange = currentInventoryChanges.TryGetValue(techType, out int delta) ? delta : 0;
+                                                            return inv.PickUp ? currentChange > 0 : currentChange < 0;
+                                                        }
 
                                                         if (inv.AlreadySplitInvChanging)
                                                             return false;
@@ -209,7 +223,9 @@ namespace LiveSplit.Subnautica
                 { SplitName.HCGSparseSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && (IsWithinBounds(enterClipABounds) || IsWithinBounds(enterClipCBounds)) && PlayerInventory.ContainsKey(TechType.AluminumOxide) },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 || IsDying.New && !IsDying.Old },
                 { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
+                { SplitName.FullInventorySplit,   () => PlayerInventory.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() == 48 && PlayerInventoryOld.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() != 48 },
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
+                { SplitName.ThrowFlareSplit,      () => IsFlareThrowDrop() },
             };
         }
 
@@ -289,6 +305,7 @@ namespace LiveSplit.Subnautica
             #endregion
             #region Inventory
             invKlass = mono.FindClass("Inventory", mono.MainImage);
+            equipmentKlass = mono.FindClass("Equipment", mono.MainImage);
             icKlass = mono.FindClass("ItemsContainer", mono.MainImage);
 
             invStaticOffset = mono.GetFieldOffset(invKlass, "main");
@@ -297,6 +314,14 @@ namespace LiveSplit.Subnautica
             off_container = ((UnityHelperTask.UnityHelperBase)mono)
                 .ResolveFieldOffsetByNameOrPredicate(invKlass, new[] { "_container" },
                     fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "container"));
+
+            off_equipment = ((UnityHelperTask.UnityHelperBase)mono)
+                .ResolveFieldOffsetByNameOrPredicate(invKlass, new[] { "_equipment" },
+                    fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "equipment"));
+
+            off_equippedCount = ((UnityHelperTask.UnityHelperBase)mono)
+                .ResolveFieldOffsetByNameOrPredicate(equipmentKlass, new[] { "equippedCount" },
+                    fname => UnityHelperTask.UnityNameUtil.NameHas(fname, "equippedCount"));
 
             off_itemsDict = ((UnityHelperTask.UnityHelperBase)mono)
                 .ResolveFieldOffsetByNameOrPredicate(icKlass, new[] { "_items" },
@@ -440,6 +465,18 @@ namespace LiveSplit.Subnautica
             #region IsDying
             IsDying = ptrFactory.Make<bool>("uGUI_PlayerDeath", "main", "active");
             #endregion IsDying
+            #region ThrowFlare
+            Pointer<IntPtr> quickSlotsPtr = ptrFactory.Make<IntPtr>("Inventory", "main", "<quickSlots>k__BackingField");
+
+            int off_activeToolName = mono.GetFieldOffset(mono.FindClass("QuickSlots"), "activeToolName");
+            ActiveToolName = ptrFactory.MakeString(quickSlotsPtr, off_activeToolName, 0x14);
+
+            Pointer<IntPtr> armsControllerPtr = ptrFactory.Make<IntPtr>("Player", "main", "armsController");
+            int off_armsControllerGuiHand = mono.GetFieldOffset(mono.FindClass("ArmsController"), "guiHand");
+            Pointer<IntPtr> guiHandPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerGuiHand);
+            int off_timeOfLastToolUseAnim = mono.GetFieldOffset(mono.FindClass("GUIHand"), "timeOfLastToolUseAnim");
+            TimeOfLastToolUseAnim = ptrFactory.Make<float>(guiHandPtr, off_timeOfLastToolUseAnim);
+            #endregion ThrowFlare
 
             #region Memory Watchers
             DeepPointer portalLoadingPtr;
@@ -506,6 +543,9 @@ namespace LiveSplit.Subnautica
             if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
                 isNotInWater.Update(game.Process);
 
+            if (Needs(SplitName.ThrowFlareSplit))
+                UpdateFlareThrowState();
+
             if (Needs(SplitName.PCFTabletSplit,
                       SplitName.GunDeactivationSplit,
                       SplitName.BaseDeathSplit,
@@ -520,6 +560,8 @@ namespace LiveSplit.Subnautica
                 UpdatePosition();
 
             if (Needs(SplitName.Inventory,
+                      SplitName.FullInventorySplit,
+                      SplitName.ThrowFlareSplit,
                       SplitName.LeaveKelpForestSplit,
                       SplitName.FourToothSplit,
                       SplitName.HCGSparseSplit,
@@ -589,14 +631,18 @@ namespace LiveSplit.Subnautica
         {
             PlayerInventoryOld = PlayerInventory;
             PlayerInventory = ReadInventoryCounts();
+            PlayerEquipmentOld = PlayerEquipment;
+            PlayerEquipment = ReadEquipmentTypes();
 
             Dictionary<TechType, int> changedItems =
                 PlayerInventory.Keys
                     .Union(PlayerInventoryOld.Keys)
+                    .Union(PlayerEquipment)
+                    .Union(PlayerEquipmentOld)
                     .Select(key =>
                     {
-                        PlayerInventory.TryGetValue(key, out int newCount);
-                        PlayerInventoryOld.TryGetValue(key, out int oldCount);
+                        int newCount = GetPlayerItemCount(key);
+                        int oldCount = GetPlayerItemCountOld(key);
 
                         return new
                         {
@@ -606,6 +652,8 @@ namespace LiveSplit.Subnautica
                     })
                     .Where(x => x.Delta != 0)
                     .ToDictionary(x => x.Key, x => x.Delta);
+
+            currentInventoryChanges = changedItems;
 
             TechType pickedUpItem = changedItems.FirstOrDefault(kvp => kvp.Value > 0).Key;
             TechType droppedItem = changedItems.FirstOrDefault(kvp => kvp.Value < 0).Key;
@@ -660,6 +708,44 @@ namespace LiveSplit.Subnautica
                     dict[key] = new InvChangeInfo(amount, Stopwatch.StartNew());
                 }
             }
+        }
+
+        private bool HasPlayerItem(TechType techType) => PlayerInventory.ContainsKey(techType) || PlayerEquipment.Contains(techType);
+
+        private int GetPlayerItemCount(TechType techType) => PlayerInventory.GetCount(techType) + PlayerEquipment.Count(item => item == techType);
+
+        private int GetPlayerItemCountOld(TechType techType) => PlayerInventoryOld.GetCount(techType) + PlayerEquipmentOld.Count(item => item == techType);
+
+        private void UpdateFlareThrowState()
+        {
+            bool isFlareTool = string.Equals(ActiveToolName.New, "flare", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(ActiveToolName.Old, "flare", StringComparison.OrdinalIgnoreCase);
+
+            if (isFlareTool && TimeOfLastToolUseAnim.New != TimeOfLastToolUseAnim.Old)
+            {
+                flareThrowArmed = true;
+                flareThrowArmedTime.Restart();
+            }
+
+            if (flareThrowArmed && flareThrowArmedTime.ElapsedMilliseconds > maxFlareThrowAnimWindowMs)
+            {
+                flareThrowArmed = false;
+                flareThrowArmedTime.Reset();
+            }
+        }
+
+        private bool IsFlareThrowDrop()
+        {
+            bool flareDropped = currentInventoryChanges.TryGetValue(TechType.Flare, out int delta) && delta < 0;
+            if (!flareDropped)
+            {
+                return false;
+            }
+
+            bool split = flareThrowArmed && flareThrowArmedTime.ElapsedMilliseconds <= maxFlareThrowAnimWindowMs;
+            flareThrowArmed = false;
+            flareThrowArmedTime.Reset();
+            return split;
         }
 
         private void UpdateEncyclopedia()
@@ -724,6 +810,110 @@ namespace LiveSplit.Subnautica
 
                 return false;
             }
+        }
+
+        List<TechType> ReadEquipmentTypes()
+        {
+            var result = new List<TechType>();
+
+            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
+            if (invMain == IntPtr.Zero) return result;
+
+            IntPtr equipment = game.Read<IntPtr>(invMain + off_equipment);
+            if (equipment == IntPtr.Zero) return result;
+
+            IntPtr dict = game.Read<IntPtr>(equipment + off_equippedCount);
+            if (dict == IntPtr.Zero) return result;
+
+            // modern layout for Dictionary<TechType, int>
+            if (!useLegacyDict)
+            {
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    int verBefore = (dict_off_version != 0) ? game.Read<int>(dict + dict_off_version) : 0;
+
+                    IntPtr entriesArr = game.Read<IntPtr>(dict + dict_off_entries);
+                    if (entriesArr == IntPtr.Zero) break;
+
+                    int len = game.Read<int>(entriesArr + arr_off_len);
+                    if (len <= 0 || len > 200000) break;
+
+                    IntPtr basePtr = entriesArr + arr_data_base;
+
+                    const int stride = 16;
+
+                    // [0x00]=hashCode(int), [0x04]=next(int), [0x08]=key(int), [0x0C]=value(int)
+                    for (int i = 0; i < len; i++)
+                    {
+                        IntPtr entry = basePtr + i * stride;
+
+                        int hashCode = game.Read<int>(entry + 0x00);
+                        if (hashCode < 0) continue;
+
+                        int keyInt = game.Read<int>(entry + 0x08);
+                        int count = game.Read<int>(entry + 0x0C);
+
+                        if (keyInt > 0 && count > 0)
+                        {
+                            for (int item = 0; item < count; item++)
+                                result.Add((TechType)keyInt);
+                        }
+                    }
+
+                    int verAfter = (dict_off_version != 0) ? game.Read<int>(dict + dict_off_version) : verBefore;
+                    if (verAfter == verBefore)
+                    {
+                        return result;
+                    }
+
+                    result.Clear();
+                }
+            }
+
+            IntPtr keyArr = legacy_off.off_keySlots != 0 ? game.Read<IntPtr>(dict + legacy_off.off_keySlots) : IntPtr.Zero;
+            IntPtr valArr = legacy_off.off_valSlots != 0 ? game.Read<IntPtr>(dict + legacy_off.off_valSlots) : IntPtr.Zero;
+            if (keyArr == IntPtr.Zero || valArr == IntPtr.Zero) return result;
+
+            IntPtr linkArr = IntPtr.Zero;
+            if (legacy_off.off_linkSlots != 0)
+                linkArr = game.Read<IntPtr>(dict + legacy_off.off_linkSlots);
+
+            int touched = 0;
+            if (legacy_off.off_touched != 0)
+                touched = game.Read<int>(dict + legacy_off.off_touched);
+
+            int keyLen = game.Read<int>(keyArr + arr_off_len);
+            int valLen = game.Read<int>(valArr + arr_off_len);
+            int upper = Math.Min(keyLen, valLen);
+
+            if (touched > 0 && touched <= upper) upper = touched;
+            if (upper <= 0 || upper > 200000) return result;
+
+            IntPtr keyBase = keyArr + arr_data_base;
+            IntPtr valBase = valArr + arr_data_base;
+            IntPtr linkBase = linkArr != IntPtr.Zero ? linkArr + arr_data_base : IntPtr.Zero;
+
+            const int linkStride = 8;
+
+            for (int i = 0; i < upper; i++)
+            {
+                if (linkBase != IntPtr.Zero)
+                {
+                    int h = game.Read<int>(linkBase + i * linkStride);
+                    if (h == 0) continue;
+                }
+
+                int keyInt = game.Read<int>(keyBase + i * 4);
+                int count = game.Read<int>(valBase + i * 4);
+
+                if (keyInt > 0 && count > 0)
+                {
+                    for (int item = 0; item < count; item++)
+                        result.Add((TechType)keyInt);
+                }
+            }
+
+            return result;
         }
 
         Dictionary<TechType, int> ReadInventoryCounts()

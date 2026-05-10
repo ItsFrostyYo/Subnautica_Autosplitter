@@ -1,0 +1,137 @@
+namespace LiveSplit.Subnautica
+{
+    public static class TechTypeItemSlots
+    {
+        public static int GetSlotCount(TechType techType)
+        {
+            switch (techType)
+            {
+                case TechType.ScrapMetal: return 4;
+                case TechType.Fins: return 4;
+                case TechType.Tank: return 6;
+                case TechType.Rebreather: return 4;
+                case TechType.RadiationSuit: return 4;
+                case TechType.RadiationHelmet: return 4;
+                case TechType.RadiationGloves: return 4;
+                case TechType.ReinforcedDiveSuit: return 4;
+                case TechType.CyclopsDecoy: return 2;
+                case TechType.DoubleTank: return 6;
+                case TechType.ReinforcedGloves: return 4;
+                case TechType.Seaglide: return 6;
+                case TechType.Constructor: return 9;
+                case TechType.StasisRifle: return 4;
+                case TechType.PropulsionCannon: return 4;
+                case TechType.Gravsphere: return 4;
+                case TechType.SmallStorage: return 4;
+                case TechType.PlasteelTank: return 6;
+                case TechType.HighCapacityTank: return 9;
+                case TechType.UltraGlideFins: return 4;
+                case TechType.SwimChargeFins: return 4;
+                case TechType.RepulsionCannon: return 4;
+                case TechType.WaterFiltrationSuit: return 4;
+                case TechType.PowerGlide: return 6;
+                case TechType.StalkerEgg: return 4;
+                case TechType.ReefbackEgg: return 9;
+                case TechType.SandsharkEgg: return 4;
+                case TechType.JellyrayEgg: return 4;
+                case TechType.BonesharkEgg: return 4;
+                case TechType.CrabsnakeEgg: return 4;
+                case TechType.ShockerEgg: return 4;
+                case TechType.GasopodEgg: return 4;
+                case TechType.JellyrayEggUndiscovered: return 4;
+                case TechType.StalkerEggUndiscovered: return 4;
+                case TechType.ReefbackEggUndiscovered: return 9;
+                case TechType.BonesharkEggUndiscovered: return 4;
+                case TechType.GasopodEggUndiscovered: return 4;
+                case TechType.SandsharkEggUndiscovered: return 4;
+                case TechType.ShockerEggUndiscovered: return 4;
+                case TechType.CrabsquidEgg: return 4;
+                case TechType.CrabsquidEggUndiscovered: return 4;
+                case TechType.LavaLizardEgg: return 4;
+                case TechType.LavaLizardEggUndiscovered: return 4;
+                case TechType.CrabsnakeEggUndiscovered: return 4;
+                case TechType.LuggageBag: return 4;
+                case TechType.LabEquipment1: return 4;
+                case TechType.LabEquipment2: return 4;
+                case TechType.LabEquipment3: return 4;
+                case TechType.LabContainer: return 4;
+                case TechType.ToyCar: return 4;
+                case TechType.Creepvine: return 4;
+                case TechType.Jumper: return 4;
+                case TechType.CreepvineSeedCluster: return 4;
+                case TechType.RabbitRay: return 4;
+                case TechType.Crash: return 4;
+                case TechType.Stalker: return 9;
+                case TechType.Jellyray: return 9;
+                case TechType.Reefback: return 16;
+                case TechType.Gasopod: return 9;
+                case TechType.Sandshark: return 9;
+                case TechType.CreepvinePiece: return 4;
+                case TechType.BoneShark: return 9;
+                case TechType.Mesmer: return 4;
+                case TechType.Cutefish: return 4;
+                case TechType.Crabsnake: return 9;
+                case TechType.Shocker: return 9;
+                case TechType.CrabSquid: return 9;
+                case TechType.LavaLizard: return 9;
+                case TechType.SmallKoosh: return 4;
+                case TechType.MembrainTree: return 4;
+                case TechType.BloodOil: return 4;
+                case TechType.BloodVine: return 4;
+                case TechType.BulboTree: return 4;
+                case TechType.PurpleVasePlant: return 4;
+                case TechType.OrangeMushroom: return 4;
+                case TechType.FernPalm: return 4;
+                case TechType.HangingFruitTree: return 4;
+                case TechType.PurpleVegetablePlant: return 4;
+                case TechType.BluePalm: return 4;
+                case TechType.GabeSFeather: return 4;
+                case TechType.SeaCrown: return 4;
+                case TechType.OrangePetalsPlant: return 4;
+                case TechType.EyesPlant: return 4;
+                case TechType.RedGreenTentacle: return 4;
+                case TechType.PurpleStalk: return 4;
+                case TechType.RedBasketPlant: return 4;
+                case TechType.RedBush: return 4;
+                case TechType.RedConePlant: return 4;
+                case TechType.ShellGrass: return 4;
+                case TechType.SpottedLeavesPlant: return 4;
+                case TechType.RedRollPlant: return 4;
+                case TechType.PurpleBranches: return 4;
+                case TechType.SnakeMushroom: return 4;
+                case TechType.SeaTreaderPoop: return 4;
+                case TechType.KooshChunk: return 4;
+                case TechType.BulboTreePiece: return 4;
+                case TechType.OrangeMushroomSpore: return 4;
+                case TechType.PurpleVasePlantSeed: return 4;
+                case TechType.HangingFruit: return 4;
+                case TechType.PurpleVegetable: return 4;
+                case TechType.Melon: return 4;
+                case TechType.PurpleBrainCoralPiece: return 4;
+                case TechType.SpikePlantSeed: return 4;
+                case TechType.BluePalmSeed: return 4;
+                case TechType.GabeSFeatherSeed: return 4;
+                case TechType.SeaCrownSeed: return 4;
+                case TechType.MembrainTreeSeed: return 4;
+                case TechType.FernPalmSeed: return 4;
+                case TechType.OrangePetalsPlantSeed: return 4;
+                case TechType.EyesPlantSeed: return 4;
+                case TechType.RedGreenTentacleSeed: return 4;
+                case TechType.PurpleStalkSeed: return 4;
+                case TechType.RedBasketPlantSeed: return 4;
+                case TechType.RedBushSeed: return 4;
+                case TechType.RedConePlantSeed: return 4;
+                case TechType.ShellGrassSeed: return 4;
+                case TechType.SpottedLeavesPlantSeed: return 4;
+                case TechType.RedRollPlantSeed: return 4;
+                case TechType.PurpleBranchesSeed: return 4;
+                case TechType.SnakeMushroomSpore: return 4;
+                case TechType.PurpleBrainCoral: return 4;
+                case TechType.SpikePlant: return 4;
+                case TechType.PrecursorKey_White: return 4;
+                case TechType.MapRoomCamera: return 4;
+                default: return 1;
+            }
+        }
+    }
+}

@@ -171,6 +171,7 @@
     <Compile Include="SubnauticaSplitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enums\TechType.cs" />
+    <Compile Include="Enums\TechTypeItemSlots.cs" />
     <Compile Include="Voxif.AutoSplitter\Component.cs" />
     <Compile Include="Voxif.AutoSplitter\ExtensionMethods.cs" />
     <Compile Include="Voxif.AutoSplitter\Factory.cs" />
