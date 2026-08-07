@@ -551,8 +551,8 @@ namespace LiveSplit.Subnautica
            
             if (Needs(SplitName.EnterBaseSplit, SplitName.ExitBaseSplit))
             {
-                CurrentSub.Update();
-                CurrentSubIsBase.Update();
+                CurrentSub.ForceUpdate();
+                CurrentSubIsBase.ForceUpdate();
             }
 
             if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
