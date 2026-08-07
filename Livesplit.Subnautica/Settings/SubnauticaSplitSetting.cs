@@ -191,6 +191,8 @@ namespace LiveSplit.Subnautica
         ThrowFlareSplit,
         [Description("Enter Base"), ToolTip("Splits when you enter a constructed base")]
         EnterBaseSplit,
+        [Description("Exit Base"), ToolTip("Splits when you exit a constructed base")]
+        ExitBaseSplit,
     }
     public class ToolTipAttribute : Attribute
     {
