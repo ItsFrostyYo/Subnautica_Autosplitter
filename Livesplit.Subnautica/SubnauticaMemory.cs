@@ -229,6 +229,7 @@ namespace LiveSplit.Subnautica
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
                 { SplitName.ThrowFlareSplit,      () => IsFlareThrowDrop() },
                 { SplitName.EnterBaseSplit,       () => CurrentSub.New != IntPtr.Zero && CurrentSub.Old == IntPtr.Zero && CurrentSubIsBase.New },
+                { SplitName.ExitBaseSplit,        () => CurrentSub.Old != IntPtr.Zero && CurrentSub.New == IntPtr.Zero && CurrentSubIsBase.Old },
             };
         }
 
@@ -548,7 +549,7 @@ namespace LiveSplit.Subnautica
             if (Needs(SplitName.HatchSplit))
                 isEggsHatching.Update(game.Process);
            
-            if (Needs(SplitName.EnterBaseSplit))
+            if (Needs(SplitName.EnterBaseSplit, SplitName.ExitBaseSplit))
             {
                 CurrentSub.ForceUpdate();
                 CurrentSubIsBase.ForceUpdate();
