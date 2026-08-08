@@ -1,3 +1,5 @@
+# Fork / Test Version
+
 # LiveSplit.Subnautica
 This LiveSplit Auto Splitter provides automatic start, split, reset, and load time removal for Subnautica by tracking in-game memory values.
 
@@ -54,6 +56,10 @@ Adds a LiveSplit text component to your layout which displays the time it takes 
 - Game updates may temporarily break memory signatures
 - Restarting the game may rarely break the Auto Splitter
 If this happens, restart LiveSplit or reload the Auto Splitter
+## Known Issues for Testing Features
+- If Flare Drops after Death (if possible) then it could technically split for Throw Flare if it was held on death.
+- Loading Into a Save File that is Inside and Unfloaded Base will Start the Timer using Creative Start.
+
 
 # Contributing
 Bug reports and code improvements are welcome

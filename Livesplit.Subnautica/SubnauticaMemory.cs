@@ -53,6 +53,8 @@ namespace LiveSplit.Subnautica
         public Pointer<bool> RadiationFixed;        
         public Pointer<bool> IsPlayerJumping;   
         public Pointer<bool> IsDying;
+        public Pointer<bool> CurrentSubIsBase;
+        public Pointer<bool> PDAIsInUse;
 
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
@@ -60,6 +62,7 @@ namespace LiveSplit.Subnautica
         public Pointer<float> TimeToStartWarning;
         public Pointer<float> TimeOfLastToolUseAnim;
 
+        public Pointer<IntPtr> CurrentSub;
         public Pointer<IntPtr> MainMenu;
         public Pointer<IntPtr> CraftingMenu;
         private Pointer<IntPtr> knowntechPtr;
@@ -210,9 +213,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.MountainDescendSplit, () => IsWithinBounds(mountainBounds) && !IsWithinBounds(mountainBounds, old: true) },
                 { SplitName.IonDeathSplit,        () => Health.New <= 0 && Health.Old > 0 && new[] { "Precursor_LavaCastleBase", "PrecursorThermalRoom" }.Contains(BiomeString.New) },
                 { SplitName.GunDeathSplit,        () => Health.New <= 0 && Health.Old > 0 && BiomeString.New == "Precursor_Gun_ControlRoom" },
-                { SplitName.SparseDeathSplit,     () => Health.New <= 0 && Health.Old > 0 && new[] { "sparseReef", "seaTreaderPath", "seaTreaderPath_wreck" }.Contains(BiomeString.New) },
-                { SplitName.SGLBaseSplit,         () => isNotInWater.Current && !isNotInWater.Old && IsWithinBounds(SGLBaseBounds) },
-                { SplitName.SGLShallowsSplit,     () => !isNotInWater.Current && IsAnimationPlaying.New && IsWithinBounds(SGLBaseBounds) && PlayerInventory.ContainsKey(TechType.DoubleTank) },
+                //{ SplitName.SGLShallowsSplit,     () => CurrentSub.Old != IntPtr.Zero && CurrentSub.New == IntPtr.Zero && CurrentSubIsBase.Old && GetPlayerItemCount(TechType.JeweledDiskPiece) >= 1 && GetPlayerItemCount(TechType.CrashPowder) >= 1 && GetPlayerItemCount(TechType.Battery) >= 1 && (GetPlayerItemCount(TechType.FiberMesh) >= 2 || GetPlayerItemCount(TechType.FirstAidKit) >= 2) },
                 { SplitName.UpperTabletSplit,     () => PlayerInventory.GetCount(TechType.PrecursorKey_Purple) > PlayerInventoryOld.GetCount(TechType.PrecursorKey_Purple) && IsWithinBounds(upperTabletBounds) },
                 { SplitName.IonUnstuckSplit,      () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && BiomeString.New == "PrecursorThermalRoom" },
                 { SplitName.PCFPoolSplit,         () => BiomeString.New == "Prison_Aquarium_Upper" && BiomeString.Old == "Prison_Moonpool" },
@@ -226,6 +227,9 @@ namespace LiveSplit.Subnautica
                 { SplitName.FullInventorySplit,   () => PlayerInventory.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() == 48 && PlayerInventoryOld.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() != 48 },
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
                 { SplitName.ThrowFlareSplit,      () => IsFlareThrowDrop() },
+                { SplitName.EnterBaseSplit,       () => CurrentSub.New != IntPtr.Zero && CurrentSub.Old == IntPtr.Zero && CurrentSubIsBase.New },
+                { SplitName.ExitBaseSplit,        () => CurrentSub.Old != IntPtr.Zero && CurrentSub.New == IntPtr.Zero && CurrentSubIsBase.Old },
+                { SplitName.BuilderLoopLifepodReturnSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && BiomeString.New == "safeShallows" && GetPlayerItemCount(TechType.JeweledDiskPiece) >= 3 && GetPlayerItemCount(TechType.JeweledDiskPiece) <= 4 && GetPlayerItemCount(TechType.Builder) == 0 },
             };
         }
 
@@ -289,6 +293,11 @@ namespace LiveSplit.Subnautica
             #region Is Animation Playing
             IsAnimationPlaying = ptrFactory.Make<bool>("Player", "main", "_cinematicModeActive");
             #endregion Is Animation Playing
+            #region Current Sub
+            CurrentSub = ptrFactory.Make<IntPtr>("Player", "main", "_currentSub");
+            int off_subRootIsBase = mono.GetFieldOffset(mono.FindClass("SubRoot"), "isBase");
+            CurrentSubIsBase = ptrFactory.Make<bool>(CurrentSub, off_subRootIsBase);
+            #endregion Current Sub
             #region IsLoadingScreenShowing
             Pointer<IntPtr> uGUI_SceneLoadingPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "loading");
             int off_isLoading = mono.GetFieldOffset(mono.FindClass("uGUI_SceneLoading"), "isLoading");
@@ -420,6 +429,11 @@ namespace LiveSplit.Subnautica
             BiomeString = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
             #endregion
             #region PDATab
+            Pointer<IntPtr> armsControllerPtr = ptrFactory.Make<IntPtr>("Player", "main", "armsController");
+            int off_armsControllerPda = mono.GetFieldOffset(mono.FindClass("ArmsController"), "pda");
+            Pointer<IntPtr> playerPdaPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerPda);
+            int off_pdaIsInUse = mono.GetFieldOffset(mono.FindClass("PDA"), "<isInUse>k__BackingField");
+            PDAIsInUse = ptrFactory.Make<bool>(playerPdaPtr, off_pdaIsInUse);
             PDATab = ptrFactory.Make<int>("uGUI_PDA", "<main>k__BackingField", "tabOpen");
             #endregion PDATab
             #region Damage Effects Showing
@@ -471,7 +485,6 @@ namespace LiveSplit.Subnautica
             int off_activeToolName = mono.GetFieldOffset(mono.FindClass("QuickSlots"), "activeToolName");
             ActiveToolName = ptrFactory.MakeString(quickSlotsPtr, off_activeToolName, 0x14);
 
-            Pointer<IntPtr> armsControllerPtr = ptrFactory.Make<IntPtr>("Player", "main", "armsController");
             int off_armsControllerGuiHand = mono.GetFieldOffset(mono.FindClass("ArmsController"), "guiHand");
             Pointer<IntPtr> guiHandPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerGuiHand);
             int off_timeOfLastToolUseAnim = mono.GetFieldOffset(mono.FindClass("GUIHand"), "timeOfLastToolUseAnim");
@@ -540,8 +553,11 @@ namespace LiveSplit.Subnautica
             if (Needs(SplitName.HatchSplit))
                 isEggsHatching.Update(game.Process);
 
-            if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
-                isNotInWater.Update(game.Process);
+            if (Needs(SplitName.EnterBaseSplit, SplitName.ExitBaseSplit, SplitName.SGLShallowsSplit))
+            {
+                CurrentSub.ForceUpdate();
+                CurrentSubIsBase.ForceUpdate();
+            } 
 
             if (Needs(SplitName.ThrowFlareSplit))
                 UpdateFlareThrowState();
@@ -551,7 +567,6 @@ namespace LiveSplit.Subnautica
                       SplitName.BaseDeathSplit,
                       SplitName.LeaveKelpForestSplit,
                       SplitName.MountainDescendSplit,
-                      SplitName.SGLBaseSplit,
                       SplitName.SGLShallowsSplit,
                       SplitName.UpperTabletSplit,
                       SplitName.AuroraExitSplit,
@@ -566,7 +581,8 @@ namespace LiveSplit.Subnautica
                       SplitName.FourToothSplit,
                       SplitName.HCGSparseSplit,
                       SplitName.SGLShallowsSplit,
-                      SplitName.UpperTabletSplit))
+                      SplitName.UpperTabletSplit,
+                      SplitName.BuilderLoopLifepodReturnSplit))
                 UpdateInventory();
 
             if (Needs(SplitName.Blueprint, 
@@ -742,10 +758,17 @@ namespace LiveSplit.Subnautica
                 return false;
             }
 
-            bool split = flareThrowArmed && flareThrowArmedTime.ElapsedMilliseconds <= maxFlareThrowAnimWindowMs;
-            flareThrowArmed = false;
-            flareThrowArmedTime.Reset();
-            return split;
+            if (IsPDAInventoryOpen())
+                return false;
+
+            return string.Equals(ActiveToolName.New, "flare", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(ActiveToolName.Old, "flare", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool IsPDAInventoryOpen()
+        {
+            return (PDAIsInUse?.New ?? false)
+                && (LiveSplit.Subnautica.PDATab)PDATab.New == LiveSplit.Subnautica.PDATab.Inventory;
         }
 
         private void UpdateEncyclopedia()

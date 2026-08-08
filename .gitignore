@@ -8,3 +8,4 @@ Livesplit.Subnautica/External/
 *.suo
 *.userosscache
 *.sln.docstates
+*.ps1
