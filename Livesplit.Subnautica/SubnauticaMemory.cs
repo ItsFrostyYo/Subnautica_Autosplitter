@@ -550,7 +550,6 @@ namespace LiveSplit.Subnautica
             {
                 CurrentSub.ForceUpdate();
                 CurrentSubIsBase.ForceUpdate();
-                isNotInWater.Update(game.Process);
             }           
 
             if (Needs(SplitName.ThrowFlareSplit))
