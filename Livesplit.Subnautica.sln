@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36212.18 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Livesplit.Subnautica", "Livesplit.Subnautica\Livesplit.Subnautica.csproj", "{2C1210E7-0CE3-450E-95CE-27026BCDE375}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Livesplit.SubnauticaTracker", "Livesplit.SubnauticaTracker\Livesplit.SubnauticaTracker.csproj", "{6E869DBF-99E8-4B7C-9237-7192D6417D64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{2C1210E7-0CE3-450E-95CE-27026BCDE375}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C1210E7-0CE3-450E-95CE-27026BCDE375}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C1210E7-0CE3-450E-95CE-27026BCDE375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,9 +3,12 @@
 Livesplit.Subnautica/bin/
 Livesplit.Subnautica/obj/
 Livesplit.Subnautica/External/
+Livesplit.SubnauticaTracker/bin/
+Livesplit.SubnauticaTracker/obj/
 
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
 *.ps1
+!BuildTracker.ps1
