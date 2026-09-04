@@ -193,6 +193,10 @@ namespace LiveSplit.Subnautica
         ThrowFlareSplit,
         [Description("Collect Upper Tablet"), ToolTip("Splits when you grab the purple tablet above the Alien Gun Entrence")]
         UpperTabletSplit,
+        [Description("Repair Secondary Systems"), ToolTip("Splits when you Repair the Lifepod Secondary Systems")]
+        RepairSecondarySystemsSplit,
+        [Description("Repair Radio"), ToolTip("Splits when you Repair the Lifepod Radio")]
+        RepairRadioSplit,
     }
     public class ToolTipAttribute : Attribute
     {
