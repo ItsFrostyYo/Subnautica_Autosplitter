@@ -87,6 +87,9 @@ namespace LiveSplit.Subnautica
 
                 // Start of PDA
                 if ((PDATab)memory.PDATab.New != PDATab.None && memory.PDATab.Changed) { logger.Log("Start of PDA"); memory.startedTimerBefore = true; return true; }
+
+                // Start of Dev Console
+                if (memory.DevConsoleOpen.New && !memory.DevConsoleOpen.Old) { logger.Log("Start of Dev Console"); memory.startedTimerBefore = true; return true; }
             }
             return false;
         }
