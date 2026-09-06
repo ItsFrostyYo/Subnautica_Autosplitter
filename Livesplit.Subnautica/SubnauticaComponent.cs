@@ -87,10 +87,15 @@ namespace LiveSplit.Subnautica
 
                 // Start of PDA
                 if ((PDATab)memory.PDATab.New != PDATab.None && memory.PDATab.Changed) { logger.Log("Start of PDA"); memory.startedTimerBefore = true; return true; }
-
-                // Start of Dev Console
-                if (memory.DevConsoleOpen.New && !memory.DevConsoleOpen.Old) { logger.Log("Start of Dev Console"); memory.startedTimerBefore = true; return true; }
             }
+            
+            // Not Blocked by Loading Screen
+            if (settings.CreativeStart && !memory.isInMainMenu)
+            {
+                // Start of Dev Console                                     // Allow it to Always Start the Timer after Resetting
+                if (memory.DevConsoleOpen.New && !memory.DevConsoleOpen.Old) { logger.Log("Start of Dev Console"); return true; }
+            }
+
             return false;
         }
 
