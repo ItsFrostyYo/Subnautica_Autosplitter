@@ -11,4 +11,3 @@ Livesplit.SubnauticaTracker/obj/
 *.userosscache
 *.sln.docstates
 *.ps1
-!BuildTracker.ps1
