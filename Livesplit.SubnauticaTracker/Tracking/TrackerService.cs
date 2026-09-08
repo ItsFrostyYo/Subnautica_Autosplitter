@@ -32,6 +32,36 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         }
 
         public TrackerSnapshot Snapshot => snapshot;
+        public static string MissingReportPath => MissingReportWriter.FilePath;
+
+        public bool TryWriteMissingReport(out string path, out string error)
+        {
+            path = MissingReportWriter.FilePath;
+            error = string.Empty;
+
+            TrackerSnapshot current = snapshot;
+            SubnauticaUnlockReader reader = unlockReader;
+            MissingItems missing;
+            if (current.State != TrackerState.Tracking
+                || reader == null
+                || !reader.TryGetMissingItems(out missing))
+            {
+                return false;
+            }
+
+            try
+            {
+                MissingReportWriter.Write(missing);
+                TrackerLog.Info("Missing report written: " + path);
+                return true;
+            }
+            catch (Exception exception)
+            {
+                error = exception.Message;
+                TrackerLog.Exception("Missing report write failed", exception);
+                return false;
+            }
+        }
 
         public void Dispose()
         {

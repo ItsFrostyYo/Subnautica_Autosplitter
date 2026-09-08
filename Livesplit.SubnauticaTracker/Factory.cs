@@ -11,9 +11,9 @@ namespace LiveSplit.SubnauticaTracker
         public string Description => "Configurable Subnautica Progression Tracker for Speedrunning.";
         public ComponentCategory Category => ComponentCategory.Information;
         public string UpdateName => ComponentName;
-        public string XMLURL => string.Empty;
-        public string UpdateURL => string.Empty;
-        public Version Version => new Version(1, 4, 2, 0);
+        public string UpdateURL => "https://raw.githubusercontent.com/ItsFrostyYo/Subnautica_Autosplitter/LiveSplit.Subnautica/";
+        public string XMLURL => UpdateURL + "Components/SubnauticaTracker.Updates.xml";
+        public Version Version => new Version(1, 6, 3, 0);
 
         public IComponent Create(LiveSplitState state) => new Component(state);
     }

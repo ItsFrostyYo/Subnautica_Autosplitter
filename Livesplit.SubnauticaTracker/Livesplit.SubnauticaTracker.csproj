@@ -29,10 +29,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Catalogs\BlueprintCatalog.cs" />
+    <Compile Include="Catalogs\DatabankCatalog.cs" />
+    <Compile Include="Catalogs\ProgressNameCatalog.cs" />
+    <Compile Include="..\Livesplit.Subnautica\Enums\TechType.cs">
+      <Link>Catalogs\TechType.cs</Link>
+    </Compile>
     <Compile Include="Component.cs" />
+    <Compile Include="Diagnostics\MissingReportWriter.cs" />
     <Compile Include="Diagnostics\TrackerLog.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Memory\ManagedCollections.cs" />
+    <Compile Include="Memory\MissingItems.cs" />
     <Compile Include="Memory\MonoRuntime.cs" />
     <Compile Include="Memory\ProcessMemory.cs" />
     <Compile Include="Memory\SubnauticaUnlockReader.cs" />

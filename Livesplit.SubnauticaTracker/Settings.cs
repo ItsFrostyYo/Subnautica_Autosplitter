@@ -32,6 +32,8 @@ namespace LiveSplit.SubnauticaTracker
         private readonly Button[] rowUpButtons;
         private readonly Button[] rowDownButtons;
         private readonly Button addRowButton;
+        private readonly Button logMissingButton;
+        private readonly Button showMissingButton;
         private readonly TableLayoutPanel layout;
         private readonly TrackerRowSettings[] rows;
         private readonly ToolTip toolTip;
@@ -39,7 +41,8 @@ namespace LiveSplit.SubnauticaTracker
         private bool refreshingRows;
         private int rowCount;
 
-        public event EventHandler SettingsChanged;
+        public event EventHandler LogMissingRequested;
+        public event EventHandler ShowMissingRequested;
 
         public Color BackgroundColor { get; set; }
         public Color BackgroundColor2 { get; set; }
@@ -162,8 +165,39 @@ namespace LiveSplit.SubnauticaTracker
                 UseVisualStyleBackColor = true
             };
             layout.Controls.Add(addRowButton, 0, 4);
-            layout.SetColumnSpan(addRowButton, 7);
             toolTip.SetToolTip(addRowButton, "Add another tracker row, up to a maximum of three.");
+
+            logMissingButton = new Button
+            {
+                AutoSize = true,
+                Text = "Log Missing",
+                UseVisualStyleBackColor = true
+            };
+            showMissingButton = new Button
+            {
+                AutoSize = true,
+                Text = "Show Missing",
+                UseVisualStyleBackColor = true
+            };
+            var missingButtons = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink,
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = Padding.Empty,
+                WrapContents = false
+            };
+            missingButtons.Controls.Add(logMissingButton);
+            missingButtons.Controls.Add(showMissingButton);
+            layout.Controls.Add(missingButtons, 1, 4);
+            layout.SetColumnSpan(missingButtons, 6);
+            toolTip.SetToolTip(
+                logMissingButton,
+                "Overwrite the missing-items log with the active save's current missing progress.");
+            toolTip.SetToolTip(
+                showMissingButton,
+                "Open the existing missing-items log in your configured text editor.");
 
             AutoScaleDimensions = new SizeF(6f, 13f);
             AutoScaleMode = AutoScaleMode.Font;
@@ -174,6 +208,10 @@ namespace LiveSplit.SubnauticaTracker
             secondColorButton.Click += ColorButtonClick;
             gradientTypeComboBox.SelectedIndexChanged += GradientTypeChanged;
             addRowButton.Click += AddRowClick;
+            logMissingButton.Click +=
+                (sender, args) => LogMissingRequested?.Invoke(this, EventArgs.Empty);
+            showMissingButton.Click +=
+                (sender, args) => ShowMissingRequested?.Invoke(this, EventArgs.Empty);
 
             firstColorButton.DataBindings.Add(
                 "BackColor",
@@ -270,7 +308,6 @@ namespace LiveSplit.SubnauticaTracker
 
             RefreshBindings();
             RefreshRowControls();
-            OnSettingsChanged();
         }
 
         public XmlNode GetSettings(XmlDocument document)
@@ -399,7 +436,6 @@ namespace LiveSplit.SubnauticaTracker
         private void ColorButtonClick(object sender, EventArgs e)
         {
             SettingsHelper.ColorButtonClick((Button)sender, this);
-            OnSettingsChanged();
         }
 
         private void GradientTypeChanged(object sender, EventArgs e)
@@ -409,7 +445,6 @@ namespace LiveSplit.SubnauticaTracker
 
             GradientString = gradientTypeComboBox.SelectedItem.ToString();
             UpdateSecondColorBinding();
-            OnSettingsChanged();
         }
 
         private void RowSelectionChanged(int index)
@@ -424,7 +459,6 @@ namespace LiveSplit.SubnauticaTracker
                 rows[index].Category = category;
                 rows[index].DisplayValue = TrackerRowSettings.GetDefaultDisplayValue(category);
             }
-            OnSettingsChanged();
         }
 
         private void AddRowClick(object sender, EventArgs e)
@@ -439,7 +473,6 @@ namespace LiveSplit.SubnauticaTracker
             };
             rowCount++;
             RefreshRowControls();
-            OnSettingsChanged();
         }
 
         private void RemoveRow(int index)
@@ -453,7 +486,6 @@ namespace LiveSplit.SubnauticaTracker
             rowCount--;
             rows[rowCount] = null;
             RefreshRowControls();
-            OnSettingsChanged();
         }
 
         private void MoveRow(int index, int direction)
@@ -466,7 +498,6 @@ namespace LiveSplit.SubnauticaTracker
             rows[index] = rows[destination];
             rows[destination] = moved;
             RefreshRowControls();
-            OnSettingsChanged();
         }
 
         private void EditRow(int index)
@@ -483,8 +514,6 @@ namespace LiveSplit.SubnauticaTracker
                 rows[index].TextCentering = editor.TextCentering;
                 rows[index].TextColor = editor.TextColor;
             }
-
-            OnSettingsChanged();
         }
 
         private void RefreshRowControls()
@@ -546,11 +575,6 @@ namespace LiveSplit.SubnauticaTracker
             UpdateSecondColorBinding();
             foreach (Binding binding in secondColorButton.DataBindings)
                 binding.ReadValue();
-        }
-
-        private void OnSettingsChanged()
-        {
-            SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

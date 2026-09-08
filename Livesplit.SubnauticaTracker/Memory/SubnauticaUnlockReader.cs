@@ -55,6 +55,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private readonly MonoRuntime runtime;
         private readonly ManagedCollections collections;
         private readonly SubnauticaVersion version;
+        private readonly object missingItemsSync = new object();
 
         private ManagedStaticField knownTechField;
         private ManagedStaticField encyclopediaMappingField;
@@ -76,6 +77,10 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private HashSet<int> achievementUnlockables;
         private DateTime nextCatalogRefreshUtc = DateTime.MinValue;
         private bool catalogLogged;
+        private HashSet<int> lastBlueprints;
+        private HashSet<string> lastDatabanks;
+        private HashSet<int> lastAchievements;
+        private string lastSaveSlot;
 
         public SubnauticaUnlockReader(ProcessMemory memory, SubnauticaVersion version)
         {
@@ -180,6 +185,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 // menu this is a completed initialization with no active save,
                 // not a tracker initialization failure.
                 LastError = "Player/SaveLoadManager singletons are not active; no save is loaded.";
+                ClearMissingItems();
                 result = new UnlockReadResult(
                     UnlockReaderState.MainMenu,
                     string.Empty,
@@ -199,6 +205,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 || saveSlot.Equals("test", StringComparison.OrdinalIgnoreCase))
             {
                 LastError = "No active loaded save (Player.main/slot is empty).";
+                ClearMissingItems();
                 result = new UnlockReadResult(UnlockReaderState.MainMenu, string.Empty, 0, 0, 0, 0, 0, 0);
                 return true;
             }
@@ -293,17 +300,27 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 return true;
             }
 
-            int blueprintCount = currentBlueprints.Count(blueprintUnlockables.Contains);
-            int databankCount = currentEntries
+            HashSet<string> currentDatabanks = new HashSet<string>(
+                currentEntries
                 .Select(entry => entry.StringKey)
-                .Where(key => key != null)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Count(databankUnlockables.Contains);
-            int achievementCount = achievementRules
+                .Where(key => key != null),
+                StringComparer.OrdinalIgnoreCase);
+            HashSet<int> currentAchievements = new HashSet<int>(achievementRules
                 .Where(rule => completedGoals.Contains(rule.Key))
                 .SelectMany(rule => rule.Value)
-                .Distinct()
-                .Count(achievementUnlockables.Contains);
+                .Where(achievementUnlockables.Contains));
+
+            int blueprintCount = currentBlueprints.Count(blueprintUnlockables.Contains);
+            int databankCount = currentDatabanks.Count(databankUnlockables.Contains);
+            int achievementCount = currentAchievements.Count;
+
+            lock (missingItemsSync)
+            {
+                lastBlueprints = currentBlueprints;
+                lastDatabanks = currentDatabanks;
+                lastAchievements = currentAchievements;
+                lastSaveSlot = saveSlot;
+            }
 
             result = new UnlockReadResult(
                 UnlockReaderState.Tracking,
@@ -315,6 +332,49 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 achievementCount,
                 achievementUnlockables.Count);
             return true;
+        }
+
+        public bool TryGetMissingItems(out MissingItems missing)
+        {
+            missing = null;
+            lock (missingItemsSync)
+            {
+                if (lastBlueprints == null
+                    || lastDatabanks == null
+                    || lastAchievements == null
+                    || string.IsNullOrWhiteSpace(lastSaveSlot)
+                    || blueprintUnlockables == null
+                    || databankUnlockables == null
+                    || achievementUnlockables == null
+                    || achievementRules == null)
+                {
+                    return false;
+                }
+
+                string[] blueprints = blueprintUnlockables
+                    .Except(lastBlueprints)
+                    .OrderBy(ProgressNameCatalog.GetBlueprintName, StringComparer.OrdinalIgnoreCase)
+                    .Select(ProgressNameCatalog.FormatBlueprint)
+                    .ToArray();
+                string[] databanks = databankUnlockables
+                    .Except(lastDatabanks, StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(ProgressNameCatalog.GetDatabankName, StringComparer.OrdinalIgnoreCase)
+                    .Select(ProgressNameCatalog.FormatDatabank)
+                    .ToArray();
+                string[] achievements = achievementUnlockables
+                    .Except(lastAchievements)
+                    .OrderBy(ProgressNameCatalog.GetAchievementName, StringComparer.OrdinalIgnoreCase)
+                    .Select(id => ProgressNameCatalog.GetAchievementName(id)
+                        + " - "
+                        + string.Join(", ", achievementRules
+                            .Where(rule => rule.Value.Contains(id))
+                            .Select(rule => rule.Key)
+                            .OrderBy(goal => goal, StringComparer.OrdinalIgnoreCase)))
+                    .ToArray();
+
+                missing = new MissingItems(lastSaveSlot, blueprints, databanks, achievements);
+                return true;
+            }
         }
 
         private bool TryBuildBlueprintCatalog(out HashSet<int> unlockables)
@@ -342,7 +402,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
 
             foreach (ManagedDictionaryEntry entry in mappingEntries)
             {
-                if (!string.IsNullOrWhiteSpace(entry.StringKey) && !IsTimeCapsule(entry.Value))
+                if (DatabankCatalog.IsTracked(entry.StringKey) && !IsTimeCapsule(entry.Value))
                     unlockables.Add(entry.StringKey);
             }
 
@@ -442,6 +502,17 @@ namespace LiveSplit.SubnauticaTracker.Memory
             return string.IsNullOrWhiteSpace(memory.LastError)
                 ? string.Empty
                 : " Last memory error: " + memory.LastError;
+        }
+
+        private void ClearMissingItems()
+        {
+            lock (missingItemsSync)
+            {
+                lastBlueprints = null;
+                lastDatabanks = null;
+                lastAchievements = null;
+                lastSaveSlot = null;
+            }
         }
     }
 }

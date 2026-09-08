@@ -4,8 +4,10 @@ using LiveSplit.UI;
 using LiveSplit.UI.Components;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -49,12 +51,75 @@ namespace LiveSplit.SubnauticaTracker
 
             cache = new GraphicsCache();
             tracker = new TrackerService();
+            Settings.LogMissingRequested += LogMissingReport;
+            Settings.ShowMissingRequested += ShowMissingReport;
         }
 
         public void Dispose()
         {
+            Settings.LogMissingRequested -= LogMissingReport;
+            Settings.ShowMissingRequested -= ShowMissingReport;
             tracker.Dispose();
             Settings.Dispose();
+        }
+
+        private void LogMissingReport(object sender, EventArgs e)
+        {
+            string path;
+            string error;
+            if (!tracker.TryWriteMissingReport(out path, out error))
+            {
+                if (!string.IsNullOrWhiteSpace(error))
+                {
+                    MessageBox.Show(
+                        Settings.FindForm(),
+                        "Could not write the missing-items log:\n\n" + error,
+                        ComponentName,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void ShowMissingReport(object sender, EventArgs e)
+        {
+            string path = TrackerService.MissingReportPath;
+            if (!File.Exists(path))
+            {
+                ShowMissingReportPath(
+                    "No missing-items log has been created yet.\n\nLog path:\n\n" + path);
+                return;
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
+                return;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                Process.Start("notepad.exe", "\"" + path + "\"");
+                return;
+            }
+            catch
+            {
+            }
+
+            ShowMissingReportPath("The missing-items log is located at:\n\n" + path);
+        }
+
+        private void ShowMissingReportPath(string message)
+        {
+            MessageBox.Show(
+                Settings.FindForm(),
+                message,
+                ComponentName,
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
 
         public void DrawHorizontal(Graphics graphics, LiveSplitState state, float height, Region clipRegion)

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<updates>
+  <update version="1.6.3.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Add Log Missing and Show Missing reports for the active save.</change>
+    </changelog>
+  </update>
+  <update version="1.5.4.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Exclude the inconsistent legacy Vehicle Upgrade Console databank in every version.</change>
+    </changelog>
+  </update>
+  <update version="1.5.1.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Correct Hull Reinforcement to its obtainable VehicleArmorPlating TechType.</change>
+    </changelog>
+  </update>
+  <update version="1.5.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Track the curated set of 293 obtainable databank entries.</change>
+      <change>Add automatic LiveSplit component updates.</change>
+    </changelog>
+  </update>
+</updates>
