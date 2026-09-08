@@ -2,8 +2,8 @@ using LiveSplit.UI.Components;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("LiveSplit.SubnauticaTracker")]
-[assembly: AssemblyDescription("Configurable Subnautica progression tracker for speedrunning.")]
+[assembly: AssemblyTitle("Configurable Subnautica progression tracker for speedrunning.")]
+[assembly: AssemblyDescription("LiveSplit.SubnauticaTracker")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LiveSplit.SubnauticaTracker")]
 [assembly: AssemblyCopyright("Copyright © Kaleb Austin 2026")]
