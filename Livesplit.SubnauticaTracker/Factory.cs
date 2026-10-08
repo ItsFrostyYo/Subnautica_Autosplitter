@@ -13,7 +13,7 @@ namespace LiveSplit.SubnauticaTracker
         public string UpdateName => ComponentName;
         public string UpdateURL => "https://raw.githubusercontent.com/ItsFrostyYo/Subnautica_Autosplitter/LiveSplit.Subnautica/";
         public string XMLURL => UpdateURL + "Components/SubnauticaTracker.Updates.xml";
-        public Version Version => new Version(1, 6, 3, 0);
+        public Version Version => new Version(1, 7, 4, 0);
 
         public IComponent Create(LiveSplitState state) => new Component(state);
     }

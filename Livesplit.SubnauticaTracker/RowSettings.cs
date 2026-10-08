@@ -15,13 +15,16 @@ namespace LiveSplit.SubnauticaTracker
         BlueprintsAndDatabanks,
         Blueprints,
         Databanks,
-        Achievements
+        Achievements,
+        DamageTaken
     }
 
     public enum TrackerDisplayValue
     {
         Number,
-        Percentage
+        Percentage,
+        DamageTaken,
+        HitsTaken
     }
 
     public sealed class TrackerRowSettings
@@ -35,12 +38,15 @@ namespace LiveSplit.SubnauticaTracker
         public TrackerDisplayValue DisplayValue { get; set; }
         public TrackerTextCentering TextCentering { get; set; }
         public Color TextColor { get; set; }
+        public bool ExcludeIntroDamage { get; set; }
 
         public static TrackerDisplayValue GetDefaultDisplayValue(TrackerRowCategory category)
         {
-            return category == TrackerRowCategory.Completion
-                ? TrackerDisplayValue.Percentage
-                : TrackerDisplayValue.Number;
+            if (category == TrackerRowCategory.Completion)
+                return TrackerDisplayValue.Percentage;
+            if (category == TrackerRowCategory.DamageTaken)
+                return TrackerDisplayValue.DamageTaken;
+            return TrackerDisplayValue.Number;
         }
 
         public void ResetToDefaults(TrackerRowCategory category)
@@ -49,6 +55,7 @@ namespace LiveSplit.SubnauticaTracker
             DisplayValue = GetDefaultDisplayValue(category);
             TextCentering = TrackerTextCentering.Center;
             TextColor = Color.White;
+            ExcludeIntroDamage = true;
         }
 
         public TrackerRowSettings Clone()
@@ -58,7 +65,8 @@ namespace LiveSplit.SubnauticaTracker
                 Category = Category,
                 DisplayValue = DisplayValue,
                 TextCentering = TextCentering,
-                TextColor = TextColor
+                TextColor = TextColor,
+                ExcludeIntroDamage = ExcludeIntroDamage
             };
         }
     }

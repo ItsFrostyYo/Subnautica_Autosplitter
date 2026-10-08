@@ -11,6 +11,7 @@
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <LiveSplitRoot Condition="'$(LiveSplitRoot)' == ''">C:\Users\mxz\Desktop\LiveSplit\LiveSplit_1.8.37</LiveSplitRoot>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,7 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="LiveSplit.Core">
-      <HintPath>C:\Users\mxz\Desktop\LiveSplit\LiveSplit_1.8.37\LiveSplit.Core.dll</HintPath>
+      <HintPath>$(LiveSplitRoot)\LiveSplit.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -62,14 +63,14 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="UpdateManager">
-      <HintPath>C:\Users\mxz\Desktop\LiveSplit\LiveSplit_1.8.37\UpdateManager.dll</HintPath>
+      <HintPath>$(LiveSplitRoot)\UpdateManager.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <ProjectComponentsDir>$(MSBuildProjectDirectory)\..\Components\</ProjectComponentsDir>
-    <LiveSplitComponentsDir>C:\Users\mxz\Desktop\LiveSplit\LiveSplit_1.8.37\Components\</LiveSplitComponentsDir>
+    <LiveSplitComponentsDir>$(LiveSplitRoot)\Components\</LiveSplitComponentsDir>
   </PropertyGroup>
   <Target Name="CopyComponentOutput" AfterTargets="Build">
     <MakeDir Directories="$(ProjectComponentsDir);$(LiveSplitComponentsDir)" />

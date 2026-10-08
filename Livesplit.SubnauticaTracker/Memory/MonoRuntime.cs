@@ -45,6 +45,14 @@ namespace LiveSplit.SubnauticaTracker.Memory
             return runtime.TryGetStaticData(Field.DeclaringClass, out staticData)
                 && runtime.Memory.TryReadPointer(ProcessMemory.Add(staticData, Field.Offset), out value);
         }
+
+        public bool TryReadInt32(out int value)
+        {
+            value = 0;
+            IntPtr staticData;
+            return runtime.TryGetStaticData(Field.DeclaringClass, out staticData)
+                && runtime.Memory.TryReadInt32(ProcessMemory.Add(staticData, Field.Offset), out value);
+        }
     }
 
     internal sealed class MonoRuntime

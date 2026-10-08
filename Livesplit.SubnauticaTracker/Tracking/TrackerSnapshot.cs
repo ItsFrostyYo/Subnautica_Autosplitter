@@ -33,7 +33,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             string.Empty,
             TrackerCount.Unknown,
             TrackerCount.Unknown,
-            TrackerCount.Unknown);
+            TrackerCount.Unknown,
+            DamageStats.Unknown);
 
         public TrackerSnapshot(
             TrackerState state,
@@ -41,7 +42,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             string saveSlot,
             TrackerCount blueprints,
             TrackerCount databanks,
-            TrackerCount achievements)
+            TrackerCount achievements,
+            DamageStats damage)
         {
             State = state;
             Version = version ?? string.Empty;
@@ -49,6 +51,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             Blueprints = blueprints ?? TrackerCount.Unknown;
             Databanks = databanks ?? TrackerCount.Unknown;
             Achievements = achievements ?? TrackerCount.Unknown;
+            Damage = damage ?? DamageStats.Unknown;
         }
 
         public TrackerState State { get; }
@@ -57,5 +60,31 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         public TrackerCount Blueprints { get; }
         public TrackerCount Databanks { get; }
         public TrackerCount Achievements { get; }
+        public DamageStats Damage { get; }
+    }
+
+    internal sealed class DamageStats
+    {
+        public static readonly DamageStats Unknown = new DamageStats(false, 0, 0d, 0, 0d);
+
+        public DamageStats(
+            bool available,
+            int hits,
+            double totalDamage,
+            int introHits,
+            double introDamage)
+        {
+            Available = available;
+            Hits = hits;
+            TotalDamage = totalDamage;
+            IntroHits = introHits;
+            IntroDamage = introDamage;
+        }
+
+        public bool Available { get; }
+        public int Hits { get; }
+        public double TotalDamage { get; }
+        public int IntroHits { get; }
+        public double IntroDamage { get; }
     }
 }

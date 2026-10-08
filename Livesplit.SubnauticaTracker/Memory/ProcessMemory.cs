@@ -87,6 +87,17 @@ namespace LiveSplit.SubnauticaTracker.Memory
             return true;
         }
 
+        public bool TryReadSingle(IntPtr address, out float value)
+        {
+            value = 0f;
+            byte[] bytes;
+            if (!TryReadBytes(address, 4, out bytes))
+                return false;
+
+            value = BitConverter.ToSingle(bytes, 0);
+            return true;
+        }
+
         public bool TryReadUInt16(IntPtr address, out ushort value)
         {
             value = 0;

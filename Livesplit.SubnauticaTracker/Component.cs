@@ -160,6 +160,7 @@ namespace LiveSplit.SubnauticaTracker
             cache["Blueprints"] = CountHash(snapshot.Blueprints);
             cache["Databanks"] = CountHash(snapshot.Databanks);
             cache["Achievements"] = CountHash(snapshot.Achievements);
+            cache["Damage"] = DamageHash(snapshot.Damage);
 
             if (invalidator != null && cache.HasChanged)
                 invalidator.Invalidate(0f, 0f, width, height);
@@ -212,6 +213,18 @@ namespace LiveSplit.SubnauticaTracker
             }
         }
 
+        private static int DamageHash(DamageStats damage)
+        {
+            unchecked
+            {
+                int hash = damage.Available ? 1 : 0;
+                hash = (hash * 397) ^ damage.Hits;
+                hash = (hash * 397) ^ damage.TotalDamage.GetHashCode();
+                hash = (hash * 397) ^ damage.IntroHits;
+                return (hash * 397) ^ damage.IntroDamage.GetHashCode();
+            }
+        }
+
         private static string FormatRowText(
             int rowIndex,
             TrackerRowSettings rowSettings,
@@ -242,6 +255,17 @@ namespace LiveSplit.SubnauticaTracker
                 return rowIndex == 0
                     ? FormatStatus(snapshot.Version, "Tracker Error")
                     : string.Empty;
+            }
+
+            if (rowSettings.Category == TrackerRowCategory.DamageTaken)
+            {
+                return FormatDamage(
+                    rowSettings.DisplayValue,
+                    snapshot.Damage,
+                    rowSettings.ExcludeIntroDamage,
+                    graphics,
+                    font,
+                    availableWidth);
             }
 
             if (rowSettings.Category == TrackerRowCategory.BlueprintsAndDatabanks)
@@ -298,11 +322,14 @@ namespace LiveSplit.SubnauticaTracker
                     compactName = "DB's";
                     break;
 
-                default:
+                case TrackerRowCategory.Achievements:
                     count = snapshot.Achievements;
                     fullName = "Achievements";
                     compactName = "A's";
                     break;
+
+                default:
+                    return string.Empty;
             }
 
             string full;
@@ -324,6 +351,72 @@ namespace LiveSplit.SubnauticaTracker
             if (graphics == null || font == null || graphics.MeasureString(full, font).Width <= availableWidth)
                 return full;
             return compact;
+        }
+
+        private static string FormatDamage(
+            TrackerDisplayValue displayValue,
+            DamageStats damage,
+            bool excludeIntroDamage,
+            Graphics graphics,
+            Font font,
+            float availableWidth)
+        {
+            if (!damage.Available)
+                return displayValue == TrackerDisplayValue.HitsTaken ? "Hits -" : "Damage -";
+
+            int hits = Math.Max(
+                0,
+                damage.Hits - (excludeIntroDamage ? damage.IntroHits : 0));
+            double totalDamage = Math.Max(
+                0d,
+                damage.TotalDamage - (excludeIntroDamage ? damage.IntroDamage : 0d));
+
+            if (displayValue == TrackerDisplayValue.HitsTaken)
+            {
+                if (hits <= 0)
+                    return "Hitless";
+                return hits == 1 ? "1 Hit" : hits + " Hits";
+            }
+
+            if (totalDamage <= 0.0001d)
+            {
+                return FirstFittingText(
+                    graphics,
+                    font,
+                    availableWidth,
+                    "No Damage Taken",
+                    "No Damage",
+                    "No Dmg");
+            }
+
+            string value = Math.Floor(totalDamage).ToString("0");
+            return FirstFittingText(
+                graphics,
+                font,
+                availableWidth,
+                "Damage " + value,
+                "Dmg " + value);
+        }
+
+        private static string FirstFittingText(
+            Graphics graphics,
+            Font font,
+            float availableWidth,
+            params string[] choices)
+        {
+            if (choices == null || choices.Length == 0)
+                return string.Empty;
+
+            if (graphics == null || font == null)
+                return choices[0];
+
+            foreach (string choice in choices)
+            {
+                if (graphics.MeasureString(choice, font).Width <= availableWidth)
+                    return choice;
+            }
+
+            return choices[choices.Length - 1];
         }
 
         private static string FormatStatus(string version, string status)

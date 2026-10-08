@@ -63,6 +63,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private ManagedStaticField playerMainField;
         private ManagedStaticField saveManagerMainField;
         private ManagedStaticField storyGoalManagerMainField;
+        private ManagedStaticField gameModeField;
         private ManagedField currentSlotField;
         private ManagedField completedGoalsField;
         private ManagedField onGoalUnlockTrackerField;
@@ -70,6 +71,11 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private ManagedField onGoalUnlocksField;
         private ManagedField goalField;
         private ManagedField achievementsField;
+        private ManagedField playerLiveMixinField;
+        private ManagedField liveMixinDataField;
+        private ManagedField liveMixinHealthField;
+        private ManagedField liveMixinTempDamageField;
+        private ManagedField liveMixinDataMaxHealthField;
 
         private HashSet<int> blueprintUnlockables;
         private HashSet<string> databankUnlockables;
@@ -117,6 +123,41 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 missing.Add("SaveLoadManager.main");
             if (!runtime.TryResolveStaticField("StoryGoalManager", MainFieldNames, out storyGoalManagerMainField))
                 missing.Add("StoryGoalManager.main");
+
+            // Game mode is optional so a future game update cannot prevent the
+            // progression tracker from initializing if this field changes.
+            runtime.TryResolveStaticField(
+                "GameModeUtils",
+                new[] { "currentGameMode" },
+                out gameModeField);
+
+            IntPtr playerClass = runtime.FindClass("Player");
+            if (playerClass == IntPtr.Zero)
+                missing.Add("class Player");
+            else if (!runtime.TryFindFieldAny(playerClass, new[] { "liveMixin" }, out playerLiveMixinField))
+                missing.Add("Player.liveMixin");
+
+            IntPtr liveMixinClass = runtime.FindClass("LiveMixin");
+            if (liveMixinClass == IntPtr.Zero)
+                missing.Add("class LiveMixin");
+            else if (!runtime.TryFindFieldAny(liveMixinClass, new[] { "health" }, out liveMixinHealthField))
+                missing.Add("LiveMixin.health");
+            if (liveMixinClass != IntPtr.Zero)
+                runtime.TryFindFieldAny(liveMixinClass, new[] { "data" }, out liveMixinDataField);
+            if (liveMixinClass != IntPtr.Zero
+                && !runtime.TryFindFieldAny(liveMixinClass, new[] { "tempDamage" }, out liveMixinTempDamageField))
+            {
+                missing.Add("LiveMixin.tempDamage");
+            }
+
+            IntPtr liveMixinDataClass = runtime.FindClass("LiveMixinData");
+            if (liveMixinDataClass != IntPtr.Zero)
+            {
+                runtime.TryFindFieldAny(
+                    liveMixinDataClass,
+                    new[] { "maxHealth" },
+                    out liveMixinDataMaxHealthField);
+            }
 
             IntPtr saveManagerClass = runtime.FindClass("SaveLoadManager");
             if (saveManagerClass == IntPtr.Zero)
@@ -334,6 +375,87 @@ namespace LiveSplit.SubnauticaTracker.Memory
             return true;
         }
 
+        public bool TryReadPlayerHealth(
+            out float health,
+            out int displayedHealth,
+            out IntPtr player)
+        {
+            health = 0f;
+            displayedHealth = 0;
+            player = IntPtr.Zero;
+            if (!IsInitialized || !memory.IsAlive)
+                return false;
+
+            IntPtr liveMixin;
+            float tempDamage;
+            if (!playerMainField.TryReadPointer(out player)
+                || player == IntPtr.Zero
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(player, playerLiveMixinField.Offset),
+                    out liveMixin)
+                || liveMixin == IntPtr.Zero
+                || !memory.TryReadSingle(
+                    ProcessMemory.Add(liveMixin, liveMixinHealthField.Offset),
+                    out health)
+                || !memory.TryReadSingle(
+                    ProcessMemory.Add(liveMixin, liveMixinTempDamageField.Offset),
+                    out tempDamage))
+            {
+                return false;
+            }
+
+            float maxHealth = 100f;
+            if (liveMixinDataField != null && liveMixinDataMaxHealthField != null)
+            {
+                IntPtr data;
+                float configuredMaxHealth;
+                if (memory.TryReadPointer(
+                        ProcessMemory.Add(liveMixin, liveMixinDataField.Offset),
+                        out data)
+                    && data != IntPtr.Zero
+                    && memory.TryReadSingle(
+                        ProcessMemory.Add(data, liveMixinDataMaxHealthField.Offset),
+                        out configuredMaxHealth)
+                    && !float.IsNaN(configuredMaxHealth)
+                    && !float.IsInfinity(configuredMaxHealth)
+                    && configuredMaxHealth > 0f
+                    && configuredMaxHealth <= 100000f)
+                {
+                    maxHealth = configuredMaxHealth;
+                }
+            }
+
+            if (float.IsNaN(health)
+                || float.IsInfinity(health)
+                || float.IsNaN(tempDamage)
+                || float.IsInfinity(tempDamage)
+                || health < 0f
+                || health > 100000f)
+            {
+                return false;
+            }
+
+            // The HUD ultimately displays CeilToInt(curr * capacity), where
+            // curr smooths toward (health - tempDamage) / maxHealth. This is
+            // the exact whole-number target the game's health text settles on.
+            double visibleHealth = Math.Max(0d, Math.Min(maxHealth, health - tempDamage));
+            displayedHealth = (int)Math.Ceiling(visibleHealth);
+            return true;
+        }
+
+        public bool TryReadGameMode(out int gameMode)
+        {
+            gameMode = 0;
+            if (!IsInitialized
+                || !memory.IsAlive
+                || gameModeField == null)
+            {
+                return false;
+            }
+
+            return gameModeField.TryReadInt32(out gameMode);
+        }
+
         public bool TryGetMissingItems(out MissingItems missing)
         {
             missing = null;
@@ -402,7 +524,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
 
             foreach (ManagedDictionaryEntry entry in mappingEntries)
             {
-                if (DatabankCatalog.IsTracked(entry.StringKey) && !IsTimeCapsule(entry.Value))
+                if (DatabankCatalog.IsTracked(entry.StringKey, version) && !IsTimeCapsule(entry.Value))
                     unlockables.Add(entry.StringKey);
             }
 

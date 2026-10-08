@@ -8,7 +8,7 @@ namespace LiveSplit.SubnauticaTracker
 {
     public sealed class Settings : UserControl
     {
-        public const int MaximumRows = 3;
+        public const int MaximumRows = 4;
 
         public static readonly string[] AvailableRowOptions =
         {
@@ -16,7 +16,8 @@ namespace LiveSplit.SubnauticaTracker
             "Blueprints & Databanks",
             "Blueprints",
             "Databanks",
-            "Achievements"
+            "Achievements",
+            "Damage Taken"
         };
 
         private static readonly Color DefaultBackgroundColor =
@@ -65,9 +66,11 @@ namespace LiveSplit.SubnauticaTracker
             BackgroundColor = DefaultBackgroundColor;
             BackgroundColor2 = DefaultBackgroundColor;
             BackgroundGradient = GradientType.Plain;
-            rowCount = 1;
+            rowCount = 3;
             rows = new TrackerRowSettings[MaximumRows];
-            rows[0] = new TrackerRowSettings();
+            rows[0] = CreateDefaultRow(0);
+            rows[1] = CreateDefaultRow(1);
+            rows[2] = CreateDefaultRow(2);
             toolTip = new ToolTip
             {
                 AutoPopDelay = 10000,
@@ -102,7 +105,7 @@ namespace LiveSplit.SubnauticaTracker
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 ColumnCount = 7,
                 Location = new Point(7, 7),
-                RowCount = 5,
+                RowCount = MaximumRows + 2,
                 Size = new Size(462, 145)
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120f));
@@ -164,8 +167,9 @@ namespace LiveSplit.SubnauticaTracker
                 Text = "Add Row",
                 UseVisualStyleBackColor = true
             };
-            layout.Controls.Add(addRowButton, 0, 4);
-            toolTip.SetToolTip(addRowButton, "Add another tracker row, up to a maximum of three.");
+            int actionRow = MaximumRows + 1;
+            layout.Controls.Add(addRowButton, 0, actionRow);
+            toolTip.SetToolTip(addRowButton, "Add another tracker row, up to a maximum of four.");
 
             logMissingButton = new Button
             {
@@ -190,7 +194,7 @@ namespace LiveSplit.SubnauticaTracker
             };
             missingButtons.Controls.Add(logMissingButton);
             missingButtons.Controls.Add(showMissingButton);
-            layout.Controls.Add(missingButtons, 1, 4);
+            layout.Controls.Add(missingButtons, 1, actionRow);
             layout.SetColumnSpan(missingButtons, 6);
             toolTip.SetToolTip(
                 logMissingButton,
@@ -265,7 +269,7 @@ namespace LiveSplit.SubnauticaTracker
             TrackerTextCentering legacyCentering = SettingsHelper.ParseEnum(
                 element["TextCentering"],
                 TrackerTextCentering.Center);
-            int parsedRowCount = SettingsHelper.ParseInt(element["RowCount"], 1);
+            int parsedRowCount = SettingsHelper.ParseInt(element["RowCount"], 3);
             rowCount = Math.Max(1, Math.Min(MaximumRows, parsedRowCount));
 
             for (int i = 0; i < MaximumRows; i++)
@@ -282,7 +286,10 @@ namespace LiveSplit.SubnauticaTracker
                         legacyCentering),
                     TextColor = SettingsHelper.ParseColor(
                         element[prefix + "TextColor"],
-                        Color.White)
+                        Color.White),
+                    ExcludeIntroDamage = SettingsHelper.ParseBool(
+                        element[prefix + "ExcludeIntroDamage"],
+                        true)
                 };
 
                 if (element[prefix + "Category"] != null)
@@ -292,7 +299,7 @@ namespace LiveSplit.SubnauticaTracker
                         TrackerRowCategory.BlueprintsAndDatabanks);
                     row.DisplayValue = SettingsHelper.ParseEnum(
                         element[prefix + "DisplayValue"],
-                        TrackerDisplayValue.Number);
+                        TrackerRowSettings.GetDefaultDisplayValue(row.Category));
                 }
                 else
                 {
@@ -300,7 +307,7 @@ namespace LiveSplit.SubnauticaTracker
                         row,
                         SettingsHelper.ParseString(
                             element[prefix],
-                            i == 0 ? "Blueprints & Databanks" : "Completion"));
+                            GetCategoryName(GetDefaultCategory(i))));
                 }
 
                 rows[i] = row;
@@ -313,7 +320,7 @@ namespace LiveSplit.SubnauticaTracker
         public XmlNode GetSettings(XmlDocument document)
         {
             XmlElement settings = document.CreateElement("Settings");
-            SettingsHelper.CreateSetting(document, settings, "Version", "2.0");
+            SettingsHelper.CreateSetting(document, settings, "Version", "4.0");
             SettingsHelper.CreateSetting(document, settings, "BackgroundColor", BackgroundColor);
             SettingsHelper.CreateSetting(document, settings, "BackgroundColor2", BackgroundColor2);
             SettingsHelper.CreateSetting(document, settings, "BackgroundGradient", BackgroundGradient);
@@ -326,6 +333,7 @@ namespace LiveSplit.SubnauticaTracker
                 SettingsHelper.CreateSetting(document, settings, prefix + "DisplayValue", rows[i].DisplayValue);
                 SettingsHelper.CreateSetting(document, settings, prefix + "TextCentering", rows[i].TextCentering);
                 SettingsHelper.CreateSetting(document, settings, prefix + "TextColor", rows[i].TextColor);
+                SettingsHelper.CreateSetting(document, settings, prefix + "ExcludeIntroDamage", rows[i].ExcludeIntroDamage);
             }
 
             return settings;
@@ -345,6 +353,7 @@ namespace LiveSplit.SubnauticaTracker
                     hash = (hash * 397) ^ (int)rows[i].DisplayValue;
                     hash = (hash * 397) ^ (int)rows[i].TextCentering;
                     hash = (hash * 397) ^ rows[i].TextColor.ToArgb();
+                    hash = (hash * 397) ^ (rows[i].ExcludeIntroDamage ? 1 : 0);
                 }
                 return hash;
             }
@@ -364,6 +373,8 @@ namespace LiveSplit.SubnauticaTracker
                     return "Databanks";
                 case TrackerRowCategory.Achievements:
                     return "Achievements";
+                case TrackerRowCategory.DamageTaken:
+                    return "Damage Taken";
                 default:
                     return "Completion";
             }
@@ -381,6 +392,8 @@ namespace LiveSplit.SubnauticaTracker
                     return TrackerRowCategory.Databanks;
                 case "Achievements":
                     return TrackerRowCategory.Achievements;
+                case "Damage Taken":
+                    return TrackerRowCategory.DamageTaken;
                 default:
                     return TrackerRowCategory.Completion;
             }
@@ -396,7 +409,28 @@ namespace LiveSplit.SubnauticaTracker
             }
 
             row.Category = ParseCategoryName(selection);
-            row.DisplayValue = TrackerDisplayValue.Number;
+            row.DisplayValue = TrackerRowSettings.GetDefaultDisplayValue(row.Category);
+        }
+
+        private static TrackerRowCategory GetDefaultCategory(int index)
+        {
+            switch (index)
+            {
+                case 0: return TrackerRowCategory.Completion;
+                case 1: return TrackerRowCategory.BlueprintsAndDatabanks;
+                case 2: return TrackerRowCategory.Achievements;
+                default: return TrackerRowCategory.DamageTaken;
+            }
+        }
+
+        private static TrackerRowSettings CreateDefaultRow(int index)
+        {
+            TrackerRowCategory category = GetDefaultCategory(index);
+            return new TrackerRowSettings
+            {
+                Category = category,
+                DisplayValue = TrackerRowSettings.GetDefaultDisplayValue(category)
+            };
         }
 
         private static Button CreateColorButton()
@@ -466,11 +500,7 @@ namespace LiveSplit.SubnauticaTracker
             if (rowCount >= MaximumRows)
                 return;
 
-            rows[rowCount] = new TrackerRowSettings
-            {
-                Category = TrackerRowCategory.Completion,
-                DisplayValue = TrackerDisplayValue.Percentage
-            };
+            rows[rowCount] = CreateDefaultRow(rowCount);
             rowCount++;
             RefreshRowControls();
         }
@@ -513,6 +543,7 @@ namespace LiveSplit.SubnauticaTracker
                 rows[index].DisplayValue = editor.DisplayValue;
                 rows[index].TextCentering = editor.TextCentering;
                 rows[index].TextColor = editor.TextColor;
+                rows[index].ExcludeIntroDamage = editor.ExcludeIntroDamage;
             }
         }
 

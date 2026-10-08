@@ -1,3 +1,4 @@
+using LiveSplit.SubnauticaTracker.Versions;
 using System;
 using System.Collections.Generic;
 
@@ -46,9 +47,24 @@ namespace LiveSplit.SubnauticaTracker.Catalogs
                 "RadioGrassy25NoSignalAltDatabank"
             };
 
-        public static bool IsTracked(string key)
+        private const string LegacyHatchingEnzymes = "SeaEmperorEggHatchingEnzymes";
+
+        public static bool IsTracked(string key, SubnauticaVersion version)
         {
-            return !string.IsNullOrWhiteSpace(key) && !ExcludedEntries.Contains(key);
+            if (string.IsNullOrWhiteSpace(key) || ExcludedEntries.Contains(key))
+                return false;
+
+            // This obsolete encyclopedia record remains obtainable in the
+            // original game generation, but not in post-2022 releases.
+            return !IsPost2022(version)
+                || !key.Equals(LegacyHatchingEnzymes, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsPost2022(SubnauticaVersion version)
+        {
+            // Supported versions are ordered chronologically, so later version
+            // definitions inherit this exclusion automatically.
+            return version >= SubnauticaVersion.Build2023;
         }
     }
 }

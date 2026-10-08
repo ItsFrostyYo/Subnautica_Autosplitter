@@ -11,6 +11,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
     internal sealed class TrackerService : IDisposable
     {
         private readonly Timer timer;
+        private readonly Timer damageTimer;
+        private readonly object damageSync = new object();
 
         private ProcessMemory processMemory;
         private SubnauticaUnlockReader unlockReader;
@@ -23,12 +25,26 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         private int lastLoggedBlueprints = -1;
         private int lastLoggedDatabanks = -1;
         private int lastLoggedAchievements = -1;
+        private int lastLoggedDamageHits = -1;
+        private double lastLoggedDamageTotal = -1d;
         private int polling;
+        private int damagePolling;
+        private string damageSlot = string.Empty;
+        private bool hasPreviousHealth;
+        private float previousHealth;
+        private int previousDisplayedHealth;
+        private IntPtr damagePlayer = IntPtr.Zero;
+        private int damageHits;
+        private double damageTotal;
+        private int introDamageHits;
+        private double introDamageTotal;
+        private bool firstDamageObserved;
 
         public TrackerService()
         {
             TrackerLog.StartSession();
             timer = new Timer(Poll, null, 0, 250);
+            damageTimer = new Timer(PollDamage, null, 0, 20);
         }
 
         public TrackerSnapshot Snapshot => snapshot;
@@ -66,6 +82,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         public void Dispose()
         {
             timer.Dispose();
+            damageTimer.Dispose();
             Detach();
         }
 
@@ -87,7 +104,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                             string.Empty,
                             TrackerCount.Unknown,
                             TrackerCount.Unknown,
-                            TrackerCount.Unknown));
+                            TrackerCount.Unknown,
+                            DamageStats.Unknown));
                         return;
                     }
                 }
@@ -194,11 +212,108 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                     string.Empty,
                     TrackerCount.Unknown,
                     TrackerCount.Unknown,
-                    TrackerCount.Unknown));
+                    TrackerCount.Unknown,
+                    DamageStats.Unknown));
             }
             finally
             {
                 Interlocked.Exchange(ref polling, 0);
+            }
+        }
+
+        private void PollDamage(object state)
+        {
+            if (Interlocked.Exchange(ref damagePolling, 1) != 0)
+                return;
+
+            try
+            {
+                TrackerSnapshot current = snapshot;
+                SubnauticaUnlockReader reader = unlockReader;
+                if (current.State != TrackerState.Tracking
+                    || string.IsNullOrWhiteSpace(current.SaveSlot)
+                    || reader == null)
+                {
+                    ResetDamageTracking();
+                    return;
+                }
+
+                float health;
+                int displayedHealth;
+                IntPtr player;
+                if (!reader.TryReadPlayerHealth(out health, out displayedHealth, out player))
+                {
+                    if (player == IntPtr.Zero)
+                        ResetDamageTracking();
+                    else
+                    {
+                        lock (damageSync)
+                            hasPreviousHealth = false;
+                    }
+                    return;
+                }
+
+                int gameMode;
+                bool hasGameMode = reader.TryReadGameMode(out gameMode);
+
+                lock (damageSync)
+                {
+                    if (!string.Equals(damageSlot, current.SaveSlot, StringComparison.Ordinal)
+                        || damagePlayer != player)
+                    {
+                        damageSlot = current.SaveSlot;
+                        damagePlayer = player;
+                        damageHits = 0;
+                        damageTotal = 0d;
+                        introDamageHits = 0;
+                        introDamageTotal = 0d;
+                        firstDamageObserved = false;
+                        hasPreviousHealth = false;
+                    }
+
+                    if (hasPreviousHealth)
+                    {
+                        float lost = previousHealth - health;
+                        if (lost > 0.0001f)
+                        {
+                            bool isIntroDamage = !firstDamageObserved
+                                && hasGameMode
+                                && IsIntroDamageGameMode(gameMode)
+                                && previousHealth >= 99.9f
+                                && health >= 79.9f
+                                && health <= 80.1f
+                                && lost >= 19.9f
+                                && lost <= 20.1f;
+                            firstDamageObserved = true;
+                            int wholeDamage = isIntroDamage
+                                ? 20
+                                : Math.Max(0, previousDisplayedHealth - displayedHealth);
+                            damageHits++;
+                            damageTotal += wholeDamage;
+                            if (isIntroDamage)
+                            {
+                                introDamageHits++;
+                                introDamageTotal += wholeDamage;
+                                TrackerLog.Info("Detected the unavoidable 20-damage lifepod intro hit.");
+                            }
+                        }
+                    }
+
+                    previousHealth = health;
+                    previousDisplayedHealth = displayedHealth;
+                    hasPreviousHealth = true;
+                }
+            }
+            catch (Exception exception)
+            {
+                TrackerLog.Throttled(
+                    "damage-read-failed",
+                    "Damage tracking read failed: " + exception.Message,
+                    TimeSpan.FromSeconds(5));
+            }
+            finally
+            {
+                Interlocked.Exchange(ref damagePolling, 0);
             }
         }
 
@@ -258,7 +373,50 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                 saveSlot,
                 blueprints,
                 databanks,
-                achievements);
+                achievements,
+                state == TrackerState.Tracking
+                    ? GetDamageStats(saveSlot)
+                    : DamageStats.Unknown);
+        }
+
+        private DamageStats GetDamageStats(string saveSlot)
+        {
+            lock (damageSync)
+            {
+                if (!string.Equals(damageSlot, saveSlot, StringComparison.Ordinal))
+                    return new DamageStats(true, 0, 0d, 0, 0d);
+
+                return new DamageStats(
+                    true,
+                    damageHits,
+                    damageTotal,
+                    introDamageHits,
+                    introDamageTotal);
+            }
+        }
+
+        private void ResetDamageTracking()
+        {
+            lock (damageSync)
+            {
+                damageSlot = string.Empty;
+                hasPreviousHealth = false;
+                previousHealth = 0f;
+                previousDisplayedHealth = 0;
+                damagePlayer = IntPtr.Zero;
+                damageHits = 0;
+                damageTotal = 0d;
+                introDamageHits = 0;
+                introDamageTotal = 0d;
+                firstDamageObserved = false;
+            }
+        }
+
+        private static bool IsIntroDamageGameMode(int gameMode)
+        {
+            return gameMode == 0     // Survival
+                || gameMode == 2     // Freedom
+                || gameMode == 257;  // Hardcore
         }
 
         private bool RetainLastTrackingSnapshot(string saveSlot)
@@ -278,7 +436,9 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                 && string.Equals(next.SaveSlot, lastLoggedSlot, StringComparison.Ordinal)
                 && next.Blueprints.Unlocked == lastLoggedBlueprints
                 && next.Databanks.Unlocked == lastLoggedDatabanks
-                && next.Achievements.Unlocked == lastLoggedAchievements)
+                && next.Achievements.Unlocked == lastLoggedAchievements
+                && next.Damage.Hits == lastLoggedDamageHits
+                && Math.Abs(next.Damage.TotalDamage - lastLoggedDamageTotal) < 0.0001d)
             {
                 return;
             }
@@ -292,6 +452,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             lastLoggedBlueprints = next.Blueprints.Unlocked;
             lastLoggedDatabanks = next.Databanks.Unlocked;
             lastLoggedAchievements = next.Achievements.Unlocked;
+            lastLoggedDamageHits = next.Damage.Hits;
+            lastLoggedDamageTotal = next.Damage.TotalDamage;
             TrackerLog.Info(
                 (progressUpdate ? "Progress" : "State -> " + next.State)
                 + (string.IsNullOrWhiteSpace(next.Version) ? string.Empty : ", build " + next.Version)
@@ -300,6 +462,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                     ? ", BP " + next.Blueprints.Unlocked + "/" + next.Blueprints.Total
                         + ", DB " + next.Databanks.Unlocked + "/" + next.Databanks.Total
                         + ", A " + next.Achievements.Unlocked + "/" + next.Achievements.Total
+                        + ", hits " + next.Damage.Hits
+                        + ", damage " + Math.Floor(next.Damage.TotalDamage).ToString("0")
                     : string.Empty));
         }
 
@@ -309,6 +473,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             version = null;
             nextInitializeUtc = DateTime.MinValue;
             attachedUtc = DateTime.MinValue;
+            ResetDamageTracking();
 
             if (processMemory != null)
             {
