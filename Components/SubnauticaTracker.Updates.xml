@@ -5,7 +5,7 @@
       <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
     </files>
     <changelog>
-      <change>Added "Damage Taken" Tracker Category with # of Damage Taken and # of Hits Taken Options, aswell Intro 20 Damage is Excluded/Optional.</change>
+      <change>Added Damage Taken Tracker Category with # of Damage Taken and # of Hits Taken Options, aswell Intro 20 Damage is Excluded/Optional.</change>
       <change>Exclude the unobtainable legacy Hatching Enzymes databank from post-2022 versions.</change>
     </changelog>
   </update>
