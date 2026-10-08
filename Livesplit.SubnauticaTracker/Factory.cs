@@ -1,6 +1,7 @@
 using LiveSplit.Model;
 using LiveSplit.UI.Components;
 using System;
+using System.Reflection;
 using UpdateManager;
 
 namespace LiveSplit.SubnauticaTracker
@@ -13,7 +14,7 @@ namespace LiveSplit.SubnauticaTracker
         public string UpdateName => ComponentName;
         public string UpdateURL => "https://raw.githubusercontent.com/ItsFrostyYo/Subnautica_Autosplitter/LiveSplit.Subnautica/";
         public string XMLURL => UpdateURL + "Components/SubnauticaTracker.Updates.xml";
-        public Version Version => new Version(1, 7, 4, 0);
+        public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
 
         public IComponent Create(LiveSplitState state) => new Component(state);
     }
