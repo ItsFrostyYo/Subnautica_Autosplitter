@@ -1,4 +1,4 @@
-﻿using LiveSplit.ComponentUtil;
+using LiveSplit.ComponentUtil;
 using LiveSplit.Model;
 using System;
 using System.Collections.Generic;
@@ -482,7 +482,6 @@ namespace LiveSplit.Subnautica
             int off_activeToolName = mono.GetFieldOffset(mono.FindClass("QuickSlots"), "activeToolName");
             ActiveToolName = ptrFactory.MakeString(quickSlotsPtr, off_activeToolName, 0x14);
 
-            Pointer<IntPtr> armsControllerPtr = ptrFactory.Make<IntPtr>("Player", "main", "armsController");
             int off_armsControllerGuiHand = mono.GetFieldOffset(mono.FindClass("ArmsController"), "guiHand");
             Pointer<IntPtr> guiHandPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerGuiHand);
             int off_timeOfLastToolUseAnim = mono.GetFieldOffset(mono.FindClass("GUIHand"), "timeOfLastToolUseAnim");
@@ -512,10 +511,9 @@ namespace LiveSplit.Subnautica
                     posZPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C8);                   
                     break;
 
-                    case GameVersion.Dec2021:
+                case GameVersion.Dec2021:
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x1690CD0, 0x8, 0x8, 0x38, 0x230, 0x28, 0x28);
                     notInWaterPtr = new DeepPointer(IntPtr.Zero); // Not Used so Not Looked For
-                    // hatchPtr = new DeepPointer(IntPtr.Zero); // Not Used Because it was Not Found
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x150);
                     posXPtr = new DeepPointer("UnityPlayer.dll", 0x168DB40, 0xAE0);
@@ -538,7 +536,6 @@ namespace LiveSplit.Subnautica
             isPortalLoading = new MemoryWatcher<bool>(portalLoadingPtr);
             if (hatchPtr != null)
                 isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
-            isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
             strafeDir = new MemoryWatcher<float>(strafePtr);
@@ -586,6 +583,7 @@ namespace LiveSplit.Subnautica
             if (Needs(SplitName.Inventory,
                       SplitName.FullInventorySplit,
                       SplitName.ThrowFlareSplit,
+                      SplitName.HatchSplit,
                       SplitName.LeaveKelpForestSplit,
                       SplitName.FourToothSplit,
                       SplitName.HCGSparseSplit,
@@ -770,6 +768,12 @@ namespace LiveSplit.Subnautica
             flareThrowArmed = false;
             flareThrowArmedTime.Reset();
             return split;
+        }
+
+        private bool IsPDAInventoryOpen()
+        {
+            return (PDAIsInUse?.New ?? false)
+                && (LiveSplit.Subnautica.PDATab)PDATab.New == LiveSplit.Subnautica.PDATab.Inventory;
         }
 
         private void UpdateEncyclopedia()
