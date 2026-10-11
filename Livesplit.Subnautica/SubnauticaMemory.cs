@@ -514,6 +514,7 @@ namespace LiveSplit.Subnautica
                 case GameVersion.Dec2021:
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x1690CD0, 0x8, 0x8, 0x38, 0x230, 0x28, 0x28);
                     notInWaterPtr = new DeepPointer(IntPtr.Zero); // Not Used so Not Looked For
+                    // hatchPtr = new DeepPointer(IntPtr.Zero); // Not Used Because it was Not Found
                     walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x98);
                     strafePtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x150);
                     posXPtr = new DeepPointer("UnityPlayer.dll", 0x168DB40, 0xAE0);
