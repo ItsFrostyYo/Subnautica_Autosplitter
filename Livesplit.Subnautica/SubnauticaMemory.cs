@@ -53,6 +53,7 @@ namespace LiveSplit.Subnautica
         public Pointer<bool> RadiationFixed;        
         public Pointer<bool> IsPlayerJumping;   
         public Pointer<bool> IsDying;
+        public Pointer<bool> PDAIsInUse;
 
         public Pointer<float> TimeCured;
         public Pointer<float> Health;
@@ -195,7 +196,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
-                { SplitName.HatchSplit,           () => isEggsHatching.Current && !isEggsHatching.Old },
+                { SplitName.HatchSplit,           () => gameVersion == GameVersion.Dec2021 ? currentInventoryChanges.TryGetValue(TechType.HatchingEnzymes, out int delta) && delta < 0 && !IsPDAInventoryOpen() && BiomeString.New == "Prison_Aquarium" : isEggsHatching.Current && !isEggsHatching.Old },
                 { SplitName.CureSplit,            () => TimeCured.New > TimeCured.Old },
                 { SplitName.NeptuneLaunchPlatform,() => (TechType)CraftedNode.New == TechType.RocketBase && CraftedNode.Changed },
                 { SplitName.GantrySplit,          () => KnownTech.Contains(TechType.RocketStage1) && !KnownTechOld.Contains(TechType.RocketStage1) },
@@ -257,6 +258,11 @@ namespace LiveSplit.Subnautica
                 case 23801856:
                     gameVersion = GameVersion.Sept2018;
                     logger.Log("Game version Sept 2018");
+                    break;
+
+                case 671744:
+                    gameVersion = GameVersion.Dec2021;
+                    logger.Log("Game version December 2021");
                     break;
 
                 case 675840:
@@ -420,6 +426,11 @@ namespace LiveSplit.Subnautica
             BiomeString = ptrFactory.MakeString("Player", "main", "biomeString", 0x14);
             #endregion
             #region PDATab
+            Pointer<IntPtr> armsControllerPtr = ptrFactory.Make<IntPtr>("Player", "main", "armsController");
+            int off_armsControllerPda = mono.GetFieldOffset(mono.FindClass("ArmsController"), "pda");
+            Pointer<IntPtr> playerPdaPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerPda);
+            int off_pdaIsInUse = mono.GetFieldOffset(mono.FindClass("PDA"), "<isInUse>k__BackingField");
+            PDAIsInUse = ptrFactory.Make<bool>(playerPdaPtr, off_pdaIsInUse);
             PDATab = ptrFactory.Make<int>("uGUI_PDA", "<main>k__BackingField", "tabOpen");
             #endregion PDATab
             #region Damage Effects Showing
@@ -446,7 +457,7 @@ namespace LiveSplit.Subnautica
             int off_craftedNode = mono.GetFieldOffset(mono.FindClass("uGUI_CraftingMenu"), "craftedNode");
             Pointer<IntPtr> craftedNodePtr = ptrFactory.Make<IntPtr>(uGUI_CraftingMenuPtr, off_craftedNode);
 
-            if (gameVersion == GameVersion.Sept2018)
+            if (gameVersion == GameVersion.Sept2018 || gameVersion == GameVersion.Dec2021)
                 CraftedNode = ptrFactory.Make<int>(craftedNodePtr, mono.GetFieldOffset("uGUI_CraftNode", "techType0"));
             else
                 CraftedNode = ptrFactory.Make<int>(craftedNodePtr, 0x34);
@@ -480,7 +491,7 @@ namespace LiveSplit.Subnautica
 
             #region Memory Watchers
             DeepPointer portalLoadingPtr;
-            DeepPointer hatchPtr;
+            DeepPointer hatchPtr = null;
             DeepPointer notInWaterPtr;
             DeepPointer walkDirPtr;
             DeepPointer strafePtr;
@@ -501,6 +512,17 @@ namespace LiveSplit.Subnautica
                     posZPtr = new DeepPointer("Subnautica.exe", 0x142B8C8, 0x180, 0x40, 0xA8, 0x7C8);                   
                     break;
 
+                    case GameVersion.Dec2021:
+                    portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x1690CD0, 0x8, 0x8, 0x38, 0x230, 0x28, 0x28);
+                    notInWaterPtr = new DeepPointer(IntPtr.Zero); // Not Used so Not Looked For
+                    hatchPtr = new DeepPointer(IntPtr.Zero); // Not Used Because it was Not Found
+                    walkDirPtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x98);
+                    strafePtr = new DeepPointer("UnityPlayer.dll", 0x1690A88, 0x30, 0x150);
+                    posXPtr = new DeepPointer("UnityPlayer.dll", 0x168DB40, 0xAE0);
+                    posYPtr = new DeepPointer("UnityPlayer.dll", 0x168DB40, 0xAE4);
+                    posZPtr = new DeepPointer("UnityPlayer.dll", 0x168DB40, 0xAE8);
+                    break;
+
                 default: // GameVersion.Mar2023
                     portalLoadingPtr = new DeepPointer("UnityPlayer.dll", 0x17FBE70, 0x10, 0x10, 0x30, 0x1F8, 0x28, 0x28);
                     hatchPtr = new DeepPointer("fmodstudio.dll", 0x2CED70, 0x78, 0x18, 0x190, 0x4D8, 0xB0, 0x20, 0x28);
@@ -514,6 +536,8 @@ namespace LiveSplit.Subnautica
             }
 
             isPortalLoading = new MemoryWatcher<bool>(portalLoadingPtr);
+            if (hatchPtr != null)
+                isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isEggsHatching = new MemoryWatcher<bool>(hatchPtr);
             isNotInWater = new MemoryWatcher<bool>(notInWaterPtr);
             walkDir = new MemoryWatcher<float>(walkDirPtr);
@@ -537,7 +561,7 @@ namespace LiveSplit.Subnautica
 
             isPortalLoading.Update(game.Process);
 
-            if (Needs(SplitName.HatchSplit))
+            if (Needs(SplitName.HatchSplit) && gameVersion != GameVersion.Dec2021)
                 isEggsHatching.Update(game.Process);
 
             if (Needs(SplitName.SGLBaseSplit, SplitName.SGLShallowsSplit))
