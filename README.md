@@ -58,9 +58,9 @@ Adds a LiveSplit text component to your layout which displays the time it takes 
 - Restarting the game may rarely break the Auto Splitter
 If this happens, restart LiveSplit or reload the Auto Splitter
 ## Known Issues for Testing Features
-- If Flare Drops after Death (if possible) then it could split for Throw Flare if it was held on death.
-- If Hatching Enzymes Drops after Death inside the Prison_Aquarium it could split for Hatch Eggs Split.
-- Loading Into a Save File that is Inside and Unfloaded Base will Start the Timer using Creative Start.
+- If Flare Drops after Death (if possible) then it could split using Throw Flare Prefabricated Split.
+- If Hatching Enzymes Drops after Death (if possible) inside the Prison_Aquarium it could split using Hatch Eggs Prefabricated Split.
+- Loading Into a Save File that is Inside and Unfloaded or Flooded Base may Cause the Timer to Start, Split or Start & Split if you are using Enter Base Prefabricated Split.
 
 
 # Contributing
