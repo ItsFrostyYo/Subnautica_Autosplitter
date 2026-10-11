@@ -13,6 +13,7 @@ This LiveSplit Auto Splitter provides automatic start, split, reset, and load ti
 
 ## Supported Game Versions
 - September 2018
+- December 2021 (on fork)
 - March 2023
 - August 2025
 - October 2025
@@ -57,7 +58,8 @@ Adds a LiveSplit text component to your layout which displays the time it takes 
 - Restarting the game may rarely break the Auto Splitter
 If this happens, restart LiveSplit or reload the Auto Splitter
 ## Known Issues for Testing Features
-- If Flare Drops after Death (if possible) then it could technically split for Throw Flare if it was held on death.
+- If Flare Drops after Death (if possible) then it could split for Throw Flare if it was held on death.
+- If Hatching Enzymes Drops after Death inside the Prison_Aquarium it could split for Hatch Eggs Split.
 - Loading Into a Save File that is Inside and Unfloaded Base will Start the Timer using Creative Start.
 
 

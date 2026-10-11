@@ -1,5 +1,74 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.3.8.1">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Add Native Support for December 2021 Version (Excluding Hatch Split with FMOD)</change>
+            <change>Add Temporary 2021 Hatch Split using IsPDAOpen + Biome + Enzyme Drop</change>
+		</changelog>
+	</update>
+    <update version="2.3.8.0">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Change Survival Start to use Da Night Cycle + Time Passed</change>
+		</changelog>
+	</update>
+    <update version="2.3.7.1">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Add Console Opening to Creative Start</change>
+		</changelog>
+	</update>
+    <update version="2.3.7.0">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Add Repair Radio Prefabricated Split</change>
+            <change>Add Repair Secondary Systems Prefabricated Split</change>
+		</changelog>
+	</update>
+    <update version="2.3.6.3">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Update Throw Flare Split so it does not Double Split using PDA Open + Drop + Holding</change>
+            <change>Add IsPDAOpen Pointer for Specifically PDA Open instead of Specific Tbs</change>
+		</changelog>
+	</update>
+    <update version="2.3.6.2">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Update Glitchless Base Split Conditions to be More Specific and Correct</change>
+            <change>Remove Shallows Base Split due to being Obsolete</change>
+		</changelog>
+	</update>
+    <update version="2.3.6.1">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Add Builder Loop Lifepod Return Prefabricated Split</change>
+		</changelog>
+	</update>
+    <update version="2.3.6.0">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Add Enter/Exit Base Splits</change>
+            <change>Add Current Sub Pointers</change>
+		</changelog>
+	</update>
     <update version="2.3.5.0">
 		<files>
 			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
