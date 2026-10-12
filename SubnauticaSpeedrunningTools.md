@@ -31,7 +31,7 @@ The Subnautica Autosplitter is a Livesplit Component by 'Sprinter31' which allow
 
 
 
-### Updated Subnautica Autosplitter Fork
+### 1.5 Updated Subnautica Autosplitter Fork
 
 [ItsFrostyYo/Subnautica_Autosplitter](https://github.com/ItsFrostyYo/Subnautica_Autosplitter/tree/LiveSplit.Subnautica)
 An Updated Fork of the Original Subnautica Autosplitter by 'ItsFrostiSR' which contains Updates for Various Features aswell as adding Native Support for the December 2021 Version, and runs on its own Independent Updating from the Original.
