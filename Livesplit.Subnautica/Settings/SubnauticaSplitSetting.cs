@@ -127,8 +127,8 @@ namespace LiveSplit.Subnautica
         AuroraDeathSplit,
         [Description("Exit Aurora at Patch Hole"), ToolTip("Splits when you exit the Aurora through the old patch hole after unlocking the rocket")]
         AuroraExitSplit,
-        [Description("Base Death Split (includes Clip A and Clip C)"), ToolTip("Splits when you die next to the main base (includes Clip A and Clip C)")]
-        BaseDeathSplit,
+        [Description("Base Flood"), ToolTip("Splits when the last constructed base you entered first begins flooding, including while you are just outside the base")]
+        BaseFloodSplit,
         [Description("Build Boosters Section"), ToolTip("Splits when you build the boosters section of the Neptune Rocket")]
         BoostersSplit,
         [Description("Builder Loop Lifepod Return"), ToolTip("Splits when you return to the Lifepod with 3 or 4 Table Coral Samples and no Builder Tool in your inventory")]

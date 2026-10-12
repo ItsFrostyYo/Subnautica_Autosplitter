@@ -43,6 +43,9 @@ namespace LiveSplit.Subnautica
         private readonly Stopwatch flareThrowArmedTime = new Stopwatch();
         private bool flareThrowArmed;
         private const int maxFlareThrowAnimWindowMs = 1500;
+        private IntPtr trackedBaseWaterLevels;
+        private bool baseFlooding;
+        private bool baseFloodingOld;
 
         #region Pointer stuff
         public Pointer<bool> IsIntroCinematicActive; // true in main menu sometimes
@@ -69,6 +72,8 @@ namespace LiveSplit.Subnautica
         public Pointer<IntPtr> CurrentSub;
         public Pointer<IntPtr> MainMenu;
         public Pointer<IntPtr> CraftingMenu;
+        private Pointer<bool> lastSubIsBase;
+        private Pointer<IntPtr> baseCellWaterLevelsPtr;
         private Pointer<IntPtr> knowntechPtr;
         private Pointer<IntPtr> pdaMappingPtr;
         private Pointer<IntPtr> goalsPtr;
@@ -202,7 +207,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.AuroraBiomeSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(BiomeString.New) },
                 { SplitName.AuroraDeathSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraBiomeSplit) && Health.New <= 0 && Health.Old > 0 && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.New)},
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && !IsWithinBounds(auroraExitBounds, old: true) && KnownTech.Contains(TechType.RocketBase) },
-                { SplitName.BaseDeathSplit,       () => Health.New <= 0 && Health.Old > 0 && (IsWithinBounds(deathClipABounds) || IsWithinBounds(deathClipCBounds)) },
+                { SplitName.BaseFloodSplit,       () => baseFlooding && !baseFloodingOld },
                 { SplitName.BoostersSplit,        () => KnownTech.Contains(TechType.RocketStage2) && !KnownTechOld.Contains(TechType.RocketStage2) },
                 { SplitName.BuilderLoopLifepodReturnSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && BiomeString.New == "safeShallows" && GetPlayerItemCount(TechType.JeweledDiskPiece) >= 3 && GetPlayerItemCount(TechType.JeweledDiskPiece) <= 4 && GetPlayerItemCount(TechType.Builder) == 0 },
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
@@ -308,8 +313,18 @@ namespace LiveSplit.Subnautica
             #endregion Is Animation Playing
             #region Current Sub
             CurrentSub = ptrFactory.Make<IntPtr>("Player", "main", "_currentSub");
+            Pointer<IntPtr> lastSub = ptrFactory.Make<IntPtr>("Player", "main", "lastValidSub");
             int off_subRootIsBase = mono.GetFieldOffset(mono.FindClass("SubRoot"), "isBase");
             CurrentSubIsBase = ptrFactory.Make<bool>(CurrentSub, off_subRootIsBase);
+            lastSubIsBase = ptrFactory.Make<bool>(lastSub, off_subRootIsBase);
+
+            int off_baseRootFlood = mono.GetFieldOffset(mono.FindClass("BaseRoot"), "flood");
+            int off_cellWaterLevel = mono.GetFieldOffset(mono.FindClass("BaseFloodSim"), "cellWaterLevel");
+            baseCellWaterLevelsPtr = ptrFactory.Make<IntPtr>(lastSub, off_baseRootFlood, off_cellWaterLevel);
+
+            trackedBaseWaterLevels = IntPtr.Zero;
+            baseFlooding = false;
+            baseFloodingOld = false;
             #endregion Current Sub
             #region IsLoadingScreenShowing
             Pointer<IntPtr> uGUI_SceneLoadingPtr = ptrFactory.Make<IntPtr>("uGUI", "_main", "loading");
@@ -594,12 +609,14 @@ namespace LiveSplit.Subnautica
                 CurrentSubIsBase.ForceUpdate();
             } 
 
+            if (Needs(SplitName.BaseFloodSplit))
+                UpdateBaseFloodState();
+
             if (Needs(SplitName.ThrowFlareSplit))
                 UpdateFlareThrowState();
 
             if (Needs(SplitName.PCFTabletSplit,
                       SplitName.GunDeactivationSplit,
-                      SplitName.BaseDeathSplit,
                       SplitName.LeaveKelpForestSplit,
                       SplitName.MountainDescendSplit,
                       SplitName.SGLShallowsSplit,
@@ -633,6 +650,47 @@ namespace LiveSplit.Subnautica
                 UpdateEncyclopedia();
         }
         private void UpdatePosition() { posX.Update(game.Process); posY.Update(game.Process); posZ.Update(game.Process); }
+
+        private void UpdateBaseFloodState()
+        {
+            IntPtr waterLevels = lastSubIsBase.New ? baseCellWaterLevelsPtr.New : IntPtr.Zero;
+
+            if (waterLevels == IntPtr.Zero)
+            {
+                trackedBaseWaterLevels = IntPtr.Zero;
+                baseFlooding = false;
+                baseFloodingOld = false;
+                return;
+            }
+
+            int length = game.Read<int>(waterLevels + arr_off_len);
+            if (length <= 0 || length > 4096)
+                return;
+
+            bool hasWater = false;
+            IntPtr values = waterLevels + arr_data_base;
+            for (int i = 0; i < length; i++)
+            {
+                float waterLevel = game.Read<float>(values + i * sizeof(float));
+                if (!float.IsNaN(waterLevel) && waterLevel > 0f)
+                {
+                    hasWater = true;
+                    break;
+                }
+            }
+
+            if (trackedBaseWaterLevels != waterLevels)
+            {
+                trackedBaseWaterLevels = waterLevels;
+                baseFloodingOld = hasWater;
+                baseFlooding = hasWater;
+                return;
+            }
+
+            baseFloodingOld = baseFlooding;
+            baseFlooding = hasWater;
+        }
+
         private bool Needs(params SplitName[] required)
         {
             if (settings?.Splits == null || settings.Splits.Count == 0)
@@ -1227,9 +1285,9 @@ namespace LiveSplit.Subnautica
         private readonly float[] portalBounds = { 240f, 250f, -1590f, -1580f, -2000f, 2000f };
         private readonly float[] gunBounds = { 359f, 365f, -75f, -66f, 1079f, 1085f };
         private readonly float[] upperTabletBounds = { 380f, 386f, 10f, 30f, 1084f, 1090f };
-        private readonly float[] SGLBaseBounds = { 20f, 80f, -45f, -17f, 290f, 360f };
-        private readonly float[] deathClipABounds = { 33f, 65f, -20f, -8f, 118f, 96f };
-        private readonly float[] deathClipCBounds = { -155f, -133f, -20f, -10f, 73f, 96f };
+        // private readonly float[] SGLBaseBounds = { 20f, 80f, -45f, -17f, 290f, 360f };
+        // private readonly float[] deathClipABounds = { 33f, 65f, -20f, -8f, 118f, 96f };
+        // private readonly float[] deathClipCBounds = { -155f, -133f, -20f, -10f, 73f, 96f };
         private readonly float[] enterClipABounds = { 48f, 55f, -20f, -5f, 106f, 111f };
         private readonly float[] enterClipCBounds = { -144f, -132f, -20f, -5f, 78f, 90f };
         #endregion
