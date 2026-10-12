@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Livesplit.Subnautica", "Liv
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Livesplit.SubnauticaTracker", "Livesplit.SubnauticaTracker\Livesplit.SubnauticaTracker.csproj", "{6E869DBF-99E8-4B7C-9237-7192D6417D64}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Livesplit.SubnauticaMarco", "Livesplit.SubnauticaMarco\Livesplit.SubnauticaMarco.csproj", "{78D85933-4F75-42EF-9137-D32B7E9CA83C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E869DBF-99E8-4B7C-9237-7192D6417D64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78D85933-4F75-42EF-9137-D32B7E9CA83C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78D85933-4F75-42EF-9137-D32B7E9CA83C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78D85933-4F75-42EF-9137-D32B7E9CA83C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78D85933-4F75-42EF-9137-D32B7E9CA83C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

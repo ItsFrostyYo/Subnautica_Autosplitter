@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<updates>
+  <update version="3.4.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Replace loading-screen pixel checks with the in-game Press Any Button intro state.</change>
+      <change>Add LiveSplit-style keyboard hotkey capture and make the component logic-only.</change>
+    </changelog>
+  </update>
+  <update version="3.3.2.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Confirm main-menu buttons are ready in memory before starting a new game.</change>
+    </changelog>
+  </update>
+  <update version="3.2.1.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Support the Subnautica Speedrunning Mod Hardcore quit-button flow.</change>
+    </changelog>
+  </update>
+  <update version="3.2.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Update legacy RNG Mod presets to Subnautica Speedrunning Mod BetterRNG presets.</change>
+    </changelog>
+  </update>
+  <update version="2.8.3.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Support windowed reset macros at 3840x2160, 2560x1440, 1920x1080, 1760x990, 1600x900, 1366x768, 1280x720, and 1128x634.</change>
+      <change>Add saved custom minimum and maximum explosion-time inputs.</change>
+      <change>Refresh the configured explosion range between reset attempts.</change>
+    </changelog>
+  </update>
+  <update version="2.5.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Use memory-based main-menu, loading, and in-game state detection.</change>
+      <change>Remove screen-color checks for menu and in-game synchronization.</change>
+    </changelog>
+  </update>
+  <update version="1.7.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Support explosion resets on the 2018, 2021, 2023, and 2025 Subnautica versions.</change>
+      <change>Read Aurora explosion time directly from game memory.</change>
+    </changelog>
+  </update>
+  <update version="1.4.1.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Improve explosion reset consistency, cancellation, and logging.</change>
+    </changelog>
+  </update>
+  <update version="1.3.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Add automatic Aurora explosion-time reset support and preset ranges.</change>
+    </changelog>
+  </update>
+  <update version="1.2.1.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Finalize and stabilize the Subnautica reset flow.</change>
+    </changelog>
+  </update>
+  <update version="1.2.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Add Subnautica speedrunning reset macros and configurable game-mode selection.</change>
+    </changelog>
+  </update>
+</updates>
