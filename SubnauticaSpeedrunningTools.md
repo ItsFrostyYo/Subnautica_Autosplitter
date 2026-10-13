@@ -47,8 +47,7 @@ An Updated Fork of the Original Subnautica Autosplitter by 'ItsFrostiSR' which c
 
 ## 2. Subnautica Explosion Timer
 
-[Sprinter31/SubnauticaShipExplosionInfo.dll](https://github.com/Sprinter31/Subnautica_Autosplitter/blob/LiveSplit.Subnautica/SubnauticaShipExplosionInfo.dll)
-The Explosion Timer/Ship Explosion info is a Livesplit Component originally built by 'Meeperty' that display the active Subnautica Aurora Explosion Time Information to display what time between 46:00->1:19:59 in the Ggames Time it will Explode, Its Suggested to use this Directly Through the Autosplitter rather then a Stand Alone Component for Small Fixes and Easier Toggle.
+[Sprinter31/SubnauticaShipExplosionInfo.dll](https://github.com/Sprinter31/Subnautica_Autosplitter/blob/LiveSplit.Subnautica/SubnauticaShipExplosionInfo.dll) The Explosion Timer/Ship Explosion info is a Livesplit Component originally built by 'Meeperty' that display the active Subnautica Aurora Explosion Time Information to display what time between 46:00->1:19:59 in the Games Time it will Explode, Its Suggested to use this Directly Through the Autosplitter rather then a Stand Alone Component for Small Fixes and Easier Toggle.
 
 ### How to use
 

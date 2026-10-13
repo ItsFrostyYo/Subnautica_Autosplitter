@@ -232,6 +232,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.PCFPoolSplit,         () => BiomeString.New == "Prison_Aquarium_Upper" && BiomeString.Old == "Prison_Moonpool" },
                 { SplitName.PCFTabletSplit,       () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(PCFEntrBounds) },
                 { SplitName.PortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old && IsWithinBounds(portalBounds) },
+                { SplitName.AnyPortalSplit,          () => isPortalLoading.Current && !isPortalLoading.Old },
                 { SplitName.ReactorCoreRepairSplit, () => RadiationFixed.New && !RadiationFixed.Old },
                 { SplitName.RocketSplit,          () => RocketLaunching.New && !RocketLaunching.Old },
                 { SplitName.RocketUnlockSplit,    () => KnownTech.Contains(TechType.RocketBase) && !KnownTechOld.Contains(TechType.RocketBase) },

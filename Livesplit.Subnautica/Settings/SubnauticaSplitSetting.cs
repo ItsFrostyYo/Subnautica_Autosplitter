@@ -177,6 +177,8 @@ namespace LiveSplit.Subnautica
         PCFTabletSplit,
         [Description("Prison Portal"), ToolTip("Splits when you enter the prison aquarium portal for the first time")]
         PortalSplit,
+        [Description("Enter Any Portal"), ToolTip("Splits when you enter any alien portal on the map")]
+        AnyPortalSplit,
         [Description("Repair Reactor Core"), ToolTip("Splits when you repair the aurora reactor core")]
         ReactorCoreRepairSplit,
         [Description("Rocket Launch"), ToolTip("Splits when you start the Neptune Rocket")]
