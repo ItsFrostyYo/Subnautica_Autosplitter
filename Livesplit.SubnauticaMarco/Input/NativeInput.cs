@@ -15,27 +15,61 @@ namespace LiveSplit.SubnauticaMarco.Input
         private const ushort EscapeKey = 0x1B;
         private const uint MouseLeftDown = 0x0002;
         private const uint MouseLeftUp = 0x0004;
+        private const uint MouseRightUp = 0x0010;
+        private const uint MouseMiddleUp = 0x0040;
+        private const uint MouseXUp = 0x0100;
+        private const uint MouseXButton1 = 0x0001;
+        private const uint MouseXButton2 = 0x0002;
+        private static readonly object releaseSync = new object();
+        private static int intentionalInputDepth;
+        private static int mouseLeftHeld;
+
+        public static bool IsSendingIntentionalInput => Volatile.Read(ref intentionalInputDepth) > 0;
 
         public static async Task ClickAsync(Process process, Point logicalPoint, int delayMilliseconds)
         {
-            Point physical;
-            if (!WindowCoordinateMapper.TryMap(process, logicalPoint, out physical))
-                physical = MapToMonitor(process, logicalPoint);
+            BeginIntentionalInput();
+            try
+            {
+                Point physical;
+                if (!WindowCoordinateMapper.TryMap(process, logicalPoint, out physical))
+                    physical = MapToMonitor(process, logicalPoint);
 
-            Focus(process);
-            await Task.Delay(10).ConfigureAwait(false);
-            SetCursorPos(physical.X, physical.Y);
-            mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
-            await Task.Delay(5).ConfigureAwait(false);
-            mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
-            await Task.Delay(delayMilliseconds).ConfigureAwait(false);
+                Focus(process);
+                await Task.Delay(10).ConfigureAwait(false);
+                SetCursorPos(physical.X, physical.Y);
+                mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
+                Interlocked.Exchange(ref mouseLeftHeld, 1);
+                try
+                {
+                    await Task.Delay(5).ConfigureAwait(false);
+                }
+                finally
+                {
+                    mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+                    Interlocked.Exchange(ref mouseLeftHeld, 0);
+                }
+                await Task.Delay(delayMilliseconds).ConfigureAwait(false);
+            }
+            finally
+            {
+                EndIntentionalInput();
+            }
         }
 
         public static void PressEscape()
         {
-            KeyController.HoldStart(EscapeKey);
-            Thread.Sleep(25);
-            KeyController.HoldStop(EscapeKey);
+            BeginIntentionalInput();
+            try
+            {
+                KeyController.HoldStart(EscapeKey);
+                Thread.Sleep(25);
+            }
+            finally
+            {
+                KeyController.HoldStop(EscapeKey);
+                EndIntentionalInput();
+            }
         }
 
         public static async Task HoldEscapeAsync(
@@ -43,17 +77,52 @@ namespace LiveSplit.SubnauticaMarco.Input
             int durationMilliseconds,
             CancellationToken cancellationToken)
         {
-            Focus(process);
-            await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-            KeyController.HoldStart(EscapeKey);
+            BeginIntentionalInput();
             try
             {
+                Focus(process);
+                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
+                KeyController.HoldStart(EscapeKey);
                 await Task.Delay(durationMilliseconds, cancellationToken).ConfigureAwait(false);
             }
             finally
             {
                 KeyController.HoldStop(EscapeKey);
+                EndIntentionalInput();
             }
+        }
+
+        public static bool IsGameFocused(IntPtr gameWindow)
+        {
+            return gameWindow != IntPtr.Zero && GetForegroundWindow() == gameWindow;
+        }
+
+        public static void ReleaseAllInputs()
+        {
+            lock (releaseSync)
+            {
+                KeyController.ReleaseAll();
+
+                if (Interlocked.Exchange(ref mouseLeftHeld, 0) != 0)
+                    mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+
+                // This is only called while the macro is active but is not
+                // intentionally sending input, or immediately when it stops.
+                KeyController.ReleaseEveryKey();
+                mouse_event(MouseLeftUp | MouseRightUp | MouseMiddleUp, 0, 0, 0, UIntPtr.Zero);
+                mouse_event(MouseXUp, 0, 0, MouseXButton1, UIntPtr.Zero);
+                mouse_event(MouseXUp, 0, 0, MouseXButton2, UIntPtr.Zero);
+            }
+        }
+
+        private static void BeginIntentionalInput()
+        {
+            Interlocked.Increment(ref intentionalInputDepth);
+        }
+
+        private static void EndIntentionalInput()
+        {
+            Interlocked.Decrement(ref intentionalInputDepth);
         }
 
         public static void Focus(Process process)
@@ -90,6 +159,9 @@ namespace LiveSplit.SubnauticaMarco.Input
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr window);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
 
         private static class KeyController
         {
@@ -185,6 +257,33 @@ namespace LiveSplit.SubnauticaMarco.Input
                     Send(MakeKey(virtualKey, true));
 
                 state.Cancellation.Dispose();
+            }
+
+            public static void ReleaseAll()
+            {
+                foreach (ushort virtualKey in Holds.Keys)
+                    HoldStop(virtualKey);
+            }
+
+            public static void ReleaseEveryKey()
+            {
+                var releases = new List<NativeInputRecord>();
+                for (ushort virtualKey = 0x08; virtualKey < 0xFF; virtualKey++)
+                {
+                    releases.Add(new NativeInputRecord
+                    {
+                        Type = InputKeyboard,
+                        Union = new InputUnion
+                        {
+                            Keyboard = new KeyboardInput
+                            {
+                                VirtualKey = virtualKey,
+                                Flags = KeyEventUp | (IsExtended(virtualKey) ? KeyEventExtended : 0)
+                            }
+                        }
+                    });
+                }
+                Send(releases.ToArray());
             }
 
             private static NativeInputRecord MakeKey(ushort virtualKey, bool keyUp)

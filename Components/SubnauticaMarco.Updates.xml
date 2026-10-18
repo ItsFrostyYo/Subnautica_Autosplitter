@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="3.4.1.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Add a one-second input safety loop that releases stuck keyboard and mouse inputs while the reset macro is active.</change>
+      <change>Immediately release macro inputs after completion, cancellation, errors, and component shutdown.</change>
+    </changelog>
+  </update>
   <update version="3.4.0.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />

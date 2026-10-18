@@ -17,6 +17,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
         private readonly object sync = new object();
         private readonly SubnauticaMemory memory = new SubnauticaMemory();
         private readonly HotkeyWindow hotkeyWindow;
+        private readonly SafetyLoop safetyLoop;
         private CancellationTokenSource cancellation;
         private Task activeTask;
         private int pendingHotkey;
@@ -34,6 +35,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
             {
                 Interlocked.Exchange(ref pendingHotkey, 1);
             });
+            safetyLoop = new SafetyLoop(IsRunning, GetGameWindow);
         }
 
         public string DisplayText
@@ -94,6 +96,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
         public void Dispose()
         {
             Cancel();
+            safetyLoop.Dispose();
             hotkeyWindow.Dispose();
             memory.Dispose();
         }
@@ -132,6 +135,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
             }
             finally
             {
+                NativeInput.ReleaseAllInputs();
                 lock (sync)
                 {
                     running = false;
@@ -319,6 +323,17 @@ namespace LiveSplit.SubnauticaMarco.Macros
         {
             lock (sync)
                 return running;
+        }
+
+        private IntPtr GetGameWindow()
+        {
+            Process process;
+            SubnauticaVersion version;
+            if (!memory.TryGetProcess(out process, out version))
+                return IntPtr.Zero;
+
+            using (process)
+                return process.MainWindowHandle;
         }
 
         private void SetActivity(string value)

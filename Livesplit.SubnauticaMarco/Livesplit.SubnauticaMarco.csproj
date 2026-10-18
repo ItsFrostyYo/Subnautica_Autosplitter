@@ -33,6 +33,7 @@
     <Compile Include="Configuration\MacroSettings.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Input\NativeInput.cs" />
+    <Compile Include="Input\SafetyLoop.cs" />
     <Compile Include="Input\WindowCoordinateMapper.cs" />
     <Compile Include="Macros\MacroController.cs" />
     <Compile Include="Macros\MacroProfile.cs" />
