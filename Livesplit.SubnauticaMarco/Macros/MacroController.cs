@@ -173,8 +173,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 if (state == GameMemoryState.InGame)
                 {
                     SetActivity("Quitting to Main Menu");
-                    NativeInput.Focus(process);
-                    NativeInput.PressEscape();
+                    NativeInput.PressEscape(process);
                     Log("Escape input sent; waiting for the pause menu.");
                     await Task.Delay(50, token).ConfigureAwait(false);
                     await NativeInput.ClickAsync(process, profile.Quit, 20).ConfigureAwait(false);

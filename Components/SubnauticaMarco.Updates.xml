@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="3.4.2.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Prevent the safety loop from injecting global keyboard and mouse releases while the macro is waiting.</change>
+      <change>Verify that Subnautica is focused before every macro click or Escape input.</change>
+    </changelog>
+  </update>
   <update version="3.4.1.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
