@@ -113,6 +113,7 @@
         MapRoomUpgradeScanSpeed,
         MapRoomHUDChip,
         MapRoomCamera,
+        Marki2,
         StarshipChair2,
         StarshipChair3,
         BaseBioReactor,
