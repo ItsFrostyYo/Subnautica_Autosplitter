@@ -218,6 +218,7 @@ namespace LiveSplit.Subnautica
                 { SplitName.FourToothSplit,       () => PlayerInventory.GetCount(TechType.StalkerTooth) == 4 && PlayerInventoryOld.GetCount(TechType.StalkerTooth) != 4 },
                 { SplitName.FuelReservesSplit,    () => KnownTech.Contains(TechType.RocketStage3) && !KnownTechOld.Contains(TechType.RocketStage3) },
                 { SplitName.FullInventorySplit,   () => PlayerInventory.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() == 48 && PlayerInventoryOld.Select(kvp => kvp.Value * TechTypeItemSlots.GetSlotCount(kvp.Key)).Sum() != 48 },
+                { SplitName.FloatingIslandLeaveSplit,    () => string.Equals(BiomeString.New, "FloatingIslandBelow", StringComparison.OrdinalIgnoreCase) && PlayerInventory.GetCount(TechType.Titanium) >= 4 && PlayerInventory.GetCount(TechType.Quartz) >= 1 && posY.Old > -25f && posY.Current <= -25f },
                 { SplitName.GantrySplit,          () => KnownTech.Contains(TechType.RocketStage1) && !KnownTechOld.Contains(TechType.RocketStage1) },
                 { SplitName.GunDeactivationSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && IsWithinBounds(gunBounds) },
                 { SplitName.GunDeathSplit,        () => Health.New <= 0 && Health.Old > 0 && BiomeString.New == "Precursor_Gun_ControlRoom" },
@@ -623,7 +624,8 @@ namespace LiveSplit.Subnautica
                       SplitName.SGLShallowsSplit,
                       SplitName.UpperTabletSplit,
                       SplitName.AuroraExitSplit,
-                      SplitName.HCGSparseSplit) ||
+                      SplitName.HCGSparseSplit,
+                      SplitName.FloatingIslandLeaveSplit) ||
                       settings.Reset)
                 UpdatePosition();
 
@@ -636,7 +638,8 @@ namespace LiveSplit.Subnautica
                       SplitName.HCGSparseSplit,
                       SplitName.SGLShallowsSplit,
                       SplitName.UpperTabletSplit,
-                      SplitName.BuilderLoopLifepodReturnSplit))
+                      SplitName.BuilderLoopLifepodReturnSplit,
+                      SplitName.FloatingIslandLeaveSplit))
                 UpdateInventory();
 
             if (Needs(SplitName.Blueprint, 

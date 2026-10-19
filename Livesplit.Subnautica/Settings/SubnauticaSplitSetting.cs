@@ -199,6 +199,8 @@ namespace LiveSplit.Subnautica
         RepairSecondarySystemsSplit,
         [Description("Repair Radio"), ToolTip("Splits when you Repair the Lifepod Radio")]
         RepairRadioSplit,
+        [Description("Floating Island Flooded Base Leave (100%)"), ToolTip("Splits when you go below 25 meters with 4 Titanium and 1 Quartz Minimum inside the FloatingIslandBelow Biome")]
+        FloatingIslandLeaveSplit,
     }
     public class ToolTipAttribute : Attribute
     {
