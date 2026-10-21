@@ -19,6 +19,9 @@ namespace LiveSplit.SubnauticaMarco
         private readonly TextBox customMaximumTextBox;
         private readonly Label customRangeLabel;
         private readonly ToolTip toolTip;
+        private readonly CheckBox saveDeleterCheckBox;
+        private readonly ComboBox saveGameModeComboBox;
+        private readonly ComboBox saveTimingComboBox;
         private bool capturingHotkey;
         private int hotkey;
         private string hotkeyTextBeforeCapture;
@@ -77,6 +80,12 @@ namespace LiveSplit.SubnauticaMarco
                 "Custom"
             });
 
+            saveDeleterCheckBox = new CheckBox { AutoSize = true, Text = "Hardcore Save Deleter" };
+            saveGameModeComboBox = CreateDropDown();
+            saveGameModeComboBox.Items.AddRange(new object[] { "Hardcore", "All Gamemodes" });
+            saveTimingComboBox = CreateDropDown();
+            saveTimingComboBox.Items.AddRange(new object[] { "After Reset Completes", "Automatically Delete all Saves" });
+
             customRangeLabel = new Label
             {
                 Anchor = AnchorStyles.Left,
@@ -123,9 +132,13 @@ namespace LiveSplit.SubnauticaMarco
             layout.Controls.Add(customRangeLabel, 0, 5);
             layout.Controls.Add(customRangePanel, 1, 5);
 
+            AddRow(layout, 6, string.Empty, saveDeleterCheckBox);
+            AddRow(layout, 7, "Gamemode:", saveGameModeComboBox);
+            AddRow(layout, 8, "When to Delete:", saveTimingComboBox);
+
             AutoScaleDimensions = new SizeF(6f, 13f);
             AutoScaleMode = AutoScaleMode.Font;
-            Size = new Size(476, 205);
+            Size = new Size(476, 292);
             Controls.Add(layout);
 
             enabledCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
@@ -133,6 +146,7 @@ namespace LiveSplit.SubnauticaMarco
             hotkeyTextBox.KeyDown += CaptureHotkeyDown;
             hotkeyTextBox.KeyUp += CaptureHotkeyUp;
             hotkeyTextBox.Leave += CancelHotkeyCapture;
+            saveDeleterCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
             explosionCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
             explosionPresetComboBox.SelectedIndexChanged += delegate { RefreshEnabledState(); };
 
@@ -144,6 +158,10 @@ namespace LiveSplit.SubnauticaMarco
             toolTip.SetToolTip(customMinimumTextBox, "Custom minimum explosion time in minutes:seconds.");
             toolTip.SetToolTip(customMaximumTextBox, "Custom maximum explosion time in minutes:seconds.");
 
+            toolTip.SetToolTip(saveDeleterCheckBox, "Permanently deletes matching slot#### save folders from the running game installation. This cannot be undone.");
+            toolTip.SetToolTip(saveTimingComboBox, "After Reset Completes deletes the latest existing matching save only after a successful in-game reset. Automatic scans all existing and new matching save folders every 5 seconds while enabled.");
+            saveGameModeComboBox.SelectedIndex = 0;
+            saveTimingComboBox.SelectedIndex = 0;
             gameModeComboBox.SelectedIndex = 0;
             explosionPresetComboBox.SelectedIndex = 0;
             RefreshEnabledState();
@@ -161,6 +179,9 @@ namespace LiveSplit.SubnauticaMarco
             return new MacroConfiguration
             {
                 Enabled = enabledCheckBox.Checked,
+                HardcoreSaveDeleter = saveDeleterCheckBox.Checked,
+                SaveDeletionGameMode = (SaveDeletionGameMode)Math.Max(0, saveGameModeComboBox.SelectedIndex),
+                SaveDeletionTiming = (SaveDeletionTiming)Math.Max(0, saveTimingComboBox.SelectedIndex),
                 Hotkey = hotkey,
                 GameMode = (ResetGameMode)Math.Max(0, gameModeComboBox.SelectedIndex),
                 ExplosionReset = explosionCheckBox.Checked,
@@ -176,6 +197,9 @@ namespace LiveSplit.SubnauticaMarco
             if (element == null)
                 return;
 
+            saveDeleterCheckBox.Checked = SettingsHelper.ParseBool(element["HardcoreSaveDeleter"], false);
+            saveGameModeComboBox.SelectedIndex = Clamp((int)SettingsHelper.ParseEnum(element["SaveDeletionGameMode"], SaveDeletionGameMode.Hardcore), 0, 1);
+            saveTimingComboBox.SelectedIndex = Clamp((int)SettingsHelper.ParseEnum(element["SaveDeletionTiming"], SaveDeletionTiming.AfterResetCompletes), 0, 1);
             enabledCheckBox.Checked = SettingsHelper.ParseBool(element["Enabled"], false);
             hotkey = SettingsHelper.ParseInt(element["Hotkey"], (int)Keys.F5);
             string settingsVersion = SettingsHelper.ParseString(element["Version"], "1.0");
@@ -205,7 +229,10 @@ namespace LiveSplit.SubnauticaMarco
         {
             MacroConfiguration configuration = GetConfiguration();
             XmlElement settings = document.CreateElement("Settings");
-            SettingsHelper.CreateSetting(document, settings, "Version", "1.1");
+            SettingsHelper.CreateSetting(document, settings, "Version", "1.2");
+            SettingsHelper.CreateSetting(document, settings, "HardcoreSaveDeleter", configuration.HardcoreSaveDeleter);
+            SettingsHelper.CreateSetting(document, settings, "SaveDeletionGameMode", configuration.SaveDeletionGameMode);
+            SettingsHelper.CreateSetting(document, settings, "SaveDeletionTiming", configuration.SaveDeletionTiming);
             SettingsHelper.CreateSetting(document, settings, "Enabled", configuration.Enabled);
             SettingsHelper.CreateSetting(document, settings, "Hotkey", configuration.Hotkey);
             SettingsHelper.CreateSetting(document, settings, "GameMode", configuration.GameMode);
@@ -293,6 +320,8 @@ namespace LiveSplit.SubnauticaMarco
 
         private void RefreshEnabledState()
         {
+            saveGameModeComboBox.Enabled = saveDeleterCheckBox.Checked;
+            saveTimingComboBox.Enabled = saveDeleterCheckBox.Checked;
             hotkeyTextBox.Enabled = enabledCheckBox.Checked;
             gameModeComboBox.Enabled = enabledCheckBox.Checked;
             explosionCheckBox.Enabled = enabledCheckBox.Checked;

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="3.5.2.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Added Hardcore Save Deleter</change>
+    </changelog>
+  </update>
   <update version="3.4.2.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />

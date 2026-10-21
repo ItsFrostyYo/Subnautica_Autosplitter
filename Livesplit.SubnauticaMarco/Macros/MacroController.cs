@@ -5,6 +5,8 @@ using LiveSplit.SubnauticaTracker.Versions;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +30,12 @@ namespace LiveSplit.SubnauticaMarco.Macros
         private MacroConfiguration latestConfiguration;
         private string activity = string.Empty;
         private int explosionResets;
+        private int scanInProgress;
+        private DateTime nextSaveScanUtc;
+        private bool autoDeletionPreviouslyEnabled;
+        private string lastSaveMonitorIssue;
+        private readonly object saveSync = new object();
+        private static readonly object logSync = new object();
 
         public MacroController(IntPtr liveSplitWindow)
         {
@@ -69,6 +77,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 latestConfiguration = Copy(configuration);
 
             ConfigureHotkey(configuration);
+            UpdateSaveDeletion(configuration);
             if (Interlocked.Exchange(ref pendingHotkey, 0) != 0)
             {
                 if (IsRunning())
@@ -112,6 +121,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 cancellation = new CancellationTokenSource();
             }
 
+            Log("Macro triggered. ExplosionReset=" + configuration.ExplosionReset + ", GameMode=" + configuration.GameMode + ".");
             Task operation = configuration.ExplosionReset
                 ? RunExplosionResetAsync(configuration, cancellation.Token)
                 : RunSingleResetAsync(configuration.GameMode, cancellation.Token);
@@ -127,6 +137,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
             catch (OperationCanceledException)
             {
                 SetActivity("Macro Canceled");
+                Log("Macro canceled.");
             }
             catch (Exception exception)
             {
@@ -169,6 +180,13 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 var profile = MacroProfile.Create(version, mode);
                 GameMemoryState state = memory.GetState();
                 Log("Reset started. Version=" + version + ", Mode=" + mode + ", State=" + state + ".");
+                // Capture BEFORE quitting: never select the newly created game save for deletion.
+                MacroConfiguration deletionConfig;
+                lock (sync) deletionConfig = Copy(latestConfiguration);
+                string saveRoot = deletionConfig.HardcoreSaveDeleter && deletionConfig.SaveDeletionTiming == SaveDeletionTiming.AfterResetCompletes && state == GameMemoryState.InGame
+                    ? SaveDeleter.GetSaveRoot(process) : null;
+                string oldSave = saveRoot == null ? null : SaveDeleter.MostRecentMatching(saveRoot, deletionConfig.SaveDeletionGameMode);
+                if (saveRoot != null) Log(oldSave == null ? "No matching previous save found for reset cleanup." : "Previous save marked for post-reset deletion: " + oldSave);
 
                 if (state == GameMemoryState.InGame)
                 {
@@ -200,6 +218,22 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 await Task.Delay(profile.ModernMenu ? 150 : 50, token).ConfigureAwait(false);
                 await NativeInput.ClickAsync(process, profile.GameMode, 20).ConfigureAwait(false);
 
+                // Only after the final game-mode click returns successfully and cancellation is not requested.
+                token.ThrowIfCancellationRequested();
+                MacroConfiguration atCompletion;
+                lock (sync) atCompletion = Copy(latestConfiguration);
+                if (oldSave != null && atCompletion.HardcoreSaveDeleter
+                    && atCompletion.SaveDeletionTiming == SaveDeletionTiming.AfterResetCompletes
+                    && atCompletion.SaveDeletionGameMode == deletionConfig.SaveDeletionGameMode)
+                {
+                    try
+                    {
+                        if (SaveDeleter.Delete(saveRoot, oldSave, atCompletion.SaveDeletionGameMode))
+                            Log("Deleted previous save after completed reset: " + oldSave);
+                        else Log("Previous save not deleted (missing or no longer matches gamemode): " + oldSave);
+                    }
+                    catch (Exception error) { Log("Save deletion failed: " + error.Message); }
+                }
                 SetActivity("Reset Complete");
                 Log("Reset completed.");
             }
@@ -346,6 +380,9 @@ namespace LiveSplit.SubnauticaMarco.Macros
             return new MacroConfiguration
             {
                 Enabled = value.Enabled,
+                HardcoreSaveDeleter = value.HardcoreSaveDeleter,
+                SaveDeletionGameMode = value.SaveDeletionGameMode,
+                SaveDeletionTiming = value.SaveDeletionTiming,
                 Hotkey = value.Hotkey,
                 GameMode = value.GameMode,
                 ExplosionReset = value.ExplosionReset,
@@ -353,6 +390,87 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 CustomMinimumSeconds = value.CustomMinimumSeconds,
                 CustomMaximumSeconds = value.CustomMaximumSeconds
             };
+        }
+
+        private void UpdateSaveDeletion(MacroConfiguration config)
+        {
+            bool auto = config.HardcoreSaveDeleter && config.SaveDeletionTiming == SaveDeletionTiming.AutomaticallyDeleteAllSaves;
+            if (!auto)
+            {
+                lock (saveSync)
+                {
+                    if (autoDeletionPreviouslyEnabled) Log("Automatic save deletion disabled.");
+                    autoDeletionPreviouslyEnabled = false;
+                    lastSaveMonitorIssue = null;
+                }
+                return;
+            }
+            if (DateTime.UtcNow < nextSaveScanUtc || Interlocked.CompareExchange(ref scanInProgress, 1, 0) != 0) return;
+            nextSaveScanUtc = DateTime.UtcNow.AddSeconds(5);
+            // Read and delete on a worker, never on the LiveSplit UI thread.
+            Task.Run(() =>
+            {
+                try
+                {
+                    MacroConfiguration current;
+                    lock (sync) current = Copy(latestConfiguration);
+                    if (!current.HardcoreSaveDeleter || current.SaveDeletionTiming != SaveDeletionTiming.AutomaticallyDeleteAllSaves) return;
+                    lock (saveSync)
+                    {
+                        if (!autoDeletionPreviouslyEnabled)
+                        {
+                            autoDeletionPreviouslyEnabled = true;
+                            Log("Automatic save deletion enabled; scanning ALL existing and future matching slots every 5 seconds. Gamemode=" + current.SaveDeletionGameMode + ".");
+                        }
+                    }
+                    Process process;
+                    SubnauticaVersion version;
+                    if (!memory.TryGetProcess(out process, out version))
+                    {
+                        ReportSaveMonitorIssue("Subnautica process not available.");
+                        return;
+                    }
+                    string root;
+                    using (process) root = SaveDeleter.GetSaveRoot(process);
+                    if (root == null)
+                    {
+                        ReportSaveMonitorIssue("SavedGames folder not found for running Subnautica.exe.");
+                        return;
+                    }
+                    ReportSaveMonitorIssue(null);
+                    // Always scan every eligible slot; never skip pre-existing saves or previously
+                    // observed slots whose gameinfo.json became available after an earlier scan.
+                    foreach (string slot in SaveDeleter.ListSlots(root).Keys)
+                    {
+                        MacroConfiguration latest;
+                        lock (sync) latest = Copy(latestConfiguration);
+                        if (!latest.HardcoreSaveDeleter || latest.SaveDeletionTiming != SaveDeletionTiming.AutomaticallyDeleteAllSaves) break;
+                        try
+                        {
+                            if (SaveDeleter.Delete(root, slot, latest.SaveDeletionGameMode))
+                                Log("Deleted save [" + latest.SaveDeletionGameMode + "]: " + slot);
+                        }
+                        catch (Exception error)
+                        {
+                            ReportSaveMonitorIssue("Unable to delete " + slot + ": " + error.Message);
+                        }
+                    }
+                }
+                catch (Exception error) { ReportSaveMonitorIssue("Save monitor error: " + error.Message); }
+                finally { Interlocked.Exchange(ref scanInProgress, 0); }
+            });
+        }
+
+        // Log only changes in monitoring failures, not the same warning every scan.
+        private void ReportSaveMonitorIssue(string issue)
+        {
+            lock (saveSync)
+            {
+                if (string.Equals(issue, lastSaveMonitorIssue, StringComparison.Ordinal)) return;
+                if (issue != null) Log("Save monitor: " + issue);
+                else if (lastSaveMonitorIssue != null) Log("Save monitor recovered.");
+                lastSaveMonitorIssue = issue;
+            }
         }
 
         private static void GetExplosionRange(MacroConfiguration configuration, out float minimum, out float maximum)
@@ -393,13 +511,14 @@ namespace LiveSplit.SubnauticaMarco.Macros
         {
             try
             {
-                File.AppendAllText(
-                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SubnauticaMarco.log"),
-                    DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " | " + message + Environment.NewLine);
+                lock (logSync)
+                {
+                    File.AppendAllText(
+                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "_SubnauticaMarco.log"),
+                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " | [Subnautica Macro] " + message + Environment.NewLine);
+                }
             }
-            catch
-            {
-            }
+            catch { /* Never crash the macro due to file logging. */ }
         }
 
         [DllImport("user32.dll")]

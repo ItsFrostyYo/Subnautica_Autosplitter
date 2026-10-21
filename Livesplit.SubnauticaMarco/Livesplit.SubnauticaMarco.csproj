@@ -36,6 +36,7 @@
     <Compile Include="Input\SafetyLoop.cs" />
     <Compile Include="Input\WindowCoordinateMapper.cs" />
     <Compile Include="Macros\MacroController.cs" />
+    <Compile Include="Macros\SaveDeleter.cs" />
     <Compile Include="Macros\MacroProfile.cs" />
     <Compile Include="Memory\SubnauticaMemory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

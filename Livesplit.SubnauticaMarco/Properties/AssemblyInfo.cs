@@ -11,8 +11,8 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: Guid("78d85933-4f75-42ef-9137-d32b7e9ca83c")]
 
-[assembly: AssemblyVersion("3.4.2.0")]
-[assembly: AssemblyFileVersion("3.4.2.0")]
-[assembly: AssemblyInformationalVersion("3.4.2")]
+[assembly: AssemblyVersion("3.5.0.0")]
+[assembly: AssemblyFileVersion("3.5.0.0")]
+[assembly: AssemblyInformationalVersion("3.5.0")]
 
 [assembly: ComponentFactory(typeof(LiveSplit.SubnauticaMarco.Factory))]
