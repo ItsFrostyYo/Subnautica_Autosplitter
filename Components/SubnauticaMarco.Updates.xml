@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
-  <update version="3.5.2.0">
+  <update version="3.5.0.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
     </files>
