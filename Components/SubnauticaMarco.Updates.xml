@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="3.6.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Updated Input Safety</change>
+    </changelog>
+  </update>
   <update version="3.5.0.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />

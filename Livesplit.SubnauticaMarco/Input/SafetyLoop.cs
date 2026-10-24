@@ -15,7 +15,7 @@ namespace LiveSplit.SubnauticaMarco.Input
         {
             this.isMacroRunning = isMacroRunning;
             this.getGameWindow = getGameWindow;
-            timer = new Timer(Check, null, 1000, 1000);
+            timer = new Timer(Check, null, 50, 50);
         }
 
         public void Dispose()
@@ -30,13 +30,19 @@ namespace LiveSplit.SubnauticaMarco.Input
 
         private void Check(object state)
         {
-            if (disposed || !isMacroRunning() || Interlocked.Exchange(ref checking, 1) != 0)
+            if (disposed) return;
+            if (!isMacroRunning()) return;
+            if (Interlocked.Exchange(ref checking, 1) != 0)
                 return;
 
             try
             {
                 IntPtr gameWindow = getGameWindow();
-                if (!NativeInput.IsSendingIntentionalInput || !NativeInput.IsGameFocused(gameWindow))
+                // Release only our own Escape/left button immediately when focus
+                // changes or the user presses a physical key. Never cancel the loop:
+                // the operation waits for safe focus and input, then resumes.
+                if (!NativeInput.IsGameFocused(gameWindow) || !NativeInput.IsUserInputIdle()
+                    || !NativeInput.IsSendingIntentionalInput)
                     NativeInput.ReleaseAllInputs();
             }
             catch

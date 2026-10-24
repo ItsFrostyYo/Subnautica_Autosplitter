@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -18,79 +16,135 @@ namespace LiveSplit.SubnauticaMarco.Input
         private static readonly object releaseSync = new object();
         private static int intentionalInputDepth;
         private static int mouseLeftHeld;
+        private static bool escapeHeld;
 
         public static bool IsSendingIntentionalInput => Volatile.Read(ref intentionalInputDepth) > 0;
 
-        public static async Task ClickAsync(Process process, Point logicalPoint, int delayMilliseconds)
+        // Only the Escape key and the left mouse button are ever synthesized.
+        // Wait for the game to be foreground AND for the user to release ALL
+        // physical keys/buttons. Do not manipulate the user's held modifiers.
+        public static bool IsUserInputIdle()
+        {
+            for (int vk = 1; vk <= 0xFE; vk++)
+            {
+                // VK_PACKET (0xE7) is not a physical held key.
+                if (vk == 0xE7) continue;
+                // Ignore the states this macro owns while it is holding them.
+                // All modifier keys, right mouse, and every other key remain blockers.
+                if (vk == EscapeKey && escapeHeld) continue;
+                if (vk == 0x01 && Volatile.Read(ref mouseLeftHeld) != 0) continue;
+                if ((GetAsyncKeyState(vk) & 0x8000) != 0)
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool IsSafeToSend(Process process)
+        {
+            return IsGameFocused(GetWindowHandle(process)) && IsUserInputIdle();
+        }
+
+        private static async Task WaitForSafeInputAsync(Process process, CancellationToken token)
+        {
+            // A normally running macro must not pay a fresh 50 ms wait before
+            // every click/Escape. Stabilize only if input was actually unsafe.
+            // The final focus/keyboard check is still performed under the input lock.
+            if (IsSafeToSend(process))
+            {
+                token.ThrowIfCancellationRequested();
+                return;
+            }
+
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+                if (process == null || process.HasExited)
+                    throw new InvalidOperationException("Subnautica closed while waiting to send input.");
+
+                if (IsSafeToSend(process))
+                {
+                    // On recovery from focus loss / a held physical key, require
+                    // 50 ms of stable idle before allowing any synthetic input.
+                    await Task.Delay(50, token).ConfigureAwait(false);
+                    if (IsSafeToSend(process)) return;
+                }
+                await Task.Delay(10, token).ConfigureAwait(false);
+            }
+        }
+
+        public static async Task ClickAsync(Process process, Point logicalPoint, int delayMilliseconds,
+            CancellationToken token)
         {
             BeginIntentionalInput();
             try
             {
+                await WaitForSafeInputAsync(process, token).ConfigureAwait(false);
                 Point physical;
                 if (!WindowCoordinateMapper.TryMap(process, logicalPoint, out physical))
                     physical = MapToMonitor(process, logicalPoint);
-
-                Focus(process);
-                await Task.Delay(10).ConfigureAwait(false);
-                EnsureGameFocused(process);
-                SetCursorPos(physical.X, physical.Y);
-                EnsureGameFocused(process);
-                mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
-                Interlocked.Exchange(ref mouseLeftHeld, 1);
-                try
+                lock (releaseSync)
                 {
-                    await Task.Delay(5).ConfigureAwait(false);
+                    EnsureSafeInput(process);
+                    if (!SetCursorPos(physical.X, physical.Y))
+                        throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(), "Could not position cursor.");
+                    EnsureSafeInput(process);
+                    mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
+                    mouseLeftHeld = 1;
                 }
-                finally
-                {
-                    mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
-                    Interlocked.Exchange(ref mouseLeftHeld, 0);
-                }
-                await Task.Delay(delayMilliseconds).ConfigureAwait(false);
+                try { await Task.Delay(5, token).ConfigureAwait(false); }
+                finally { ReleaseMouseLeft(); }
+                await Task.Delay(delayMilliseconds, token).ConfigureAwait(false);
             }
-            finally
-            {
-                EndIntentionalInput();
-            }
+            finally { EndIntentionalInput(); }
         }
 
-        public static void PressEscape(Process process)
+        public static async Task PressEscapeAsync(Process process, CancellationToken token)
         {
             BeginIntentionalInput();
             try
             {
-                Focus(process);
-                Thread.Sleep(10);
-                EnsureGameFocused(process);
-                KeyController.HoldStart(EscapeKey);
-                Thread.Sleep(25);
+                await WaitForSafeInputAsync(process, token).ConfigureAwait(false);
+                HoldEscapeStart(process);
+                try { await Task.Delay(25, token).ConfigureAwait(false); }
+                finally { ReleaseEscape(); }
             }
-            finally
-            {
-                KeyController.HoldStop(EscapeKey);
-                EndIntentionalInput();
-            }
+            finally { EndIntentionalInput(); }
         }
 
-        public static async Task HoldEscapeAsync(
-            Process process,
-            int durationMilliseconds,
-            CancellationToken cancellationToken)
+        public static async Task HoldEscapeAsync(Process process, int durationMilliseconds,
+            CancellationToken token)
         {
             BeginIntentionalInput();
             try
             {
-                Focus(process);
-                await Task.Delay(50, cancellationToken).ConfigureAwait(false);
-                EnsureGameFocused(process);
-                KeyController.HoldStart(EscapeKey);
-                await Task.Delay(durationMilliseconds, cancellationToken).ConfigureAwait(false);
+                int remaining = Math.Max(0, durationMilliseconds);
+                while (remaining > 0)
+                {
+                    await WaitForSafeInputAsync(process, token).ConfigureAwait(false);
+                    HoldEscapeStart(process);
+                    var heldTime = Stopwatch.StartNew();
+                    try
+                    {
+                        while (heldTime.ElapsedMilliseconds < remaining)
+                        {
+                            token.ThrowIfCancellationRequested();
+                            if (!IsSafeToSend(process)) break;
+                            int slice = (int)Math.Min(10L,
+                                Math.Max(1L, remaining - heldTime.ElapsedMilliseconds));
+                            await Task.Delay(slice, token).ConfigureAwait(false);
+                        }
+                    }
+                    finally
+                    {
+                        heldTime.Stop();
+                        ReleaseEscape();
+                    }
+                    // Count real elapsed milliseconds while actively holding Esc,
+                    // rather than summing Task.Delay requests (which can oversleep).
+                    remaining -= (int)Math.Min(remaining, heldTime.ElapsedMilliseconds);
+                }
             }
-            finally
-            {
-                KeyController.HoldStop(EscapeKey);
-                EndIntentionalInput();
-            }
+            finally { EndIntentionalInput(); }
         }
 
         public static bool IsGameFocused(IntPtr gameWindow)
@@ -102,19 +156,83 @@ namespace LiveSplit.SubnauticaMarco.Input
         {
             lock (releaseSync)
             {
-                KeyController.ReleaseAll();
-
-                if (Interlocked.Exchange(ref mouseLeftHeld, 0) != 0)
-                    mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+                // Only release inputs this macro itself has pressed. Never release
+                // Ctrl, Alt, Shift, right-click, or any user-owned input state.
+                try { ReleaseEscapeLocked(); }
+                finally { ReleaseMouseLeftLocked(); }
             }
         }
 
-        private static void EnsureGameFocused(Process process)
+        private static void HoldEscapeStart(Process process)
         {
-            IntPtr gameWindow = GetWindowHandle(process);
-            if (!IsGameFocused(gameWindow))
-                throw new InvalidOperationException(
-                    "Subnautica is not focused, so the reset macro stopped before sending input.");
+            lock (releaseSync)
+            {
+                EnsureSafeInput(process);
+                if (escapeHeld)
+                    throw new InvalidOperationException("Escape is already held by the macro.");
+                // Set before sending so cleanup still attempts key-up on errors.
+                escapeHeld = true;
+                SendEscape(false);
+            }
+        }
+
+        private static void ReleaseEscape()
+        {
+            lock (releaseSync)
+                ReleaseEscapeLocked();
+        }
+
+        private static void ReleaseEscapeLocked()
+        {
+            if (!escapeHeld) return;
+            // Clear only after successful release, to allow a later cleanup retry.
+            SendEscape(true);
+            escapeHeld = false;
+        }
+
+        private static void ReleaseMouseLeft()
+        {
+            lock (releaseSync)
+                ReleaseMouseLeftLocked();
+        }
+
+        private static void ReleaseMouseLeftLocked()
+        {
+            if (mouseLeftHeld == 0) return;
+            mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+            mouseLeftHeld = 0;
+        }
+
+        private static void SendEscape(bool release)
+        {
+            // The only keyboard scancode this plugin is allowed to synthesize is Escape.
+            const uint InputKeyboard = 1;
+            const uint ScanCodeFlag = 0x0008;
+            const uint KeyUpFlag = 0x0002;
+            ushort scan = (ushort)MapVirtualKey(EscapeKey, 0);
+            if (scan == 0)
+                throw new InvalidOperationException("Windows could not map the Escape key.");
+            var input = new NativeInputRecord
+            {
+                Type = InputKeyboard,
+                Union = new InputUnion
+                {
+                    Keyboard = new KeyboardInput
+                    {
+                        ScanCode = scan,
+                        Flags = ScanCodeFlag | (release ? KeyUpFlag : 0)
+                    }
+                }
+            };
+            if (SendInput(1, new[] { input }, Marshal.SizeOf(typeof(NativeInputRecord))) != 1)
+                throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error(),
+                    "Failed to send Escape " + (release ? "release" : "press"));
+        }
+
+        private static void EnsureSafeInput(Process process)
+        {
+            if (!IsSafeToSend(process))
+                throw new InvalidOperationException("Game focus changed or a user key is down; input blocked.");
         }
 
         private static IntPtr GetWindowHandle(Process process)
@@ -167,6 +285,9 @@ namespace LiveSplit.SubnauticaMarco.Input
         }
 
         [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int key);
+
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool SetCursorPos(int x, int y);
 
         [DllImport("user32.dll")]
@@ -178,251 +299,54 @@ namespace LiveSplit.SubnauticaMarco.Input
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        private static class KeyController
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint SendInput(uint count, NativeInputRecord[] inputs, int size);
+
+        [DllImport("user32.dll")]
+        private static extern uint MapVirtualKey(uint code, uint mapType);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NativeInputRecord
         {
-            private const uint InputKeyboard = 1;
-            private const uint KeyEventExtended = 0x0001;
-            private const uint KeyEventUp = 0x0002;
-            private const uint KeyEventScanCode = 0x0008;
-            private const uint MapVirtualKeyToScanCode = 0;
-            private const uint GetKeyboardDelay = 0x0016;
-            private const uint GetKeyboardSpeed = 0x000A;
+            public uint Type;
+            public InputUnion Union;
+        }
 
-            private static readonly HashSet<ushort> VirtualKeyOnly = new HashSet<ushort>
-            {
-                0xAE, 0xAF, 0xAD,
-                0xB0, 0xB1, 0xB2, 0xB3,
-                0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC,
-                0xB4, 0xB5, 0xB6, 0xB7
-            };
+        [StructLayout(LayoutKind.Explicit)]
+        private struct InputUnion
+        {
+            [FieldOffset(0)] public KeyboardInput Keyboard;
+            [FieldOffset(0)] public MouseInput Mouse;
+            [FieldOffset(0)] public HardwareInput Hardware;
+        }
 
-            private static readonly ConcurrentDictionary<ushort, HoldState> Holds =
-                new ConcurrentDictionary<ushort, HoldState>();
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KeyboardInput
+        {
+            public ushort VirtualKey;
+            public ushort ScanCode;
+            public uint Flags;
+            public uint Time;
+            public IntPtr ExtraInfo;
+        }
 
-            public static void HoldStart(ushort virtualKey)
-            {
-                if (Holds.ContainsKey(virtualKey))
-                    return;
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MouseInput
+        {
+            public int X;
+            public int Y;
+            public int Data;
+            public uint Flags;
+            public uint Time;
+            public IntPtr ExtraInfo;
+        }
 
-                int initialDelay;
-                double repeatHz;
-                GetSystemRepeatSettings(out initialDelay, out repeatHz);
-
-                var state = new HoldState
-                {
-                    VirtualKey = virtualKey,
-                    TapMode = VirtualKeyOnly.Contains(virtualKey),
-                    InitialDelayMilliseconds = initialDelay,
-                    RepeatHz = repeatHz,
-                    Cancellation = new CancellationTokenSource()
-                };
-                if (!Holds.TryAdd(virtualKey, state))
-                {
-                    state.Cancellation.Dispose();
-                    return;
-                }
-
-                CancellationToken token = state.Cancellation.Token;
-                if (state.TapMode)
-                {
-                    Send(MakeKey(virtualKey, false), MakeKey(virtualKey, true));
-                }
-                else
-                {
-                    Send(MakeKey(virtualKey, false));
-                    state.LeftDown = true;
-                }
-
-                state.Worker = Task.Run(delegate
-                {
-                    if (token.WaitHandle.WaitOne(state.InitialDelayMilliseconds))
-                        return;
-
-                    int period = Math.Max(5, (int)Math.Round(1000.0 / state.RepeatHz));
-                    while (!token.IsCancellationRequested)
-                    {
-                        if (token.WaitHandle.WaitOne(period))
-                            break;
-
-                        if (state.TapMode)
-                            Send(MakeKey(virtualKey, false), MakeKey(virtualKey, true));
-                        else
-                            Send(MakeKey(virtualKey, false));
-                    }
-                }, token);
-            }
-
-            public static void HoldStop(ushort virtualKey)
-            {
-                HoldState state;
-                if (!Holds.TryRemove(virtualKey, out state))
-                    return;
-
-                try
-                {
-                    state.Cancellation.Cancel();
-                    if (state.Worker != null)
-                        state.Worker.Wait(300);
-                }
-                catch
-                {
-                }
-
-                if (!state.TapMode && state.LeftDown)
-                    Send(MakeKey(virtualKey, true));
-
-                state.Cancellation.Dispose();
-            }
-
-            public static void ReleaseAll()
-            {
-                foreach (ushort virtualKey in Holds.Keys)
-                    HoldStop(virtualKey);
-            }
-
-            private static NativeInputRecord MakeKey(ushort virtualKey, bool keyUp)
-            {
-                if (VirtualKeyOnly.Contains(virtualKey))
-                {
-                    return new NativeInputRecord
-                    {
-                        Type = InputKeyboard,
-                        Union = new InputUnion
-                        {
-                            Keyboard = new KeyboardInput
-                            {
-                                VirtualKey = virtualKey,
-                                Flags = (keyUp ? KeyEventUp : 0) | KeyEventExtended
-                            }
-                        }
-                    };
-                }
-
-                ushort scanCode = (ushort)MapVirtualKey(virtualKey, MapVirtualKeyToScanCode);
-                return new NativeInputRecord
-                {
-                    Type = InputKeyboard,
-                    Union = new InputUnion
-                    {
-                        Keyboard = new KeyboardInput
-                        {
-                            ScanCode = scanCode,
-                            Flags = KeyEventScanCode
-                                | (IsExtended(virtualKey) ? KeyEventExtended : 0)
-                                | (keyUp ? KeyEventUp : 0)
-                        }
-                    }
-                };
-            }
-
-            private static bool IsExtended(ushort virtualKey)
-            {
-                switch (virtualKey)
-                {
-                    case 0x25:
-                    case 0x26:
-                    case 0x27:
-                    case 0x28:
-                    case 0x2D:
-                    case 0x2E:
-                    case 0x24:
-                    case 0x23:
-                    case 0x21:
-                    case 0x22:
-                    case 0x6F:
-                    case 0xA3:
-                    case 0xA5:
-                        return true;
-                    default:
-                        return false;
-                }
-            }
-
-            private static void Send(params NativeInputRecord[] inputs)
-            {
-                SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(NativeInputRecord)));
-            }
-
-            private static void GetSystemRepeatSettings(out int initialDelay, out double repeatHz)
-            {
-                uint delayIndex;
-                initialDelay = SystemParametersInfo(GetKeyboardDelay, 0, out delayIndex, 0)
-                    ? (int)(delayIndex + 1) * 250
-                    : 300;
-
-                uint speedIndex;
-                repeatHz = SystemParametersInfo(GetKeyboardSpeed, 0, out speedIndex, 0)
-                    ? 2.5 + speedIndex * (31.0 - 2.5) / 31.0
-                    : 25.0;
-            }
-
-            [DllImport("user32.dll", SetLastError = true)]
-            private static extern uint SendInput(uint count, NativeInputRecord[] inputs, int size);
-
-            [DllImport("user32.dll")]
-            private static extern uint MapVirtualKey(uint code, uint mapType);
-
-            [DllImport("user32.dll")]
-            private static extern bool SystemParametersInfo(
-                uint action,
-                uint parameter,
-                out uint value,
-                uint flags);
-
-            private sealed class HoldState
-            {
-                public ushort VirtualKey;
-                public bool TapMode;
-                public bool LeftDown;
-                public int InitialDelayMilliseconds;
-                public double RepeatHz;
-                public CancellationTokenSource Cancellation;
-                public Task Worker;
-            }
-
-            [StructLayout(LayoutKind.Sequential)]
-            private struct NativeInputRecord
-            {
-                public uint Type;
-                public InputUnion Union;
-            }
-
-            [StructLayout(LayoutKind.Explicit)]
-            private struct InputUnion
-            {
-                [FieldOffset(0)] public KeyboardInput Keyboard;
-                [FieldOffset(0)] public MouseInput Mouse;
-                [FieldOffset(0)] public HardwareInput Hardware;
-            }
-
-            [StructLayout(LayoutKind.Sequential)]
-            private struct KeyboardInput
-            {
-                public ushort VirtualKey;
-                public ushort ScanCode;
-                public uint Flags;
-                public uint Time;
-                public IntPtr ExtraInfo;
-            }
-
-            [StructLayout(LayoutKind.Sequential)]
-            private struct MouseInput
-            {
-                public int X;
-                public int Y;
-                public int Data;
-                public uint Flags;
-                public uint Time;
-                public IntPtr ExtraInfo;
-            }
-
-            [StructLayout(LayoutKind.Sequential)]
-            private struct HardwareInput
-            {
-                public uint Message;
-                public ushort ParameterLow;
-                public ushort ParameterHigh;
-            }
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HardwareInput
+        {
+            public uint Message;
+            public ushort ParameterLow;
+            public ushort ParameterHigh;
         }
     }
 }

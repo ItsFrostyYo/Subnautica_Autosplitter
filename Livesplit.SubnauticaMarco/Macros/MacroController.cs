@@ -164,7 +164,10 @@ namespace LiveSplit.SubnauticaMarco.Macros
             lock (sync)
             {
                 if (cancellation != null)
+                {
                     cancellation.Cancel();
+                    NativeInput.ReleaseAllInputs();
+                }
             }
         }
 
@@ -191,16 +194,16 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 if (state == GameMemoryState.InGame)
                 {
                     SetActivity("Quitting to Main Menu");
-                    NativeInput.PressEscape(process);
+                    await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
                     Log("Escape input sent; waiting for the pause menu.");
                     await Task.Delay(50, token).ConfigureAwait(false);
-                    await NativeInput.ClickAsync(process, profile.Quit, 20).ConfigureAwait(false);
+                    await NativeInput.ClickAsync(process, profile.Quit, 20, token).ConfigureAwait(false);
                     Log("Quit button clicked.");
                     await Task.Delay(50, token).ConfigureAwait(false);
-                    await NativeInput.ClickAsync(process, profile.ConfirmQuit, 20).ConfigureAwait(false);
+                    await NativeInput.ClickAsync(process, profile.ConfirmQuit, 20, token).ConfigureAwait(false);
                     Log("First quit confirmation clicked.");
                     await Task.Delay(50, token).ConfigureAwait(false);
-                    await NativeInput.ClickAsync(process, profile.ConfirmQuitAgain, 20).ConfigureAwait(false);
+                    await NativeInput.ClickAsync(process, profile.ConfirmQuitAgain, 20, token).ConfigureAwait(false);
                     Log("Final quit confirmation clicked; waiting for main-menu memory readiness.");
                 }
                 else if (state != GameMemoryState.MainMenu)
@@ -212,11 +215,11 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 await WaitForMainMenuReadyAsync(token).ConfigureAwait(false);
                 SetActivity("Starting " + FormatMode(mode));
 
-                await NativeInput.ClickAsync(process, profile.Play, 10).ConfigureAwait(false);
+                await NativeInput.ClickAsync(process, profile.Play, 10, token).ConfigureAwait(false);
                 await Task.Delay(50, token).ConfigureAwait(false);
-                await NativeInput.ClickAsync(process, profile.NewGame, 30).ConfigureAwait(false);
+                await NativeInput.ClickAsync(process, profile.NewGame, 30, token).ConfigureAwait(false);
                 await Task.Delay(profile.ModernMenu ? 150 : 50, token).ConfigureAwait(false);
-                await NativeInput.ClickAsync(process, profile.GameMode, 20).ConfigureAwait(false);
+                await NativeInput.ClickAsync(process, profile.GameMode, 20, token).ConfigureAwait(false);
 
                 // Only after the final game-mode click returns successfully and cancellation is not requested.
                 token.ThrowIfCancellationRequested();
