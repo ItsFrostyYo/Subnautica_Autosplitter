@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="2.0.0.0">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Increase the Configurable Tracker Row Limit from 4 to 5.</change>
+      <change>Added Explosion Timer from Autosplitter as a Row Category.</change>
+      <change>Added Bulb Zone Tracker for Tracking the Lifepod 4/RadioRadiationSuit Goal in the Bulb Zone/kooshZone for Completion of the Goal.</change>
+    </changelog>
+  </update>
   <update version="1.7.0.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaTracker.dll" status="changed" />

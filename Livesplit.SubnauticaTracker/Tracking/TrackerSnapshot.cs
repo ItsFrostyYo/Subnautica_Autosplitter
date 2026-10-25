@@ -1,3 +1,5 @@
+using System;
+
 namespace LiveSplit.SubnauticaTracker.Tracking
 {
     internal enum TrackerState
@@ -43,7 +45,8 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             TrackerCount blueprints,
             TrackerCount databanks,
             TrackerCount achievements,
-            DamageStats damage)
+            DamageStats damage,
+            ExplosionTimeStats explosionTime = null)
         {
             State = state;
             Version = version ?? string.Empty;
@@ -52,6 +55,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             Databanks = databanks ?? TrackerCount.Unknown;
             Achievements = achievements ?? TrackerCount.Unknown;
             Damage = damage ?? DamageStats.Unknown;
+            ExplosionTime = explosionTime ?? ExplosionTimeStats.Unknown;
         }
 
         public TrackerState State { get; }
@@ -61,6 +65,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         public TrackerCount Databanks { get; }
         public TrackerCount Achievements { get; }
         public DamageStats Damage { get; }
+        public ExplosionTimeStats ExplosionTime { get; }
     }
 
     internal sealed class DamageStats
@@ -86,5 +91,42 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         public double TotalDamage { get; }
         public int IntroHits { get; }
         public double IntroDamage { get; }
+    }
+
+    internal sealed class ExplosionTimeStats
+    {
+        public static readonly ExplosionTimeStats Unknown = new ExplosionTimeStats(false, TimeSpan.Zero);
+
+        public ExplosionTimeStats(bool available, TimeSpan time)
+        {
+            Available = available;
+            Time = time;
+        }
+
+        public bool Available { get; }
+        public TimeSpan Time { get; }
+    }
+
+    internal enum BulbTimerState
+    {
+        NotInBulb,
+        Running,
+        Finished,
+        Reset
+    }
+
+    internal sealed class BulbTimerSnapshot
+    {
+        public static readonly BulbTimerSnapshot NotInBulb =
+            new BulbTimerSnapshot(BulbTimerState.NotInBulb, TimeSpan.Zero);
+
+        public BulbTimerSnapshot(BulbTimerState state, TimeSpan elapsed)
+        {
+            State = state;
+            Elapsed = elapsed;
+        }
+
+        public BulbTimerState State { get; }
+        public TimeSpan Elapsed { get; }
     }
 }

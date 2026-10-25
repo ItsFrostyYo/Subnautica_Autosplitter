@@ -36,6 +36,7 @@
       <Link>Catalogs\TechType.cs</Link>
     </Compile>
     <Compile Include="Component.cs" />
+    <Compile Include="BulbTimerRenderer.cs" />
     <Compile Include="Diagnostics\MissingReportWriter.cs" />
     <Compile Include="Diagnostics\TrackerLog.cs" />
     <Compile Include="Factory.cs" />
@@ -55,6 +56,10 @@
   <ItemGroup>
     <Reference Include="LiveSplit.Core">
       <HintPath>$(LiveSplitRoot)\LiveSplit.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="LiveSplit.Timer">
+      <HintPath>$(LiveSplitRoot)\Components\LiveSplit.Timer.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />

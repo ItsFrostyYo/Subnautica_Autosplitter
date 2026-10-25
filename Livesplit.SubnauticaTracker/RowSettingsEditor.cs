@@ -11,6 +11,13 @@ namespace LiveSplit.SubnauticaTracker
         private readonly ComboBox textCenteringComboBox;
         private readonly Button textColorButton;
         private readonly CheckBox excludeIntroDamageCheckBox;
+        private readonly ComboBox timerDigitsComboBox;
+        private readonly ComboBox timerAccuracyComboBox;
+        private readonly TrackBar timerDecimalsTrackBar;
+        private readonly CheckBox timerGradientCheckBox;
+        private readonly CheckBox timerCenterCheckBox;
+        private readonly Button timerColorButton;
+        private readonly TrackBar timerHeightTrackBar;
         private readonly TrackerRowCategory category;
         private readonly ToolTip toolTip;
 
@@ -23,7 +30,10 @@ namespace LiveSplit.SubnauticaTracker
             ShowInTaskbar = false;
             StartPosition = FormStartPosition.CenterParent;
             category = settings.Category;
-            int settingRows = category == TrackerRowCategory.DamageTaken ? 4 : 3;
+            bool isDamage = category == TrackerRowCategory.DamageTaken;
+            bool isExplosion = category == TrackerRowCategory.ExplosionTime;
+            bool isBulbTimer = category == TrackerRowCategory.BulbZoneTimer;
+            int settingRows = isBulbTimer ? 6 : isDamage ? 4 : isExplosion ? 2 : 3;
             int buttonsY = 20 + settingRows * 29;
             ClientSize = new Size(350, buttonsY + 36);
             toolTip = new ToolTip
@@ -42,13 +52,13 @@ namespace LiveSplit.SubnauticaTracker
                 Size = new Size(334, settingRows * 29)
             };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 135f));
-            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 29f));
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80f));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f));
             for (int i = 0; i < layout.RowCount; i++)
                 layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 29f));
 
             displayValueComboBox = CreateDropDown();
-            if (category == TrackerRowCategory.DamageTaken)
+            if (isDamage)
             {
                 displayValueComboBox.Items.AddRange(new object[] { "Hits Taken", "# Taken" });
                 displayValueComboBox.SelectedItem = settings.DisplayValue == TrackerDisplayValue.HitsTaken
@@ -66,17 +76,8 @@ namespace LiveSplit.SubnauticaTracker
             textCenteringComboBox = CreateDropDown();
             textCenteringComboBox.Items.AddRange(new object[] { "Left", "Right", "Center" });
             textCenteringComboBox.SelectedItem = settings.TextCentering.ToString();
-
-            textColorButton = new Button
-            {
-                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
-                BackColor = settings.TextColor,
-                FlatStyle = FlatStyle.Popup,
-                Margin = new Padding(3),
-                UseVisualStyleBackColor = false
-            };
+            textColorButton = CreateColorButton(settings.TextColor);
             textColorButton.Click += TextColorButtonClick;
-
             excludeIntroDamageCheckBox = new CheckBox
             {
                 Anchor = AnchorStyles.Left,
@@ -85,22 +86,52 @@ namespace LiveSplit.SubnauticaTracker
                 Text = "Enabled"
             };
 
-            toolTip.SetToolTip(
-                displayValueComboBox,
-                category == TrackerRowCategory.DamageTaken
-                    ? "Choose Hits Taken for the number of damaging hits, or # Taken for total health damage."
-                    : "Choose # for an unlocked/total count or % for completion percentage.");
-            toolTip.SetToolTip(textCenteringComboBox, "Align this row's text to the left, right, or center.");
-            toolTip.SetToolTip(textColorButton, "Choose this row's text color. The default is white.");
-            toolTip.SetToolTip(
-                excludeIntroDamageCheckBox,
-                "Exclude the unavoidable first 20 damage from the lifepod intro. Enabled by default.");
+            timerDigitsComboBox = CreateDropDown();
+            timerDigitsComboBox.Items.AddRange(new object[] { "1", "00:01", "0:00:01", "00:00:01" });
+            timerDigitsComboBox.SelectedItem = settings.TimerDigitsFormat;
+            timerAccuracyComboBox = CreateDropDown();
+            timerAccuracyComboBox.Items.AddRange(new object[] { "", ".2", ".23", ".234" });
+            timerAccuracyComboBox.SelectedItem = settings.TimerAccuracy;
+            timerDecimalsTrackBar = CreateTrackBar(10, 50, (int)settings.TimerDecimalsSize);
+            timerGradientCheckBox = CreateCheckBox("Show Gradient", settings.TimerShowGradient);
+            timerCenterCheckBox = CreateCheckBox("Align to Center", settings.TimerCenter);
+            timerColorButton = CreateColorButton(settings.TimerColor);
+            timerColorButton.Click += TimerColorButtonClick;
+            timerHeightTrackBar = CreateTrackBar(20, 150, (int)settings.TimerHeight);
 
-            AddSettingRow(layout, 0, "Display Value:", displayValueComboBox, true);
-            AddSettingRow(layout, 1, "Text Centering:", textCenteringComboBox, true);
-            AddSettingRow(layout, 2, "Text Color:", textColorButton, false);
-            if (category == TrackerRowCategory.DamageTaken)
-                AddSettingRow(layout, 3, "Exclude Intro Damage:", excludeIntroDamageCheckBox, true);
+            if (isBulbTimer)
+            {
+                var timerFormatPanel = new TableLayoutPanel
+                {
+                    ColumnCount = 2,
+                    Dock = DockStyle.Fill,
+                    Margin = Padding.Empty
+                };
+                timerFormatPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+                timerFormatPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+                timerFormatPanel.Controls.Add(timerDigitsComboBox, 0, 0);
+                timerFormatPanel.Controls.Add(timerAccuracyComboBox, 1, 0);
+                AddSettingRow(layout, 0, "Timer Format:", timerFormatPanel, true);
+                AddSettingRow(layout, 1, "Decimals Font Size:", timerDecimalsTrackBar, true);
+                layout.Controls.Add(timerGradientCheckBox, 0, 2);
+                layout.SetColumnSpan(timerGradientCheckBox, 3);
+                layout.Controls.Add(timerCenterCheckBox, 0, 3);
+                layout.SetColumnSpan(timerCenterCheckBox, 3);
+                AddSettingRow(layout, 4, "Timer Color:", timerColorButton, true);
+                AddSettingRow(layout, 5, "Height:", timerHeightTrackBar, true);
+            }
+            else
+            {
+                int row = 0;
+                if (!isExplosion)
+                    AddSettingRow(layout, row++, "Display Value:", displayValueComboBox, true);
+                AddSettingRow(layout, row++, "Text Centering:", textCenteringComboBox, true);
+                AddSettingRow(layout, row++, "Text Color:", textColorButton, true);
+                if (isDamage)
+                    AddSettingRow(layout, row, "Exclude Intro Damage:", excludeIntroDamageCheckBox, true);
+            }
+
+            SetToolTips(isDamage, isBulbTimer);
 
             var okButton = new Button
             {
@@ -126,8 +157,7 @@ namespace LiveSplit.SubnauticaTracker
                 UseVisualStyleBackColor = true
             };
             resetButton.Click += ResetButtonClick;
-
-            toolTip.SetToolTip(resetButton, "Restore this category's default value format, alignment, color, and intro-damage setting.");
+            toolTip.SetToolTip(resetButton, "Restore this row category's default settings.");
             toolTip.SetToolTip(okButton, "Save these row settings.");
             toolTip.SetToolTip(cancelButton, "Close without changing this row.");
 
@@ -145,15 +175,8 @@ namespace LiveSplit.SubnauticaTracker
             {
                 string selected = displayValueComboBox.SelectedItem as string;
                 if (category == TrackerRowCategory.DamageTaken)
-                {
-                    return string.Equals(selected, "Hits Taken", StringComparison.Ordinal)
-                        ? TrackerDisplayValue.HitsTaken
-                        : TrackerDisplayValue.DamageTaken;
-                }
-
-                return string.Equals(selected, "%", StringComparison.Ordinal)
-                    ? TrackerDisplayValue.Percentage
-                    : TrackerDisplayValue.Number;
+                    return selected == "Hits Taken" ? TrackerDisplayValue.HitsTaken : TrackerDisplayValue.DamageTaken;
+                return selected == "%" ? TrackerDisplayValue.Percentage : TrackerDisplayValue.Number;
             }
         }
 
@@ -170,12 +193,40 @@ namespace LiveSplit.SubnauticaTracker
 
         public Color TextColor => textColorButton.BackColor;
         public bool ExcludeIntroDamage => excludeIntroDamageCheckBox.Checked;
+        public string TimerDigitsFormat => timerDigitsComboBox.SelectedItem as string ?? "1";
+        public string TimerAccuracy => timerAccuracyComboBox.SelectedItem as string ?? ".23";
+        public float TimerDecimalsSize => timerDecimalsTrackBar.Value;
+        public bool TimerShowGradient => timerGradientCheckBox.Checked;
+        public bool TimerCenter => timerCenterCheckBox.Checked;
+        public Color TimerColor => timerColorButton.BackColor;
+        public float TimerHeight => timerHeightTrackBar.Value;
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
                 toolTip.Dispose();
             base.Dispose(disposing);
+        }
+
+        private void SetToolTips(bool isDamage, bool isBulbTimer)
+        {
+            toolTip.SetToolTip(displayValueComboBox, isDamage
+                ? "Choose Hits Taken for the number of damaging hits, or # Taken for total health damage."
+                : "Choose # for an unlocked/total count or % for completion percentage.");
+            toolTip.SetToolTip(textCenteringComboBox, "Align this row's text to the left, right, or center.");
+            toolTip.SetToolTip(textColorButton, "Choose this row's text color. The default is white.");
+            toolTip.SetToolTip(excludeIntroDamageCheckBox,
+                "Exclude the unavoidable first 20 damage from the lifepod intro. Enabled by default.");
+            if (isBulbTimer)
+            {
+                toolTip.SetToolTip(timerDigitsComboBox, "Choose the timer's digit layout.");
+                toolTip.SetToolTip(timerAccuracyComboBox, "Choose how many decimal places the timer displays.");
+                toolTip.SetToolTip(timerDecimalsTrackBar, "Adjust the decimals font size, matching LiveSplit's Timer component.");
+                toolTip.SetToolTip(timerGradientCheckBox, "Apply LiveSplit's timer text gradient.");
+                toolTip.SetToolTip(timerCenterCheckBox, "Center the timer instead of aligning it to the right.");
+                toolTip.SetToolTip(timerColorButton, "Choose the Bulb Zone timer color.");
+                toolTip.SetToolTip(timerHeightTrackBar, "Set this timer row's height.");
+            }
         }
 
         private static ComboBox CreateDropDown()
@@ -187,12 +238,42 @@ namespace LiveSplit.SubnauticaTracker
             };
         }
 
-        private static void AddSettingRow(
-            TableLayoutPanel layout,
-            int row,
-            string labelText,
-            Control control,
-            bool spanControl)
+        private static Button CreateColorButton(Color color)
+        {
+            return new Button
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                BackColor = color,
+                FlatStyle = FlatStyle.Popup,
+                Margin = new Padding(3),
+                UseVisualStyleBackColor = false
+            };
+        }
+
+        private static TrackBar CreateTrackBar(int minimum, int maximum, int value)
+        {
+            return new TrackBar
+            {
+                Dock = DockStyle.Fill,
+                Minimum = minimum,
+                Maximum = maximum,
+                TickStyle = TickStyle.None,
+                Value = Math.Max(minimum, Math.Min(maximum, value))
+            };
+        }
+
+        private static CheckBox CreateCheckBox(string text, bool value)
+        {
+            return new CheckBox
+            {
+                Anchor = AnchorStyles.Left,
+                AutoSize = true,
+                Checked = value,
+                Text = text
+            };
+        }
+
+        private static void AddSettingRow(TableLayoutPanel layout, int row, string labelText, Control control, bool spanControl)
         {
             layout.Controls.Add(new Label
             {
@@ -210,15 +291,28 @@ namespace LiveSplit.SubnauticaTracker
             SettingsHelper.ColorButtonClick(textColorButton, this);
         }
 
+        private void TimerColorButtonClick(object sender, EventArgs e)
+        {
+            SettingsHelper.ColorButtonClick(timerColorButton, this);
+        }
+
         private void ResetButtonClick(object sender, EventArgs e)
         {
-            TrackerDisplayValue defaultValue = TrackerRowSettings.GetDefaultDisplayValue(category);
+            var defaults = new TrackerRowSettings();
+            defaults.ResetToDefaults(category);
             displayValueComboBox.SelectedItem = category == TrackerRowCategory.DamageTaken
                 ? "# Taken"
-                : defaultValue == TrackerDisplayValue.Percentage ? "%" : "#";
-            textCenteringComboBox.SelectedItem = TrackerTextCentering.Center.ToString();
-            textColorButton.BackColor = Color.White;
-            excludeIntroDamageCheckBox.Checked = true;
+                : defaults.DisplayValue == TrackerDisplayValue.Percentage ? "%" : "#";
+            textCenteringComboBox.SelectedItem = defaults.TextCentering.ToString();
+            textColorButton.BackColor = defaults.TextColor;
+            excludeIntroDamageCheckBox.Checked = defaults.ExcludeIntroDamage;
+            timerDigitsComboBox.SelectedItem = defaults.TimerDigitsFormat;
+            timerAccuracyComboBox.SelectedItem = defaults.TimerAccuracy;
+            timerDecimalsTrackBar.Value = (int)defaults.TimerDecimalsSize;
+            timerGradientCheckBox.Checked = defaults.TimerShowGradient;
+            timerCenterCheckBox.Checked = defaults.TimerCenter;
+            timerColorButton.BackColor = defaults.TimerColor;
+            timerHeightTrackBar.Value = (int)defaults.TimerHeight;
         }
     }
 }

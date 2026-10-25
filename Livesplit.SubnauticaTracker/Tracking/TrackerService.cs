@@ -12,7 +12,9 @@ namespace LiveSplit.SubnauticaTracker.Tracking
     {
         private readonly Timer timer;
         private readonly Timer damageTimer;
+        private readonly Timer bulbTimer;
         private readonly object damageSync = new object();
+        private readonly object bulbSync = new object();
 
         private ProcessMemory processMemory;
         private SubnauticaUnlockReader unlockReader;
@@ -29,6 +31,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         private double lastLoggedDamageTotal = -1d;
         private int polling;
         private int damagePolling;
+        private int bulbPolling;
         private string damageSlot = string.Empty;
         private bool hasPreviousHealth;
         private float previousHealth;
@@ -39,15 +42,35 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         private int introDamageHits;
         private double introDamageTotal;
         private bool firstDamageObserved;
+        private string bulbSlot = string.Empty;
+        private IntPtr bulbWorld = IntPtr.Zero;
+        private IntPtr rejectedBulbWorld = IntPtr.Zero;
+        private BulbTimerState bulbState = BulbTimerState.NotInBulb;
+        private TimeSpan bulbElapsed = TimeSpan.Zero;
+        private TimeSpan bulbEntryTime = TimeSpan.Zero;
+        private bool hasBulbEntryTime;
+        private bool bulbCompletionInitialized;
+        private string explosionSlot = string.Empty;
+        private bool hasExplosionTime;
+        private TimeSpan lastExplosionTime;
 
         public TrackerService()
         {
             TrackerLog.StartSession();
             timer = new Timer(Poll, null, 0, 250);
             damageTimer = new Timer(PollDamage, null, 0, 20);
+            bulbTimer = new Timer(PollBulb, null, 0, 20);
         }
 
         public TrackerSnapshot Snapshot => snapshot;
+        public BulbTimerSnapshot BulbTimer
+        {
+            get
+            {
+                lock (bulbSync)
+                    return new BulbTimerSnapshot(bulbState, bulbElapsed);
+            }
+        }
         public static string MissingReportPath => MissingReportWriter.FilePath;
 
         public bool TryWriteMissingReport(out string path, out string error)
@@ -83,6 +106,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
         {
             timer.Dispose();
             damageTimer.Dispose();
+            bulbTimer.Dispose();
             Detach();
         }
 
@@ -169,6 +193,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                 switch (read.State)
                 {
                     case UnlockReaderState.MainMenu:
+                        ResetBulbTimer();
                         Publish(CreateSnapshot(
                             TrackerState.MainMenu,
                             string.Empty,
@@ -178,6 +203,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                         break;
 
                     case UnlockReaderState.Tracking:
+                        UpdateBulbCompletion(read.SaveSlot);
                         Publish(CreateSnapshot(
                             TrackerState.Tracking,
                             read.SaveSlot,
@@ -317,6 +343,116 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             }
         }
 
+        private void PollBulb(object state)
+        {
+            if (Interlocked.Exchange(ref bulbPolling, 1) != 0)
+                return;
+
+            try
+            {
+                TrackerSnapshot current = snapshot;
+                SubnauticaUnlockReader reader = unlockReader;
+                if (current.State != TrackerState.Tracking
+                    || string.IsNullOrWhiteSpace(current.SaveSlot)
+                    || reader == null)
+                {
+                    return;
+                }
+
+                IntPtr world;
+                string playerBiome;
+                string trackerBiome;
+                TimeSpan gameTime;
+                TimeSpan elapsed;
+                if (!reader.TryReadBulbTiming(
+                    out world,
+                    out playerBiome,
+                    out trackerBiome,
+                    out gameTime,
+                    out elapsed))
+                {
+                    return;
+                }
+
+                lock (bulbSync)
+                {
+                    if (!string.Equals(bulbSlot, current.SaveSlot, StringComparison.Ordinal))
+                    {
+                        rejectedBulbWorld = bulbWorld;
+                        bulbSlot = current.SaveSlot;
+                        bulbWorld = IntPtr.Zero;
+                        bulbState = BulbTimerState.NotInBulb;
+                        bulbElapsed = TimeSpan.Zero;
+                        bulbEntryTime = TimeSpan.Zero;
+                        hasBulbEntryTime = false;
+                        bulbCompletionInitialized = false;
+                    }
+
+                    if (rejectedBulbWorld != IntPtr.Zero && world == rejectedBulbWorld)
+                        return;
+
+                    if (bulbWorld == IntPtr.Zero)
+                    {
+                        bulbWorld = world;
+                        rejectedBulbWorld = IntPtr.Zero;
+                    }
+                    else if (bulbWorld != world)
+                    {
+                        bulbWorld = world;
+                        rejectedBulbWorld = IntPtr.Zero;
+                        bulbState = BulbTimerState.NotInBulb;
+                        bulbElapsed = TimeSpan.Zero;
+                        bulbEntryTime = TimeSpan.Zero;
+                        hasBulbEntryTime = false;
+                        bulbCompletionInitialized = false;
+                    }
+
+                    if (bulbState == BulbTimerState.Finished)
+                        return;
+
+                    if (!string.Equals(playerBiome, "kooshZone", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (bulbState == BulbTimerState.Running)
+                            bulbState = BulbTimerState.Reset;
+                        bulbElapsed = TimeSpan.Zero;
+                        bulbEntryTime = TimeSpan.Zero;
+                        hasBulbEntryTime = false;
+                        return;
+                    }
+
+                    if (!hasBulbEntryTime)
+                    {
+                        TimeSpan trackedEntryTime = gameTime - elapsed;
+                        bulbEntryTime = string.Equals(
+                            trackerBiome,
+                            "kooshZone",
+                            StringComparison.OrdinalIgnoreCase)
+                            ? (trackedEntryTime >= TimeSpan.Zero
+                                ? trackedEntryTime
+                                : TimeSpan.Zero)
+                            : gameTime;
+                        hasBulbEntryTime = true;
+                    }
+
+                    bulbState = BulbTimerState.Running;
+                    bulbElapsed = gameTime >= bulbEntryTime
+                        ? gameTime - bulbEntryTime
+                        : TimeSpan.Zero;
+                }
+            }
+            catch (Exception exception)
+            {
+                TrackerLog.Throttled(
+                    "bulb-read-failed",
+                    "Bulb timer read failed: " + exception.Message,
+                    TimeSpan.FromSeconds(5));
+            }
+            finally
+            {
+                Interlocked.Exchange(ref bulbPolling, 0);
+            }
+        }
+
         private bool TryAttach()
         {
             Process process = null;
@@ -367,6 +503,32 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             TrackerCount databanks,
             TrackerCount achievements)
         {
+            TimeSpan explosionTime = TimeSpan.Zero;
+            if (state == TrackerState.Tracking && unlockReader != null)
+            {
+                if (unlockReader.TryReadExplosionTime(out explosionTime))
+                {
+                    explosionSlot = saveSlot ?? string.Empty;
+                    lastExplosionTime = explosionTime;
+                    hasExplosionTime = true;
+                }
+                else if (hasExplosionTime
+                    && string.Equals(explosionSlot, saveSlot, StringComparison.Ordinal))
+                {
+                    explosionTime = lastExplosionTime;
+                }
+                else
+                {
+                    hasExplosionTime = false;
+                }
+            }
+            else
+            {
+                explosionSlot = string.Empty;
+                hasExplosionTime = false;
+                lastExplosionTime = TimeSpan.Zero;
+            }
+
             return new TrackerSnapshot(
                 state,
                 version?.DisplayName ?? string.Empty,
@@ -376,7 +538,90 @@ namespace LiveSplit.SubnauticaTracker.Tracking
                 achievements,
                 state == TrackerState.Tracking
                     ? GetDamageStats(saveSlot)
-                    : DamageStats.Unknown);
+                    : DamageStats.Unknown,
+                hasExplosionTime
+                    ? new ExplosionTimeStats(true, explosionTime)
+                    : ExplosionTimeStats.Unknown);
+        }
+
+        private void UpdateBulbCompletion(string saveSlot)
+        {
+            bool shouldCheck;
+            IntPtr worldToCheck;
+            lock (bulbSync)
+            {
+                if (!string.Equals(bulbSlot, saveSlot, StringComparison.Ordinal))
+                {
+                    rejectedBulbWorld = bulbWorld;
+                    bulbSlot = saveSlot ?? string.Empty;
+                    bulbWorld = IntPtr.Zero;
+                    bulbState = BulbTimerState.NotInBulb;
+                    bulbElapsed = TimeSpan.Zero;
+                    bulbEntryTime = TimeSpan.Zero;
+                    hasBulbEntryTime = false;
+                    bulbCompletionInitialized = false;
+                    return;
+                }
+
+                if (bulbWorld == IntPtr.Zero || rejectedBulbWorld != IntPtr.Zero)
+                    return;
+
+                shouldCheck = !bulbCompletionInitialized
+                    || (bulbState == BulbTimerState.Running
+                        && bulbElapsed >= TimeSpan.FromSeconds(118));
+                worldToCheck = bulbWorld;
+            }
+
+            if (!shouldCheck)
+                return;
+
+            string biome;
+            TimeSpan elapsed;
+            bool goalPending;
+            bool radioScheduled;
+            bool radioCompleted;
+            if (!unlockReader.TryReadBulbTimer(
+                out biome,
+                out elapsed,
+                out goalPending,
+                out radioScheduled,
+                out radioCompleted))
+            {
+                return;
+            }
+
+            lock (bulbSync)
+            {
+                if (!string.Equals(bulbSlot, saveSlot, StringComparison.Ordinal)
+                    || bulbWorld == IntPtr.Zero
+                    || bulbWorld != worldToCheck
+                    || rejectedBulbWorld != IntPtr.Zero)
+                {
+                    return;
+                }
+
+                bulbCompletionInitialized = true;
+                if (radioCompleted || radioScheduled || !goalPending)
+                {
+                    bulbState = BulbTimerState.Finished;
+                    bulbElapsed = TimeSpan.FromMinutes(2);
+                }
+            }
+        }
+
+        private void ResetBulbTimer()
+        {
+            lock (bulbSync)
+            {
+                bulbSlot = string.Empty;
+                bulbWorld = IntPtr.Zero;
+                rejectedBulbWorld = IntPtr.Zero;
+                bulbState = BulbTimerState.NotInBulb;
+                bulbElapsed = TimeSpan.Zero;
+                bulbEntryTime = TimeSpan.Zero;
+                hasBulbEntryTime = false;
+                bulbCompletionInitialized = false;
+            }
         }
 
         private DamageStats GetDamageStats(string saveSlot)
@@ -474,6 +719,7 @@ namespace LiveSplit.SubnauticaTracker.Tracking
             nextInitializeUtc = DateTime.MinValue;
             attachedUtc = DateTime.MinValue;
             ResetDamageTracking();
+            ResetBulbTimer();
 
             if (processMemory != null)
             {

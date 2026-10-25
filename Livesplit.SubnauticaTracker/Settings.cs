@@ -8,7 +8,7 @@ namespace LiveSplit.SubnauticaTracker
 {
     public sealed class Settings : UserControl
     {
-        public const int MaximumRows = 4;
+        public const int MaximumRows = 5;
 
         public static readonly string[] AvailableRowOptions =
         {
@@ -17,7 +17,9 @@ namespace LiveSplit.SubnauticaTracker
             "Blueprints",
             "Databanks",
             "Achievements",
-            "Damage Taken"
+            "Damage Taken",
+            "Explosion Time",
+            "Bulb Zone Timer"
         };
 
         private static readonly Color DefaultBackgroundColor =
@@ -135,7 +137,7 @@ namespace LiveSplit.SubnauticaTracker
                 };
                 rowOptionsButtons[i] = CreateRowButton("\u2699");
                 rowOptionsButtons[i].Click += (sender, args) => EditRow(index);
-                toolTip.SetToolTip(rowOptionsButtons[i], "Edit this row's value format, text alignment, and text color.");
+                toolTip.SetToolTip(rowOptionsButtons[i], "Edit this row's display and formatting settings.");
                 rowRemoveButtons[i] = CreateRowButton("\u2715");
                 rowRemoveButtons[i].ForeColor = Color.Red;
                 rowRemoveButtons[i].Click += (sender, args) => RemoveRow(index);
@@ -169,7 +171,7 @@ namespace LiveSplit.SubnauticaTracker
             };
             int actionRow = MaximumRows + 1;
             layout.Controls.Add(addRowButton, 0, actionRow);
-            toolTip.SetToolTip(addRowButton, "Add another tracker row, up to a maximum of four.");
+            toolTip.SetToolTip(addRowButton, "Add another tracker row, up to a maximum of five.");
 
             logMissingButton = new Button
             {
@@ -256,6 +258,8 @@ namespace LiveSplit.SubnauticaTracker
             if (element == null)
                 return;
 
+            string settingsVersion = SettingsHelper.ParseString(element["Version"], string.Empty);
+
             BackgroundColor = SettingsHelper.ParseColor(
                 element["BackgroundColor"],
                 DefaultBackgroundColor);
@@ -289,7 +293,28 @@ namespace LiveSplit.SubnauticaTracker
                         Color.White),
                     ExcludeIntroDamage = SettingsHelper.ParseBool(
                         element[prefix + "ExcludeIntroDamage"],
-                        true)
+                        true),
+                    TimerDigitsFormat = SettingsHelper.ParseString(
+                        element[prefix + "TimerDigitsFormat"],
+                        "1"),
+                    TimerAccuracy = SettingsHelper.ParseString(
+                        element[prefix + "TimerAccuracy"],
+                        ".23"),
+                    TimerDecimalsSize = SettingsHelper.ParseFloat(
+                        element[prefix + "TimerDecimalsSize"],
+                        35f),
+                    TimerShowGradient = SettingsHelper.ParseBool(
+                        element[prefix + "TimerShowGradient"],
+                        true),
+                    TimerCenter = SettingsHelper.ParseBool(
+                        element[prefix + "TimerCenter"],
+                        false),
+                    TimerColor = SettingsHelper.ParseColor(
+                        element[prefix + "TimerColor"],
+                        Color.White),
+                    TimerHeight = SettingsHelper.ParseFloat(
+                        element[prefix + "TimerHeight"],
+                        23f)
                 };
 
                 if (element[prefix + "Category"] != null)
@@ -310,6 +335,15 @@ namespace LiveSplit.SubnauticaTracker
                             GetCategoryName(GetDefaultCategory(i))));
                 }
 
+                if (settingsVersion == "5.0"
+                    && row.Category == TrackerRowCategory.BulbZoneTimer
+                    && row.TimerColor.ToArgb() == Color.FromArgb(170, 170, 170).ToArgb()
+                    && Math.Abs(row.TimerHeight - 50f) < 0.01f)
+                {
+                    row.TimerColor = Color.White;
+                    row.TimerHeight = 23f;
+                }
+
                 rows[i] = row;
             }
 
@@ -320,7 +354,7 @@ namespace LiveSplit.SubnauticaTracker
         public XmlNode GetSettings(XmlDocument document)
         {
             XmlElement settings = document.CreateElement("Settings");
-            SettingsHelper.CreateSetting(document, settings, "Version", "4.0");
+            SettingsHelper.CreateSetting(document, settings, "Version", "6.0");
             SettingsHelper.CreateSetting(document, settings, "BackgroundColor", BackgroundColor);
             SettingsHelper.CreateSetting(document, settings, "BackgroundColor2", BackgroundColor2);
             SettingsHelper.CreateSetting(document, settings, "BackgroundGradient", BackgroundGradient);
@@ -334,6 +368,13 @@ namespace LiveSplit.SubnauticaTracker
                 SettingsHelper.CreateSetting(document, settings, prefix + "TextCentering", rows[i].TextCentering);
                 SettingsHelper.CreateSetting(document, settings, prefix + "TextColor", rows[i].TextColor);
                 SettingsHelper.CreateSetting(document, settings, prefix + "ExcludeIntroDamage", rows[i].ExcludeIntroDamage);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerDigitsFormat", rows[i].TimerDigitsFormat);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerAccuracy", rows[i].TimerAccuracy);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerDecimalsSize", rows[i].TimerDecimalsSize);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerShowGradient", rows[i].TimerShowGradient);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerCenter", rows[i].TimerCenter);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerColor", rows[i].TimerColor);
+                SettingsHelper.CreateSetting(document, settings, prefix + "TimerHeight", rows[i].TimerHeight);
             }
 
             return settings;
@@ -354,6 +395,13 @@ namespace LiveSplit.SubnauticaTracker
                     hash = (hash * 397) ^ (int)rows[i].TextCentering;
                     hash = (hash * 397) ^ rows[i].TextColor.ToArgb();
                     hash = (hash * 397) ^ (rows[i].ExcludeIntroDamage ? 1 : 0);
+                    hash = (hash * 397) ^ (rows[i].TimerDigitsFormat ?? string.Empty).GetHashCode();
+                    hash = (hash * 397) ^ (rows[i].TimerAccuracy ?? string.Empty).GetHashCode();
+                    hash = (hash * 397) ^ rows[i].TimerDecimalsSize.GetHashCode();
+                    hash = (hash * 397) ^ (rows[i].TimerShowGradient ? 1 : 0);
+                    hash = (hash * 397) ^ (rows[i].TimerCenter ? 1 : 0);
+                    hash = (hash * 397) ^ rows[i].TimerColor.ToArgb();
+                    hash = (hash * 397) ^ rows[i].TimerHeight.GetHashCode();
                 }
                 return hash;
             }
@@ -375,6 +423,10 @@ namespace LiveSplit.SubnauticaTracker
                     return "Achievements";
                 case TrackerRowCategory.DamageTaken:
                     return "Damage Taken";
+                case TrackerRowCategory.ExplosionTime:
+                    return "Explosion Time";
+                case TrackerRowCategory.BulbZoneTimer:
+                    return "Bulb Zone Timer";
                 default:
                     return "Completion";
             }
@@ -394,6 +446,10 @@ namespace LiveSplit.SubnauticaTracker
                     return TrackerRowCategory.Achievements;
                 case "Damage Taken":
                     return TrackerRowCategory.DamageTaken;
+                case "Explosion Time":
+                    return TrackerRowCategory.ExplosionTime;
+                case "Bulb Zone Timer":
+                    return TrackerRowCategory.BulbZoneTimer;
                 default:
                     return TrackerRowCategory.Completion;
             }
@@ -544,6 +600,13 @@ namespace LiveSplit.SubnauticaTracker
                 rows[index].TextCentering = editor.TextCentering;
                 rows[index].TextColor = editor.TextColor;
                 rows[index].ExcludeIntroDamage = editor.ExcludeIntroDamage;
+                rows[index].TimerDigitsFormat = editor.TimerDigitsFormat;
+                rows[index].TimerAccuracy = editor.TimerAccuracy;
+                rows[index].TimerDecimalsSize = editor.TimerDecimalsSize;
+                rows[index].TimerShowGradient = editor.TimerShowGradient;
+                rows[index].TimerCenter = editor.TimerCenter;
+                rows[index].TimerColor = editor.TimerColor;
+                rows[index].TimerHeight = editor.TimerHeight;
             }
         }
 

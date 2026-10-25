@@ -20,6 +20,7 @@ namespace LiveSplit.SubnauticaTracker
         private const float DefaultHorizontalWidth = 220f;
 
         private readonly SimpleLabel[] rowLabels;
+        private readonly BulbTimerRenderer[] bulbTimerRenderers;
         private readonly GraphicsCache cache;
         private readonly TrackerService tracker;
 
@@ -27,8 +28,8 @@ namespace LiveSplit.SubnauticaTracker
 
         public string ComponentName => "Subnautica Tracker";
         public float HorizontalWidth => DefaultHorizontalWidth;
-        public float MinimumHeight => MinimumRowHeight * Settings.RowCount;
-        public float VerticalHeight => DefaultRowHeight * Settings.RowCount;
+        public float MinimumHeight => GetPreferredHeight(MinimumRowHeight);
+        public float VerticalHeight => GetPreferredHeight(DefaultRowHeight);
         public float MinimumWidth => 20f;
         public float PaddingTop => 0f;
         public float PaddingBottom => 0f;
@@ -40,6 +41,7 @@ namespace LiveSplit.SubnauticaTracker
         {
             Settings = new Settings();
             rowLabels = new SimpleLabel[Settings.MaximumRows];
+            bulbTimerRenderers = new BulbTimerRenderer[Settings.MaximumRows];
             for (int i = 0; i < rowLabels.Length; i++)
             {
                 rowLabels[i] = new SimpleLabel
@@ -47,6 +49,7 @@ namespace LiveSplit.SubnauticaTracker
                     HorizontalAlignment = StringAlignment.Center,
                     VerticalAlignment = StringAlignment.Center
                 };
+                bulbTimerRenderers[i] = new BulbTimerRenderer();
             }
 
             cache = new GraphicsCache();
@@ -60,6 +63,8 @@ namespace LiveSplit.SubnauticaTracker
             Settings.LogMissingRequested -= LogMissingReport;
             Settings.ShowMissingRequested -= ShowMissingReport;
             tracker.Dispose();
+            foreach (BulbTimerRenderer renderer in bulbTimerRenderers)
+                renderer.Dispose();
             Settings.Dispose();
         }
 
@@ -161,6 +166,24 @@ namespace LiveSplit.SubnauticaTracker
             cache["Databanks"] = CountHash(snapshot.Databanks);
             cache["Achievements"] = CountHash(snapshot.Achievements);
             cache["Damage"] = DamageHash(snapshot.Damage);
+            cache["ExplosionTime"] = snapshot.ExplosionTime.Available
+                ? snapshot.ExplosionTime.Time.GetHashCode()
+                : 0;
+
+            BulbTimerSnapshot bulbTimer = tracker.BulbTimer;
+            cache["BulbState"] = (int)bulbTimer.State;
+            cache["BulbTime"] = GetBulbTimerHash(bulbTimer);
+            for (int i = 0; i < Settings.RowCount; i++)
+            {
+                TrackerRowSettings row = Settings.GetRowSettings(i);
+                if (row.Category != TrackerRowCategory.BulbZoneTimer)
+                    continue;
+
+                BulbTimerRenderer renderer = bulbTimerRenderers[i];
+                renderer.Configure(row, bulbTimer);
+                renderer.Settings.TimerHeight = row.TimerHeight;
+                renderer.Update(null, state, width, row.TimerHeight, mode);
+            }
 
             if (invalidator != null && cache.HasChanged)
                 invalidator.Invalidate(0f, 0f, width, height);
@@ -174,12 +197,36 @@ namespace LiveSplit.SubnauticaTracker
             DrawBackground(graphics, width, height);
 
             int count = Settings.RowCount;
-            float rowHeight = height / count;
+            float preferredHeight = GetPreferredHeight(DefaultRowHeight);
+            float heightScale = preferredHeight > 0f ? height / preferredHeight : 1f;
             TrackerSnapshot snapshot = tracker.Snapshot;
+            BulbTimerSnapshot bulbTimer = tracker.BulbTimer;
+            float rowY = 0f;
 
             for (int i = 0; i < count; i++)
             {
                 TrackerRowSettings rowSettings = Settings.GetRowSettings(i);
+                float desiredRowHeight = rowSettings.Category == TrackerRowCategory.BulbZoneTimer
+                    ? Math.Max(20f, rowSettings.TimerHeight)
+                    : DefaultRowHeight;
+                float rowHeight = desiredRowHeight * heightScale;
+
+                if (rowSettings.Category == TrackerRowCategory.BulbZoneTimer
+                    && snapshot.State == TrackerState.Tracking)
+                {
+                    DrawBulbTimer(
+                        graphics,
+                        state,
+                        i,
+                        rowSettings,
+                        bulbTimer,
+                        width,
+                        rowY,
+                        rowHeight);
+                    rowY += rowHeight;
+                    continue;
+                }
+
                 SimpleLabel label = rowLabels[i];
                 label.Text = FormatRowText(
                     i,
@@ -196,11 +243,74 @@ namespace LiveSplit.SubnauticaTracker
                 label.HorizontalAlignment = GetTextAlignment(rowSettings.TextCentering);
                 label.VerticalAlignment = StringAlignment.Center;
                 label.X = PaddingLeft;
-                label.Y = i * rowHeight;
+                label.Y = rowY;
                 label.Width = Math.Max(0f, width - PaddingLeft - PaddingRight);
                 label.Height = rowHeight;
                 label.Draw(graphics);
+                rowY += rowHeight;
             }
+        }
+
+        private void DrawBulbTimer(
+            Graphics graphics,
+            LiveSplitState state,
+            int rowIndex,
+            TrackerRowSettings rowSettings,
+            BulbTimerSnapshot bulbTimer,
+            float width,
+            float y,
+            float height)
+        {
+            BulbTimerRenderer renderer = bulbTimerRenderers[rowIndex];
+            renderer.Configure(rowSettings, bulbTimer);
+            renderer.Settings.TimerHeight = height;
+            renderer.Update(null, state, width, height, LayoutMode.Vertical);
+
+            if (string.IsNullOrEmpty(renderer.StatusText))
+            {
+                GraphicsState graphicsState = graphics.Save();
+                graphics.TranslateTransform(0f, y);
+                renderer.DrawVertical(graphics, state, width, null);
+                graphics.Restore(graphicsState);
+                return;
+            }
+
+            SimpleLabel label = rowLabels[rowIndex];
+            label.Text = renderer.StatusText;
+            label.Font = state.LayoutSettings.TextFont;
+            label.ForeColor = rowSettings.TimerColor;
+            label.OutlineColor = state.LayoutSettings.TextOutlineColor;
+            label.ShadowColor = state.LayoutSettings.ShadowsColor;
+            label.HasShadow = state.LayoutSettings.DropShadows;
+            label.HorizontalAlignment = rowSettings.TimerCenter
+                ? StringAlignment.Center
+                : StringAlignment.Far;
+            label.VerticalAlignment = StringAlignment.Center;
+            label.X = PaddingLeft;
+            label.Y = y;
+            label.Width = Math.Max(0f, width - PaddingLeft - PaddingRight);
+            label.Height = height;
+            label.Draw(graphics);
+        }
+
+        private float GetPreferredHeight(float normalRowHeight)
+        {
+            float height = 0f;
+            for (int i = 0; i < Settings.RowCount; i++)
+            {
+                TrackerRowSettings row = Settings.GetRowSettings(i);
+                height += row.Category == TrackerRowCategory.BulbZoneTimer
+                    ? Math.Max(20f, row.TimerHeight)
+                    : normalRowHeight;
+            }
+            return height;
+        }
+
+        private static long GetBulbTimerHash(BulbTimerSnapshot bulbTimer)
+        {
+            return bulbTimer.State == BulbTimerState.Running
+                ? bulbTimer.Elapsed.Ticks / TimeSpan.TicksPerMillisecond
+                : 0L;
         }
 
         private static int CountHash(TrackerCount count)
@@ -266,6 +376,19 @@ namespace LiveSplit.SubnauticaTracker
                     graphics,
                     font,
                     availableWidth);
+            }
+
+            if (rowSettings.Category == TrackerRowCategory.ExplosionTime)
+            {
+                string time = snapshot.ExplosionTime.Available
+                    ? snapshot.ExplosionTime.Time.ToString(@"h\:mm\:ss")
+                    : "-:--:--";
+                return FirstFittingText(
+                    graphics,
+                    font,
+                    availableWidth,
+                    "Explosion Time:  " + time,
+                    "Explosion:  " + time);
             }
 
             if (rowSettings.Category == TrackerRowCategory.BlueprintsAndDatabanks)

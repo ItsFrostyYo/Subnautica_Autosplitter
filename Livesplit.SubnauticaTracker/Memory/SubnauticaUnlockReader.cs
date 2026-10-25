@@ -63,6 +63,10 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private ManagedStaticField playerMainField;
         private ManagedStaticField saveManagerMainField;
         private ManagedStaticField storyGoalManagerMainField;
+        private ManagedStaticField crashedShipExploderMainField;
+        private ManagedStaticField biomeGoalTrackerMainField;
+        private ManagedStaticField dayNightCycleMainField;
+        private ManagedStaticField storyGoalSchedulerMainField;
         private ManagedStaticField gameModeField;
         private ManagedField currentSlotField;
         private ManagedField completedGoalsField;
@@ -72,10 +76,22 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private ManagedField goalField;
         private ManagedField achievementsField;
         private ManagedField playerLiveMixinField;
+        private ManagedField playerBiomeStringField;
         private ManagedField liveMixinDataField;
         private ManagedField liveMixinHealthField;
         private ManagedField liveMixinTempDamageField;
         private ManagedField liveMixinDataMaxHealthField;
+        private ManagedField timeToStartCountdownField;
+        private ManagedField timeToStartWarningField;
+        private ManagedField biomeGoalTrackerGoalsField;
+        private ManagedField biomeGoalTrackerLastBiomeField;
+        private ManagedField biomeGoalTrackerTimeLastBiomeChangedField;
+        private ManagedField biomeGoalKeyField;
+        private ManagedField biomeGoalBiomeField;
+        private ManagedField dayNightCycleTimePassedField;
+        private ManagedField storyGoalSchedulerScheduleField;
+        private ManagedField scheduledGoalTimeExecuteField;
+        private ManagedField scheduledGoalKeyField;
 
         private HashSet<int> blueprintUnlockables;
         private HashSet<string> databankUnlockables;
@@ -86,6 +102,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
         private HashSet<int> lastBlueprints;
         private HashSet<string> lastDatabanks;
         private HashSet<int> lastAchievements;
+        private HashSet<string> lastCompletedGoals;
         private string lastSaveSlot;
 
         public SubnauticaUnlockReader(ProcessMemory memory, SubnauticaVersion version)
@@ -123,6 +140,14 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 missing.Add("SaveLoadManager.main");
             if (!runtime.TryResolveStaticField("StoryGoalManager", MainFieldNames, out storyGoalManagerMainField))
                 missing.Add("StoryGoalManager.main");
+            if (!runtime.TryResolveStaticField("CrashedShipExploder", MainFieldNames, out crashedShipExploderMainField))
+                missing.Add("CrashedShipExploder.main");
+            if (!runtime.TryResolveStaticField("BiomeGoalTracker", MainFieldNames, out biomeGoalTrackerMainField))
+                missing.Add("BiomeGoalTracker.main");
+            if (!runtime.TryResolveStaticField("DayNightCycle", MainFieldNames, out dayNightCycleMainField))
+                missing.Add("DayNightCycle.main");
+            if (!runtime.TryResolveStaticField("StoryGoalScheduler", MainFieldNames, out storyGoalSchedulerMainField))
+                missing.Add("StoryGoalScheduler.main");
 
             // Game mode is optional so a future game update cannot prevent the
             // progression tracker from initializing if this field changes.
@@ -134,8 +159,96 @@ namespace LiveSplit.SubnauticaTracker.Memory
             IntPtr playerClass = runtime.FindClass("Player");
             if (playerClass == IntPtr.Zero)
                 missing.Add("class Player");
-            else if (!runtime.TryFindFieldAny(playerClass, new[] { "liveMixin" }, out playerLiveMixinField))
-                missing.Add("Player.liveMixin");
+            else
+            {
+                if (!runtime.TryFindFieldAny(playerClass, new[] { "liveMixin" }, out playerLiveMixinField))
+                    missing.Add("Player.liveMixin");
+                if (!runtime.TryFindFieldAny(playerClass, new[] { "biomeString" }, out playerBiomeStringField))
+                    missing.Add("Player.biomeString");
+            }
+
+            IntPtr crashedShipExploderClass = runtime.FindClass("CrashedShipExploder");
+            if (crashedShipExploderClass == IntPtr.Zero)
+                missing.Add("class CrashedShipExploder");
+            else
+            {
+                if (!runtime.TryFindFieldAny(
+                    crashedShipExploderClass,
+                    new[] { "timeToStartCountdown" },
+                    out timeToStartCountdownField))
+                {
+                    missing.Add("CrashedShipExploder.timeToStartCountdown");
+                }
+                if (!runtime.TryFindFieldAny(
+                    crashedShipExploderClass,
+                    new[] { "timeToStartWarning" },
+                    out timeToStartWarningField))
+                {
+                    missing.Add("CrashedShipExploder.timeToStartWarning");
+                }
+            }
+
+            IntPtr biomeGoalTrackerClass = runtime.FindClass("BiomeGoalTracker");
+            if (biomeGoalTrackerClass == IntPtr.Zero)
+                missing.Add("class BiomeGoalTracker");
+            else
+            {
+                if (!runtime.TryFindFieldAny(biomeGoalTrackerClass, new[] { "goals" }, out biomeGoalTrackerGoalsField))
+                    missing.Add("BiomeGoalTracker.goals");
+                if (!runtime.TryFindFieldAny(biomeGoalTrackerClass, new[] { "lastBiome" }, out biomeGoalTrackerLastBiomeField))
+                    missing.Add("BiomeGoalTracker.lastBiome");
+                if (!runtime.TryFindFieldAny(
+                    biomeGoalTrackerClass,
+                    new[] { "timeLastBiomeChanged" },
+                    out biomeGoalTrackerTimeLastBiomeChangedField))
+                {
+                    missing.Add("BiomeGoalTracker.timeLastBiomeChanged");
+                }
+            }
+
+            IntPtr biomeGoalClass = runtime.FindClass("BiomeGoal");
+            if (biomeGoalClass == IntPtr.Zero)
+                missing.Add("class BiomeGoal");
+            else
+            {
+                if (!runtime.TryFindFieldAny(biomeGoalClass, new[] { "key" }, out biomeGoalKeyField))
+                    missing.Add("BiomeGoal.key");
+                if (!runtime.TryFindFieldAny(biomeGoalClass, new[] { "biome" }, out biomeGoalBiomeField))
+                    missing.Add("BiomeGoal.biome");
+            }
+
+            IntPtr dayNightCycleClass = runtime.FindClass("DayNightCycle");
+            if (dayNightCycleClass == IntPtr.Zero)
+                missing.Add("class DayNightCycle");
+            else if (!runtime.TryFindFieldAny(
+                dayNightCycleClass,
+                new[] { "timePassedAsDouble", "timePassed" },
+                out dayNightCycleTimePassedField))
+            {
+                missing.Add("DayNightCycle.timePassedAsDouble");
+            }
+
+            IntPtr storyGoalSchedulerClass = runtime.FindClass("StoryGoalScheduler");
+            if (storyGoalSchedulerClass == IntPtr.Zero)
+                missing.Add("class StoryGoalScheduler");
+            else if (!runtime.TryFindFieldAny(
+                storyGoalSchedulerClass,
+                new[] { "schedule" },
+                out storyGoalSchedulerScheduleField))
+            {
+                missing.Add("StoryGoalScheduler.schedule");
+            }
+
+            IntPtr scheduledGoalClass = runtime.FindClass("ScheduledGoal");
+            if (scheduledGoalClass == IntPtr.Zero)
+                missing.Add("class ScheduledGoal");
+            else
+            {
+                if (!runtime.TryFindFieldAny(scheduledGoalClass, new[] { "timeExecute" }, out scheduledGoalTimeExecuteField))
+                    missing.Add("ScheduledGoal.timeExecute");
+                if (!runtime.TryFindFieldAny(scheduledGoalClass, new[] { "goalKey" }, out scheduledGoalKeyField))
+                    missing.Add("ScheduledGoal.goalKey");
+            }
 
             IntPtr liveMixinClass = runtime.FindClass("LiveMixin");
             if (liveMixinClass == IntPtr.Zero)
@@ -360,6 +473,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 lastBlueprints = currentBlueprints;
                 lastDatabanks = currentDatabanks;
                 lastAchievements = currentAchievements;
+                lastCompletedGoals = completedGoals;
                 lastSaveSlot = saveSlot;
             }
 
@@ -454,6 +568,265 @@ namespace LiveSplit.SubnauticaTracker.Memory
             }
 
             return gameModeField.TryReadInt32(out gameMode);
+        }
+
+        public bool TryReadBiome(out string biome)
+        {
+            biome = string.Empty;
+            if (!IsInitialized || !memory.IsAlive || playerBiomeStringField == null)
+                return false;
+
+            IntPtr player;
+            IntPtr biomeString;
+            if (!playerMainField.TryReadPointer(out player)
+                || player == IntPtr.Zero
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(player, playerBiomeStringField.Offset),
+                    out biomeString)
+                || biomeString == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            biome = memory.ReadMonoString(biomeString, 256);
+            return !string.IsNullOrWhiteSpace(biome);
+        }
+
+        public bool TryReadBulbTiming(
+            out IntPtr world,
+            out string playerBiome,
+            out string trackerBiome,
+            out TimeSpan gameTime,
+            out TimeSpan elapsed)
+        {
+            world = IntPtr.Zero;
+            playerBiome = string.Empty;
+            trackerBiome = string.Empty;
+            gameTime = TimeSpan.Zero;
+            elapsed = TimeSpan.Zero;
+
+            IntPtr player;
+            IntPtr tracker;
+            IntPtr dayNightCycle;
+            IntPtr playerBiomeString;
+            IntPtr trackerBiomeString;
+            double timePassed;
+            double timeLastBiomeChanged;
+            if (!IsInitialized
+                || !memory.IsAlive
+                || !playerMainField.TryReadPointer(out player)
+                || player == IntPtr.Zero
+                || !biomeGoalTrackerMainField.TryReadPointer(out tracker)
+                || tracker == IntPtr.Zero
+                || !dayNightCycleMainField.TryReadPointer(out dayNightCycle)
+                || dayNightCycle == IntPtr.Zero
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(player, playerBiomeStringField.Offset),
+                    out playerBiomeString)
+                || playerBiomeString == IntPtr.Zero
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(tracker, biomeGoalTrackerLastBiomeField.Offset),
+                    out trackerBiomeString)
+                || trackerBiomeString == IntPtr.Zero
+                || !memory.TryReadDouble(
+                    ProcessMemory.Add(dayNightCycle, dayNightCycleTimePassedField.Offset),
+                    out timePassed)
+                || !memory.TryReadDouble(
+                    ProcessMemory.Add(tracker, biomeGoalTrackerTimeLastBiomeChangedField.Offset),
+                    out timeLastBiomeChanged))
+            {
+                return false;
+            }
+
+            playerBiome = memory.ReadMonoString(playerBiomeString, 256);
+            trackerBiome = memory.ReadMonoString(trackerBiomeString, 256);
+            if (string.IsNullOrWhiteSpace(playerBiome)
+                || string.IsNullOrWhiteSpace(trackerBiome)
+                || double.IsNaN(timePassed)
+                || double.IsInfinity(timePassed)
+                || double.IsNaN(timeLastBiomeChanged)
+                || double.IsInfinity(timeLastBiomeChanged))
+            {
+                return false;
+            }
+
+            world = tracker;
+            gameTime = TimeSpan.FromSeconds(Math.Min(Math.Max(0d, timePassed), 315360000d));
+            double elapsedSeconds = Math.Max(0d, timePassed - timeLastBiomeChanged);
+            elapsed = TimeSpan.FromSeconds(Math.Min(elapsedSeconds, 86400d));
+            return true;
+        }
+
+        public bool TryReadBulbTimer(
+            out string biome,
+            out TimeSpan elapsed,
+            out bool goalPending,
+            out bool radioScheduled,
+            out bool radioCompleted)
+        {
+            biome = string.Empty;
+            elapsed = TimeSpan.Zero;
+            goalPending = false;
+            radioScheduled = false;
+            radioCompleted = false;
+
+            if (!IsInitialized
+                || !memory.IsAlive
+                || biomeGoalTrackerMainField == null
+                || dayNightCycleMainField == null)
+            {
+                return false;
+            }
+
+            IntPtr tracker;
+            IntPtr dayNightCycle;
+            IntPtr biomeString;
+            IntPtr goalsObject;
+            double timePassed;
+            double timeLastBiomeChanged;
+            IList<IntPtr> goals;
+            if (!biomeGoalTrackerMainField.TryReadPointer(out tracker)
+                || tracker == IntPtr.Zero
+                || !dayNightCycleMainField.TryReadPointer(out dayNightCycle)
+                || dayNightCycle == IntPtr.Zero
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(tracker, biomeGoalTrackerLastBiomeField.Offset),
+                    out biomeString)
+                || biomeString == IntPtr.Zero
+                || !memory.TryReadDouble(
+                    ProcessMemory.Add(dayNightCycle, dayNightCycleTimePassedField.Offset),
+                    out timePassed)
+                || !memory.TryReadDouble(
+                    ProcessMemory.Add(tracker, biomeGoalTrackerTimeLastBiomeChangedField.Offset),
+                    out timeLastBiomeChanged)
+                || !memory.TryReadPointer(
+                    ProcessMemory.Add(tracker, biomeGoalTrackerGoalsField.Offset),
+                    out goalsObject)
+                || !collections.TryReadObjectList(goalsObject, out goals))
+            {
+                return false;
+            }
+
+            biome = memory.ReadMonoString(biomeString, 256);
+            if (string.IsNullOrWhiteSpace(biome)
+                || double.IsNaN(timePassed)
+                || double.IsInfinity(timePassed)
+                || double.IsNaN(timeLastBiomeChanged)
+                || double.IsInfinity(timeLastBiomeChanged))
+            {
+                return false;
+            }
+
+            double elapsedSeconds = Math.Max(0d, timePassed - timeLastBiomeChanged);
+            elapsed = TimeSpan.FromSeconds(Math.Min(elapsedSeconds, 86400d));
+
+            foreach (IntPtr goal in goals)
+            {
+                if (goal == IntPtr.Zero)
+                    continue;
+
+                IntPtr keyString;
+                IntPtr goalBiomeString;
+                if (!memory.TryReadPointer(
+                    ProcessMemory.Add(goal, biomeGoalKeyField.Offset),
+                    out keyString)
+                    || !memory.TryReadPointer(
+                        ProcessMemory.Add(goal, biomeGoalBiomeField.Offset),
+                        out goalBiomeString))
+                {
+                    continue;
+                }
+
+                string key = memory.ReadMonoString(keyString, 256);
+                string goalBiome = memory.ReadMonoString(goalBiomeString, 256);
+                if (string.Equals(key, "RadioRadiationSuit", StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(goalBiome, "kooshZone", StringComparison.OrdinalIgnoreCase))
+                {
+                    goalPending = true;
+                    break;
+                }
+            }
+
+            if (!goalPending)
+            {
+                IntPtr scheduler;
+                IntPtr scheduleObject;
+                IList<IntPtr> schedule;
+                if (storyGoalSchedulerMainField.TryReadPointer(out scheduler)
+                    && scheduler != IntPtr.Zero
+                    && memory.TryReadPointer(
+                        ProcessMemory.Add(scheduler, storyGoalSchedulerScheduleField.Offset),
+                        out scheduleObject)
+                    && collections.TryReadObjectList(scheduleObject, out schedule))
+                {
+                    foreach (IntPtr scheduledGoal in schedule)
+                    {
+                        if (scheduledGoal == IntPtr.Zero)
+                            continue;
+
+                        IntPtr keyString;
+                        float timeExecute;
+                        if (!memory.TryReadPointer(
+                            ProcessMemory.Add(scheduledGoal, scheduledGoalKeyField.Offset),
+                            out keyString)
+                            || !memory.TryReadSingle(
+                                ProcessMemory.Add(scheduledGoal, scheduledGoalTimeExecuteField.Offset),
+                                out timeExecute))
+                        {
+                            continue;
+                        }
+
+                        string key = memory.ReadMonoString(keyString, 256);
+                        if (string.Equals(key, "RadioRadiationSuit", StringComparison.OrdinalIgnoreCase)
+                            && timeExecute <= timePassed + 61d)
+                        {
+                            radioScheduled = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            HashSet<string> completedGoals = lastCompletedGoals;
+            radioCompleted = completedGoals != null
+                && completedGoals.Contains("RadioRadiationSuit");
+
+            return true;
+        }
+
+        public bool TryReadExplosionTime(out TimeSpan explosionTime)
+        {
+            explosionTime = TimeSpan.Zero;
+            if (!IsInitialized
+                || !memory.IsAlive
+                || crashedShipExploderMainField == null
+                || timeToStartCountdownField == null
+                || timeToStartWarningField == null)
+            {
+                return false;
+            }
+
+            IntPtr exploder;
+            float countdown;
+            float warning;
+            if (!crashedShipExploderMainField.TryReadPointer(out exploder)
+                || exploder == IntPtr.Zero
+                || !memory.TryReadSingle(
+                    ProcessMemory.Add(exploder, timeToStartCountdownField.Offset),
+                    out countdown)
+                || !memory.TryReadSingle(
+                    ProcessMemory.Add(exploder, timeToStartWarningField.Offset),
+                    out warning))
+            {
+                return false;
+            }
+
+            float seconds = countdown - warning;
+            if (float.IsNaN(seconds) || float.IsInfinity(seconds) || seconds < 0f)
+                return false;
+
+            explosionTime = TimeSpan.FromSeconds(seconds);
+            return true;
         }
 
         public bool TryGetMissingItems(out MissingItems missing)
@@ -633,6 +1006,7 @@ namespace LiveSplit.SubnauticaTracker.Memory
                 lastBlueprints = null;
                 lastDatabanks = null;
                 lastAchievements = null;
+                lastCompletedGoals = null;
                 lastSaveSlot = null;
             }
         }

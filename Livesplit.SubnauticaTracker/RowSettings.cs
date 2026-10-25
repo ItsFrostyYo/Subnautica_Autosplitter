@@ -16,7 +16,9 @@ namespace LiveSplit.SubnauticaTracker
         Blueprints,
         Databanks,
         Achievements,
-        DamageTaken
+        DamageTaken,
+        ExplosionTime,
+        BulbZoneTimer
     }
 
     public enum TrackerDisplayValue
@@ -39,6 +41,13 @@ namespace LiveSplit.SubnauticaTracker
         public TrackerTextCentering TextCentering { get; set; }
         public Color TextColor { get; set; }
         public bool ExcludeIntroDamage { get; set; }
+        public string TimerDigitsFormat { get; set; }
+        public string TimerAccuracy { get; set; }
+        public float TimerDecimalsSize { get; set; }
+        public bool TimerShowGradient { get; set; }
+        public bool TimerCenter { get; set; }
+        public Color TimerColor { get; set; }
+        public float TimerHeight { get; set; }
 
         public static TrackerDisplayValue GetDefaultDisplayValue(TrackerRowCategory category)
         {
@@ -56,6 +65,13 @@ namespace LiveSplit.SubnauticaTracker
             TextCentering = TrackerTextCentering.Center;
             TextColor = Color.White;
             ExcludeIntroDamage = true;
+            TimerDigitsFormat = "1";
+            TimerAccuracy = ".23";
+            TimerDecimalsSize = 35f;
+            TimerShowGradient = true;
+            TimerCenter = false;
+            TimerColor = Color.White;
+            TimerHeight = 23f;
         }
 
         public TrackerRowSettings Clone()
@@ -66,7 +82,14 @@ namespace LiveSplit.SubnauticaTracker
                 DisplayValue = DisplayValue,
                 TextCentering = TextCentering,
                 TextColor = TextColor,
-                ExcludeIntroDamage = ExcludeIntroDamage
+                ExcludeIntroDamage = ExcludeIntroDamage,
+                TimerDigitsFormat = TimerDigitsFormat,
+                TimerAccuracy = TimerAccuracy,
+                TimerDecimalsSize = TimerDecimalsSize,
+                TimerShowGradient = TimerShowGradient,
+                TimerCenter = TimerCenter,
+                TimerColor = TimerColor,
+                TimerHeight = TimerHeight
             };
         }
     }
