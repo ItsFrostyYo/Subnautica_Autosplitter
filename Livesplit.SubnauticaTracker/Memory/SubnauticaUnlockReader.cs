@@ -570,28 +570,6 @@ namespace LiveSplit.SubnauticaTracker.Memory
             return gameModeField.TryReadInt32(out gameMode);
         }
 
-        public bool TryReadBiome(out string biome)
-        {
-            biome = string.Empty;
-            if (!IsInitialized || !memory.IsAlive || playerBiomeStringField == null)
-                return false;
-
-            IntPtr player;
-            IntPtr biomeString;
-            if (!playerMainField.TryReadPointer(out player)
-                || player == IntPtr.Zero
-                || !memory.TryReadPointer(
-                    ProcessMemory.Add(player, playerBiomeStringField.Offset),
-                    out biomeString)
-                || biomeString == IntPtr.Zero)
-            {
-                return false;
-            }
-
-            biome = memory.ReadMonoString(biomeString, 256);
-            return !string.IsNullOrWhiteSpace(biome);
-        }
-
         public bool TryReadBulbTiming(
             out IntPtr world,
             out string playerBiome,
