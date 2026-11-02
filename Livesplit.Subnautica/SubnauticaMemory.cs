@@ -28,6 +28,7 @@ namespace LiveSplit.Subnautica
         private int prePortalDelayMs = 0;
         private int postPortalDelayMs = 0;
         private const int maxInventoryTimeWithoutChangingMs = 1000;
+        private const int emptyInventoryConfirmationMs = 1000;
         public bool pointersInitialized;
         public GameVersion gameVersion;
         //string[] EncyMappingMarch2023;
@@ -40,6 +41,8 @@ namespace LiveSplit.Subnautica
         readonly Dictionary<TechType, InvChangeInfo> curPickUpCounts = new Dictionary<TechType, InvChangeInfo>();
         readonly Dictionary<TechType, InvChangeInfo> curDropCounts = new Dictionary<TechType, InvChangeInfo>();
         private Dictionary<TechType, int> currentInventoryChanges = new Dictionary<TechType, int>();
+        private IntPtr trackedInventoryMain;
+        private readonly Stopwatch emptyInventoryConfirmation = new Stopwatch();
         private readonly Stopwatch flareThrowArmedTime = new Stopwatch();
         private bool flareThrowArmed;
         private const int maxFlareThrowAnimWindowMs = 1500;
@@ -77,6 +80,22 @@ namespace LiveSplit.Subnautica
         private Pointer<IntPtr> knowntechPtr;
         private Pointer<IntPtr> pdaMappingPtr;
         private Pointer<IntPtr> goalsPtr;
+        private Pointer<IntPtr> playerPtr;
+        private Pointer<IntPtr> heldToolPtr;
+
+        private int off_builderConstructable;
+        private int off_constructableConstructed;
+        private int off_constructableAmount;
+        private int off_constructableTechType;
+        private IntPtr trackedConstructable;
+        private bool trackedConstructableWasBuilt;
+        private TechType trackedBuildTechType;
+        private IntPtr pendingConstructable;
+        private System.Threading.Timer buildTargetPoller;
+        private volatile bool buildTrackingEnabled;
+
+        public bool BuildCompletedThisUpdate { get; private set; }
+        public TechType CompletedBuildTechType { get; private set; }
 
         public Pointer<int> PDATab;
         public Pointer<int> GameMode;
@@ -155,9 +174,15 @@ namespace LiveSplit.Subnautica
                 if (unityTask != null)
                 {
                     pointersInitialized = false;
+                    buildTargetPoller?.Dispose();
+                    buildTargetPoller = null;
                     unityTask.Dispose();
                     unityTask = null;
                 }
+
+                trackedInventoryMain = IntPtr.Zero;
+                ResetInventoryChanges();
+                ResetBuildTracking();
             };
 
             this.settings = settings;
@@ -204,6 +229,7 @@ namespace LiveSplit.Subnautica
                                                         (((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2 == Biome.Any && string.Equals(BiomeString.Old, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase) && BiomeString.Changed) ||
                                                         (string.Equals(BiomeString.New, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome2.ToString(), StringComparison.OrdinalIgnoreCase) && string.Equals(BiomeString.Old, ((BiomeSplit)CurrentSplitToCheck).Biomes.Biome1.ToString(), StringComparison.OrdinalIgnoreCase)) },
                 { SplitName.Craft,                () =>  string.Equals(((CraftSplit)CurrentSplitToCheck).Craftable.ToString(), ((TechType)CraftedNode.New).ToString(), StringComparison.OrdinalIgnoreCase) && CraftedNode.Changed },
+                { SplitName.Build,                () => BuildCompletedThisUpdate && CompletedBuildTechType == ((BuildSplit)CurrentSplitToCheck).Buildable.ConvertTo<TechType>() },
                 { SplitName.AuroraBiomeSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraDeathSplit) && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.Old) && new[] { "safeShallows", "kelpForest", "Lifepod" }.Contains(BiomeString.New) },
                 { SplitName.AuroraDeathSplit,     () => !component.alreadySplit.Select(s => s.SplitName).Contains(SplitName.AuroraBiomeSplit) && Health.New <= 0 && Health.Old > 0 && new[] { "crashedShip", "generatorRoom" }.Contains(BiomeString.New)},
                 { SplitName.AuroraExitSplit,      () => IsWithinBounds(auroraExitBounds) && !IsWithinBounds(auroraExitBounds, old: true) && KnownTech.Contains(TechType.RocketBase) },
@@ -257,6 +283,11 @@ namespace LiveSplit.Subnautica
                 return false;
 
             UpdateMemoryWatchers();
+            buildTrackingEnabled = Needs(SplitName.Build);
+            if (buildTrackingEnabled)
+                UpdateBuildTracking();
+            else
+                ResetBuildTracking();
 
             isInMainMenu = IsInMainMenu();
             if (isInMainMenu)
@@ -311,6 +342,7 @@ namespace LiveSplit.Subnautica
             IsIntroCinematicActive = ptrFactory.Make<bool>(introCinematicPtr, off_cinematicModeActive);
             #endregion Intro Cinematic
             #region Is Animation Playing
+            playerPtr = ptrFactory.Make<IntPtr>("Player", "main");
             IsAnimationPlaying = ptrFactory.Make<bool>("Player", "main", "_cinematicModeActive");
             #endregion Is Animation Playing
             #region Current Sub
@@ -525,6 +557,15 @@ namespace LiveSplit.Subnautica
             int off_activeToolName = mono.GetFieldOffset(mono.FindClass("QuickSlots"), "activeToolName");
             ActiveToolName = ptrFactory.MakeString(quickSlotsPtr, off_activeToolName, 0x14);
 
+            int off_armsControllerLastTool = mono.GetFieldOffset(mono.FindClass("ArmsController"), "lastTool");
+            heldToolPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerLastTool);
+
+            off_builderConstructable = mono.GetFieldOffset(mono.FindClass("BuilderTool"), "constructable");
+            IntPtr constructableKlass = mono.FindClass("Constructable");
+            off_constructableConstructed = mono.GetFieldOffset(constructableKlass, "_constructed");
+            off_constructableAmount = mono.GetFieldOffset(constructableKlass, "constructedAmount");
+            off_constructableTechType = mono.GetFieldOffset(constructableKlass, "techType");
+
             int off_armsControllerGuiHand = mono.GetFieldOffset(mono.FindClass("ArmsController"), "guiHand");
             Pointer<IntPtr> guiHandPtr = ptrFactory.Make<IntPtr>(armsControllerPtr, off_armsControllerGuiHand);
             int off_timeOfLastToolUseAnim = mono.GetFieldOffset(mono.FindClass("GUIHand"), "timeOfLastToolUseAnim");
@@ -590,6 +631,7 @@ namespace LiveSplit.Subnautica
 
             logger.Log("Pointers initialized");
             pointersInitialized = true;
+            buildTargetPoller = new System.Threading.Timer(PollBuildTarget, null, 0, 2);
         }
 
         private void UpdateMemoryWatchers()
@@ -743,10 +785,54 @@ namespace LiveSplit.Subnautica
         
         private void UpdateInventory()
         {
+            IntPtr inventoryMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
+            if (playerPtr.New == IntPtr.Zero
+                || inventoryMain == IntPtr.Zero
+                || IsLoadingScreenShowing.New)
+            {
+                trackedInventoryMain = IntPtr.Zero;
+                ResetInventoryChanges();
+                return;
+            }
+
+            Dictionary<TechType, int> inventory = ReadInventoryCounts(inventoryMain);
+            List<TechType> equipment = ReadEquipmentTypes(inventoryMain);
+
+            if (game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset) != inventoryMain)
+            {
+                trackedInventoryMain = IntPtr.Zero;
+                ResetInventoryChanges();
+                return;
+            }
+
+            if (trackedInventoryMain != inventoryMain)
+            {
+                trackedInventoryMain = inventoryMain;
+                PlayerInventoryOld = inventory;
+                PlayerInventory = inventory;
+                PlayerEquipmentOld = equipment;
+                PlayerEquipment = equipment;
+                ResetInventoryChanges();
+                return;
+            }
+
+            bool inventoryBecameEmpty = inventory.Count == 0 && PlayerInventory.Count > 0;
+
+            if (inventoryBecameEmpty && emptyInventoryConfirmation.ElapsedMilliseconds < emptyInventoryConfirmationMs)
+            {
+                if (!emptyInventoryConfirmation.IsRunning)
+                    emptyInventoryConfirmation.Restart();
+
+                currentInventoryChanges.Clear();
+                return;
+            }
+
+            emptyInventoryConfirmation.Reset();
+
             PlayerInventoryOld = PlayerInventory;
-            PlayerInventory = ReadInventoryCounts();
+            PlayerInventory = inventory;
             PlayerEquipmentOld = PlayerEquipment;
-            PlayerEquipment = ReadEquipmentTypes();
+            PlayerEquipment = equipment;
 
             Dictionary<TechType, int> changedItems =
                 PlayerInventory.Keys
@@ -822,6 +908,116 @@ namespace LiveSplit.Subnautica
                     dict[key] = new InvChangeInfo(amount, Stopwatch.StartNew());
                 }
             }
+        }
+
+        private void ResetInventoryChanges()
+        {
+            currentInventoryChanges.Clear();
+            curPickUpCounts.Clear();
+            curDropCounts.Clear();
+            emptyInventoryConfirmation.Reset();
+
+            foreach (ItemSplit split in settings.Splits.OfType<ItemSplit>())
+                split.AlreadySplitInvChanging = false;
+        }
+
+        private void UpdateBuildTracking()
+        {
+            BuildCompletedThisUpdate = false;
+            CompletedBuildTechType = TechType.None;
+
+            if (playerPtr.New == IntPtr.Zero || IsLoadingScreenShowing.New)
+            {
+                ResetBuildTracking();
+                return;
+            }
+
+            IntPtr constructable = System.Threading.Interlocked.Exchange(ref pendingConstructable, IntPtr.Zero);
+
+            if (constructable == IntPtr.Zero
+                && string.Equals(ActiveToolName.New, "builder", StringComparison.OrdinalIgnoreCase))
+            {
+                IntPtr heldTool = heldToolPtr.New;
+                constructable = heldTool != IntPtr.Zero
+                    ? game.Read<IntPtr>(heldTool + off_builderConstructable)
+                    : IntPtr.Zero;
+            }
+
+            if (constructable != IntPtr.Zero && constructable != trackedConstructable)
+            {
+                TechType objectTechType = (TechType)game.Read<int>(constructable + off_constructableTechType);
+                float amount = game.Read<float>(constructable + off_constructableAmount);
+                bool constructed = game.Read<bool>(constructable + off_constructableConstructed);
+
+                if (objectTechType != TechType.None && amount >= 0f && amount <= 1f)
+                {
+                    trackedConstructable = constructable;
+                    trackedConstructableWasBuilt = constructed;
+                    trackedBuildTechType = NormalizeBuildTechType(objectTechType);
+                }
+            }
+
+            if (trackedConstructable == IntPtr.Zero || BuildCompletedThisUpdate)
+                return;
+
+            TechType trackedTechType = (TechType)game.Read<int>(trackedConstructable + off_constructableTechType);
+            float trackedAmount = game.Read<float>(trackedConstructable + off_constructableAmount);
+            bool trackedConstructed = game.Read<bool>(trackedConstructable + off_constructableConstructed);
+
+            if (trackedTechType == TechType.None || trackedAmount < 0f || trackedAmount > 1f)
+            {
+                ResetBuildTracking();
+                return;
+            }
+
+            if (!trackedConstructableWasBuilt && trackedConstructed)
+            {
+                BuildCompletedThisUpdate = true;
+                CompletedBuildTechType = trackedBuildTechType;
+            }
+
+            trackedConstructableWasBuilt = trackedConstructed;
+        }
+
+        private void ResetBuildTracking()
+        {
+            trackedConstructable = IntPtr.Zero;
+            trackedConstructableWasBuilt = false;
+            trackedBuildTechType = TechType.None;
+            System.Threading.Interlocked.Exchange(ref pendingConstructable, IntPtr.Zero);
+            BuildCompletedThisUpdate = false;
+            CompletedBuildTechType = TechType.None;
+        }
+
+        private void PollBuildTarget(object state)
+        {
+            if (!buildTrackingEnabled
+                || !pointersInitialized
+                || game == null
+                || heldToolPtr == null
+                || !string.Equals(ActiveToolName.New, "builder", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            try
+            {
+                IntPtr heldTool = heldToolPtr.New;
+                if (heldTool == IntPtr.Zero)
+                    return;
+
+                IntPtr constructable = game.Read<IntPtr>(heldTool + off_builderConstructable);
+                if (constructable == IntPtr.Zero)
+                    return;
+
+                System.Threading.Interlocked.Exchange(ref pendingConstructable, constructable);
+            }
+            catch
+            {
+            }
+        }
+
+        private static TechType NormalizeBuildTechType(TechType techType)
+        {
+            return techType == TechType.BaseCorridor ? TechType.BaseConnector : techType;
         }
 
         private bool HasPlayerItem(TechType techType) => PlayerInventory.ContainsKey(techType) || PlayerEquipment.Contains(techType);
@@ -933,12 +1129,9 @@ namespace LiveSplit.Subnautica
             }
         }
 
-        List<TechType> ReadEquipmentTypes()
+        List<TechType> ReadEquipmentTypes(IntPtr invMain)
         {
             var result = new List<TechType>();
-
-            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
-            if (invMain == IntPtr.Zero) return result;
 
             IntPtr equipment = game.Read<IntPtr>(invMain + off_equipment);
             if (equipment == IntPtr.Zero) return result;
@@ -1037,12 +1230,9 @@ namespace LiveSplit.Subnautica
             return result;
         }
 
-        Dictionary<TechType, int> ReadInventoryCounts()
+        Dictionary<TechType, int> ReadInventoryCounts(IntPtr invMain)
         {
             var result = new Dictionary<TechType, int>();
-
-            IntPtr invMain = game.Read<IntPtr>(mono.GetStaticAddress(invStaticKlass) + invStaticOffset);
-            if (invMain == IntPtr.Zero) return result;
 
             IntPtr container = game.Read<IntPtr>(invMain + off_container);
             if (container == IntPtr.Zero) return result;

@@ -201,6 +201,8 @@ namespace LiveSplit.Subnautica
         RepairRadioSplit,
         [Description("Floating Island Flooded Base Leave (100%)"), ToolTip("Splits when you go below 25 meters with 4 Titanium and 1 Quartz Minimum inside the FloatingIslandBelow Biome")]
         FloatingIslandLeaveSplit,
+        [Description("Build"), ToolTip("Splits when you finish constructing a selected Builder Tool piece")]
+        Build,
     }
     public class ToolTipAttribute : Attribute
     {
