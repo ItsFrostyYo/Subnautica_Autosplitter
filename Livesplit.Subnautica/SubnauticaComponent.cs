@@ -18,6 +18,7 @@ namespace LiveSplit.Subnautica
         private readonly LiveSplitState _state;
         private readonly TimerModel timerModel;
         private double? survivalStartPausedTime;
+        private bool usingModGameTime;
         public readonly HashSet<SubnauticaSplit> alreadySplit = new HashSet<SubnauticaSplit>();
 
         public SubnauticaComponent(LiveSplitState state) : base(state)
@@ -60,6 +61,7 @@ namespace LiveSplit.Subnautica
             if (!ok || !memory.pointersInitialized)
                 return false;
 
+            UpdateModGameTime();
             TryResetOnMainMenu();
 
             return true;
@@ -192,7 +194,33 @@ namespace LiveSplit.Subnautica
             }
         }
 
-        public override bool Loading() => memory.ShouldPause();
+        public override bool Loading() => memory.IsModTimerActive || memory.ShouldPause();
+
+        private void UpdateModGameTime()
+        {
+            if (!memory.IsModTimerActive)
+            {
+                if (usingModGameTime)
+                    logger.Log("Subnautica Speedrunning Mod timer no longer active; restored portal load removal");
+
+                usingModGameTime = false;
+                return;
+            }
+
+            double elapsedSeconds = memory.ModElapsedSeconds.New;
+            if (double.IsNaN(elapsedSeconds) || double.IsInfinity(elapsedSeconds) || elapsedSeconds < 0d)
+                return;
+
+            if (!timer.CurrentState.IsGameTimeInitialized)
+                timer.InitializeGameTime();
+
+            timer.CurrentState.SetGameTime(TimeSpan.FromSeconds(elapsedSeconds));
+
+            if (!usingModGameTime)
+                logger.Log("Using Subnautica Speedrunning Mod in-game timer for LiveSplit Game Time");
+
+            usingModGameTime = true;
+        }
 
         private void TryResetOnMainMenu()
         {
@@ -245,6 +273,7 @@ namespace LiveSplit.Subnautica
         {
             alreadySplit.Clear();
             survivalStartPausedTime = null;
+            usingModGameTime = false;
             memory.startedTimerBefore = false;
         }
 

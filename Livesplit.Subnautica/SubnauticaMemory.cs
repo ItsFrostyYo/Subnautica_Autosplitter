@@ -25,6 +25,7 @@ namespace LiveSplit.Subnautica
         public bool isInMainMenu = false;
         private readonly Stopwatch _duringLoad = new Stopwatch();
         private readonly Stopwatch _afterLoad = new Stopwatch();
+        private DateTime nextModTimerDetectionUtc;
         private int prePortalDelayMs = 0;
         private int postPortalDelayMs = 0;
         private const int maxInventoryTimeWithoutChangingMs = 1000;
@@ -82,6 +83,15 @@ namespace LiveSplit.Subnautica
         private Pointer<IntPtr> goalsPtr;
         private Pointer<IntPtr> playerPtr;
         private Pointer<IntPtr> heldToolPtr;
+        private MonoNestedPointerFactory pointerFactory;
+
+        public Pointer<double> ModElapsedSeconds { get; private set; }
+        public Pointer<bool> ModTimerArmed { get; private set; }
+        public Pointer<bool> ModTimerRunning { get; private set; }
+        public Pointer<bool> ModTimerCompleted { get; private set; }
+        public bool ModTimerDetected { get; private set; }
+        public bool IsModTimerActive => ModTimerDetected
+            && (ModTimerArmed.New || ModTimerRunning.New || ModTimerCompleted.New);
 
         private int off_builderConstructable;
         private int off_constructableConstructed;
@@ -180,6 +190,7 @@ namespace LiveSplit.Subnautica
                     unityTask = null;
                 }
 
+                ResetModTimerPointers();
                 trackedInventoryMain = IntPtr.Zero;
                 ResetInventoryChanges();
                 ResetBuildTracking();
@@ -283,6 +294,7 @@ namespace LiveSplit.Subnautica
                 return false;
 
             UpdateMemoryWatchers();
+            TryInitializeModTimerPointers();
             buildTrackingEnabled = Needs(SplitName.Build);
             if (buildTrackingEnabled)
                 UpdateBuildTracking();
@@ -332,7 +344,8 @@ namespace LiveSplit.Subnautica
         private void InitPointers(IMonoHelper mono)
         {
             this.mono = mono;
-            var ptrFactory = new MonoNestedPointerFactory(game, mono);
+            pointerFactory = new MonoNestedPointerFactory(game, mono);
+            var ptrFactory = pointerFactory;
 
 
             #region Intro Cinematic
@@ -631,7 +644,49 @@ namespace LiveSplit.Subnautica
 
             logger.Log("Pointers initialized");
             pointersInitialized = true;
+            TryInitializeModTimerPointers(force: true);
             buildTargetPoller = new System.Threading.Timer(PollBuildTarget, null, 0, 2);
+        }
+
+        private void TryInitializeModTimerPointers(bool force = false)
+        {
+            if (ModTimerDetected || mono == null || pointerFactory == null)
+                return;
+
+            DateTime now = DateTime.UtcNow;
+            if (!force && now < nextModTimerDetectionUtc)
+                return;
+
+            nextModTimerDetectionUtc = now.AddSeconds(1);
+
+            var helper = mono as UnityHelperTask.UnityHelperBase;
+            if (helper == null)
+                return;
+
+            IntPtr modImage = helper.TryFindImageOnce(
+                "SubnauticaSpeedrunningMod.Runtime",
+                "SubnauticaSpeedrunningMod.Runtime.dll");
+            if (modImage == IntPtr.Zero)
+                return;
+
+            const string timerClass = "SubnauticaSpeedrunningMod.Runtime.RunTracking.SingleplayerRunRuntimeHost";
+            ModElapsedSeconds = pointerFactory.Make<double>(modImage, timerClass, "_elapsedSeconds");
+            ModTimerArmed = pointerFactory.Make<bool>(modImage, timerClass, "_timerArmed");
+            ModTimerRunning = pointerFactory.Make<bool>(modImage, timerClass, "_timerRunning");
+            ModTimerCompleted = pointerFactory.Make<bool>(modImage, timerClass, "_timerCompleted");
+            ModTimerDetected = true;
+            logger.Log("Subnautica Speedrunning Mod timer detected");
+        }
+
+        private void ResetModTimerPointers()
+        {
+            ModElapsedSeconds = null;
+            ModTimerArmed = null;
+            ModTimerRunning = null;
+            ModTimerCompleted = null;
+            ModTimerDetected = false;
+            nextModTimerDetectionUtc = DateTime.MinValue;
+            pointerFactory = null;
         }
 
         private void UpdateMemoryWatchers()
