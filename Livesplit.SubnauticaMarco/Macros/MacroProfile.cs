@@ -12,7 +12,6 @@ namespace LiveSplit.SubnauticaMarco.Macros
         public Point Play { get; private set; }
         public Point NewGame { get; private set; }
         public Point GameMode { get; private set; }
-        public bool ModernMenu { get; private set; }
 
         public static MacroProfile Create(SubnauticaVersion version, ResetGameMode requestedMode)
         {
@@ -29,8 +28,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     ConfirmQuitAgain = new Point(830, 623),
                     Play = new Point(635, 728),
                     NewGame = new Point(1300, 569),
-                    GameMode = GetModernModePoint(mode),
-                    ModernMenu = true
+                    GameMode = GetModernModePoint(mode)
                 };
             }
 
@@ -43,8 +41,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 ConfirmQuitAgain = new Point(830, 623),
                 Play = new Point(635, 795),
                 NewGame = betterRng ? new Point(1157, 662) : new Point(1373, 540),
-                GameMode = GetLegacyModePoint(mode),
-                ModernMenu = false
+                GameMode = GetLegacyModePoint(mode)
             };
         }
 

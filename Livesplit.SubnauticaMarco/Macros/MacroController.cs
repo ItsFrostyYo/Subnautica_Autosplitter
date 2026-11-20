@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -65,6 +66,9 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     case GameMemoryState.MainMenu: return FormatVersion(version, "Main Menu");
                     case GameMemoryState.InGame: return FormatVersion(version, "Ready");
                     case GameMemoryState.Loading: return FormatVersion(version, "Loading");
+                    case GameMemoryState.SkipCutscene: return FormatVersion(version, "Intro / Cinematic");
+                    case GameMemoryState.InGamePauseMenuOpen: return FormatVersion(version, "Pause Menu Open");
+                    case GameMemoryState.InGameCraftingMenuOpen: return FormatVersion(version, "Crafting Menu Open");
                     default: return FormatVersion(version, "Waiting");
                 }
             }
@@ -183,28 +187,49 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 var profile = MacroProfile.Create(version, mode);
                 GameMemoryState state = memory.GetState();
                 Log("Reset started. Version=" + version + ", Mode=" + mode + ", State=" + state + ".");
+
+                if (state == GameMemoryState.Loading || state == GameMemoryState.SkipCutscene)
+                {
+                    SetActivity(state == GameMemoryState.Loading
+                        ? "Loading - No Input"
+                        : "Intro - No Input");
+                    Log("Normal reset ignored because the game is already in " + state + ".");
+                    return;
+                }
+
                 // Capture BEFORE quitting: never select the newly created game save for deletion.
                 MacroConfiguration deletionConfig;
                 lock (sync) deletionConfig = Copy(latestConfiguration);
-                string saveRoot = deletionConfig.HardcoreSaveDeleter && deletionConfig.SaveDeletionTiming == SaveDeletionTiming.AfterResetCompletes && state == GameMemoryState.InGame
+                string saveRoot = deletionConfig.HardcoreSaveDeleter
+                    && deletionConfig.SaveDeletionTiming == SaveDeletionTiming.AfterResetCompletes
+                    && IsInGameState(state)
                     ? SaveDeleter.GetSaveRoot(process) : null;
                 string oldSave = saveRoot == null ? null : SaveDeleter.MostRecentMatching(saveRoot, deletionConfig.SaveDeletionGameMode);
                 if (saveRoot != null) Log(oldSave == null ? "No matching previous save found for reset cleanup." : "Previous save marked for post-reset deletion: " + oldSave);
 
-                if (state == GameMemoryState.InGame)
+                if (IsInGameState(state))
                 {
                     SetActivity("Quitting to Main Menu");
-                    await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
-                    Log("Escape input sent; waiting for the pause menu.");
-                    await Task.Delay(50, token).ConfigureAwait(false);
+                    await EnsurePauseMenuOpenAsync(process, state, token).ConfigureAwait(false);
+
                     await NativeInput.ClickAsync(process, profile.Quit, 20, token).ConfigureAwait(false);
                     Log("Quit button clicked.");
-                    await Task.Delay(50, token).ConfigureAwait(false);
-                    await NativeInput.ClickAsync(process, profile.ConfirmQuit, 20, token).ConfigureAwait(false);
-                    Log("First quit confirmation clicked.");
-                    await Task.Delay(50, token).ConfigureAwait(false);
-                    await NativeInput.ClickAsync(process, profile.ConfirmQuitAgain, 20, token).ConfigureAwait(false);
-                    Log("Final quit confirmation clicked; waiting for main-menu memory readiness.");
+                    bool? unsavedConfirmation = await WaitForQuitConfirmationAsync(500, token)
+                        .ConfigureAwait(false);
+                    if (!unsavedConfirmation.HasValue)
+                        throw new InvalidOperationException("The active quit confirmation screen could not be read from game memory.");
+
+                    Log("Active quit confirmation read from UI memory: "
+                        + (unsavedConfirmation.Value ? "AreYouSureUnsaved." : "AreYouSure."));
+                    Point confirmation = unsavedConfirmation.Value
+                        ? profile.ConfirmQuitAgain
+                        : profile.ConfirmQuit;
+                    await NativeInput.ClickAsync(process, confirmation, 20, token).ConfigureAwait(false);
+
+                    if (!await WaitForQuitAcceptedAsync(1000, token).ConfigureAwait(false))
+                        throw new InvalidOperationException("The selected quit confirmation was not accepted by the game.");
+
+                    Log("Quit confirmation accepted; waiting for main-menu memory readiness.");
                 }
                 else if (state != GameMemoryState.MainMenu)
                 {
@@ -218,7 +243,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 await NativeInput.ClickAsync(process, profile.Play, 10, token).ConfigureAwait(false);
                 await Task.Delay(50, token).ConfigureAwait(false);
                 await NativeInput.ClickAsync(process, profile.NewGame, 30, token).ConfigureAwait(false);
-                await Task.Delay(profile.ModernMenu ? 150 : 50, token).ConfigureAwait(false);
+                await Task.Delay(50, token).ConfigureAwait(false);
                 await NativeInput.ClickAsync(process, profile.GameMode, 20, token).ConfigureAwait(false);
 
                 // Only after the final game-mode click returns successfully and cancellation is not requested.
@@ -249,12 +274,25 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 token.ThrowIfCancellationRequested();
 
                 await Task.Delay(250, token).ConfigureAwait(false);
-                await RunSingleResetAsync(configuration.GameMode, token).ConfigureAwait(false);
+                GameMemoryState cycleStart = memory.GetState();
+                bool resumeLoading = cycleStart == GameMemoryState.Loading;
+                bool resumeIntro = cycleStart == GameMemoryState.SkipCutscene;
+                if (resumeLoading || resumeIntro)
+                {
+                    Log("Explosion reset resumed from " + cycleStart + ".");
+                }
+                else
+                {
+                    await RunSingleResetAsync(configuration.GameMode, token).ConfigureAwait(false);
+                }
 
                 await Task.Delay(50, token).ConfigureAwait(false);
 
-                SetActivity("Waiting for Intro");
-                await WaitForIntroReadyAsync(token).ConfigureAwait(false);
+                if (!resumeIntro)
+                {
+                    SetActivity("Waiting for Intro");
+                    await WaitForIntroReadyAsync(token).ConfigureAwait(false);
+                }
 
                 float explosionTime = await WaitForExplosionTimeAsync(token).ConfigureAwait(false);
                 MacroConfiguration currentConfiguration;
@@ -291,6 +329,109 @@ namespace LiveSplit.SubnauticaMarco.Macros
 
                 explosionResets++;
             }
+        }
+
+        private async Task EnsurePauseMenuOpenAsync(
+            Process process,
+            GameMemoryState state,
+            CancellationToken token)
+        {
+            if (state == GameMemoryState.InGameCraftingMenuOpen)
+            {
+                SetActivity("Closing Open Menu");
+                await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
+                Log("Escape input sent to close the existing in-game menu.");
+                if (!await WaitForStateAsync(GameMemoryState.InGame, 1000, token).ConfigureAwait(false))
+                    throw new InvalidOperationException("The existing in-game menu did not close.");
+                await Task.Delay(50, token).ConfigureAwait(false);
+                state = GameMemoryState.InGame;
+            }
+
+            if (state == GameMemoryState.InGame)
+            {
+                SetActivity("Opening Pause Menu");
+                await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
+                Log("Escape input sent to open the pause menu.");
+                if (!await WaitForStateAsync(
+                    GameMemoryState.InGamePauseMenuOpen,
+                    1000,
+                    token).ConfigureAwait(false))
+                {
+                    throw new InvalidOperationException("The pause menu did not open.");
+                }
+                return;
+            }
+
+            if (state != GameMemoryState.InGamePauseMenuOpen)
+                throw new InvalidOperationException("Cannot open the pause menu from state " + state + ".");
+
+            Log("Pause menu was already open; the initial Escape input was skipped.");
+        }
+
+        private async Task<bool> WaitForStateAsync(
+            GameMemoryState expected,
+            int timeoutMilliseconds,
+            CancellationToken token)
+        {
+            var timeout = Stopwatch.StartNew();
+            while (timeout.ElapsedMilliseconds < timeoutMilliseconds)
+            {
+                token.ThrowIfCancellationRequested();
+                memory.Update();
+                if (memory.GetState() == expected)
+                    return true;
+                await Task.Delay(15, token).ConfigureAwait(false);
+            }
+
+            return false;
+        }
+
+        private async Task<bool> WaitForQuitAcceptedAsync(
+            int timeoutMilliseconds,
+            CancellationToken token)
+        {
+            var timeout = Stopwatch.StartNew();
+            while (timeout.ElapsedMilliseconds < timeoutMilliseconds)
+            {
+                token.ThrowIfCancellationRequested();
+                memory.Update();
+
+                bool quitStarted;
+                if (memory.TryReadQuitStarted(out quitStarted) && quitStarted)
+                    return true;
+
+                GameMemoryState state = memory.GetState();
+                if (state == GameMemoryState.Loading || state == GameMemoryState.MainMenu)
+                    return true;
+
+                IntPtr player;
+                if (memory.TryReadLivePlayer(out player) && player == IntPtr.Zero)
+                    return true;
+
+                await Task.Delay(15, token).ConfigureAwait(false);
+            }
+
+            return false;
+        }
+
+        private async Task<bool?> WaitForQuitConfirmationAsync(
+            int timeoutMilliseconds,
+            CancellationToken token)
+        {
+            var timeout = Stopwatch.StartNew();
+            while (timeout.ElapsedMilliseconds < timeoutMilliseconds)
+            {
+                token.ThrowIfCancellationRequested();
+                memory.Update();
+
+                bool unsavedWarning;
+                if (memory.TryReadQuitConfirmation(out unsavedWarning))
+                    return unsavedWarning;
+
+                await Task.Delay(10, token).ConfigureAwait(false);
+            }
+
+            return null;
         }
 
         private async Task WaitForMainMenuReadyAsync(CancellationToken token)
@@ -332,6 +473,13 @@ namespace LiveSplit.SubnauticaMarco.Macros
                         + timeout.ElapsedMilliseconds + "ms. LoadingObserved=" + sawLoading + ".");
                     return;
                 }
+
+                if (memory.GetState() == GameMemoryState.SkipCutscene)
+                {
+                    Log("Intro cinematic is already active; continuing from the skip stage after "
+                        + timeout.ElapsedMilliseconds + "ms.");
+                    return;
+                }
                 await Task.Delay(25, token).ConfigureAwait(false);
             }
 
@@ -359,6 +507,13 @@ namespace LiveSplit.SubnauticaMarco.Macros
         {
             lock (sync)
                 return running;
+        }
+
+        private static bool IsInGameState(GameMemoryState state)
+        {
+            return state == GameMemoryState.InGame
+                || state == GameMemoryState.InGamePauseMenuOpen
+                || state == GameMemoryState.InGameCraftingMenuOpen;
         }
 
         private IntPtr GetGameWindow()

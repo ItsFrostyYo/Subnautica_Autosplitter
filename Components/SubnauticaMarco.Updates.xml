@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="3.7.1.3">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Added more States to the Reset Macro so it can reset or continue from (Main Menu, Loading, Intro Cinematic, In-Game, Pause Menu already Open or Crafting Menu Open.)</change>
+    </changelog>
+  </update>
   <update version="3.6.0.0">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
