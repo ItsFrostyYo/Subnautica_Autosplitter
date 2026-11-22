@@ -203,6 +203,10 @@ namespace LiveSplit.Subnautica
         FloatingIslandLeaveSplit,
         [Description("Build"), ToolTip("Splits when you finish constructing a selected Builder Tool piece")]
         Build,
+        [Description("Cinematic End"), ToolTip("Splits when you end a cinematic, for example lifepod hatch animation/cutscene")]
+        CinematicEndSplit,
+        [Description("Cinematic Start"), ToolTip("Splits when you start a cinematic, for example lifepod hatch animation/cutscene")]
+        CinematicStartSplit,
     }
     public class ToolTipAttribute : Attribute
     {

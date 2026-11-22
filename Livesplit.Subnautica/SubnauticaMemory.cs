@@ -249,6 +249,8 @@ namespace LiveSplit.Subnautica
                 { SplitName.BuilderLoopLifepodReturnSplit, () => IsAnimationPlaying.New && !IsAnimationPlaying.Old && BiomeString.New == "safeShallows" && GetPlayerItemCount(TechType.JeweledDiskPiece) >= 3 && GetPlayerItemCount(TechType.JeweledDiskPiece) <= 4 && GetPlayerItemCount(TechType.Builder) == 0 },
                 //{ SplitName.ChairSplit,           () => (PlayerMode)PlayerMode.New == LiveSplit.Subnautica.PlayerMode.Sitting && PlayerMode.Changed },
                 { SplitName.CureSplit,            () => TimeCured.New > TimeCured.Old },
+                { SplitName.CinematicEndSplit, ()=> !IsAnimationPlaying.New && IsAnimationPlaying.Old },
+                { SplitName.CinematicStartSplit, ()=> IsAnimationPlaying.New && !IsAnimationPlaying.Old },
                 { SplitName.DeathSplit,           () => Health.New <= 0 && Health.Old > 0 || IsDying.New && !IsDying.Old },
                 { SplitName.EnterBaseSplit,       () => CurrentSub.New != IntPtr.Zero && CurrentSub.Old == IntPtr.Zero && CurrentSubIsBase.New },
                 { SplitName.ExitBaseSplit,        () => CurrentSub.Old != IntPtr.Zero && CurrentSub.New == IntPtr.Zero && CurrentSubIsBase.Old },
