@@ -50,6 +50,7 @@ namespace LiveSplit.SubnauticaMarco.Memory
         private ManagedField sequenceTarget;
         private ManagedField fpsInputModuleLastGroup;
         private ManagedField escapePodIntroCinematic;
+        private ManagedField escapePodAnchorPosition;
         private ManagedField cinematicModeActive;
         private ManagedField ingameMenuCurrentScreen;
         private ManagedField ingameMenuIsQuitting;
@@ -309,6 +310,38 @@ namespace LiveSplit.SubnauticaMarco.Memory
             }
         }
 
+        public bool TryReadEscapePodSpawn(out float x, out float z)
+        {
+            lock (sync)
+            {
+                x = 0f;
+                z = 0f;
+                if (runtime == null || escapePodMain == null
+                    || escapePodAnchorPosition == null)
+                {
+                    return false;
+                }
+
+                // EscapePod.StartAtPosition stores RandomStart's finalized
+                // lifepod position in this Vector3 for the lifetime of the save.
+                IntPtr escapePod;
+                if (!TryReadLiveStaticObject(escapePodMain, out escapePod)
+                    || escapePod == IntPtr.Zero
+                    || !memory.TryReadSingle(
+                        ProcessMemory.Add(escapePod, escapePodAnchorPosition.Offset),
+                        out x)
+                    || !memory.TryReadSingle(
+                        ProcessMemory.Add(escapePod, escapePodAnchorPosition.Offset + 8),
+                        out z))
+                {
+                    return false;
+                }
+
+                return !float.IsNaN(x) && !float.IsInfinity(x)
+                    && !float.IsNaN(z) && !float.IsInfinity(z);
+            }
+        }
+
         public void Dispose()
         {
             lock (sync)
@@ -374,6 +407,7 @@ namespace LiveSplit.SubnauticaMarco.Memory
             ResolveInstanceIfMissing("Sequence", new[] { "_target", "target", "m_target" }, ref sequenceTarget);
             ResolveInstanceIfMissing("FPSInputModule", new[] { "lastGroup", "_lastGroup", "m_lastGroup", "<lastGroup>k__BackingField" }, ref fpsInputModuleLastGroup);
             ResolveInstanceIfMissing("EscapePod", new[] { "introCinematic", "_introCinematic", "m_introCinematic" }, ref escapePodIntroCinematic);
+            ResolveInstanceIfMissing("EscapePod", new[] { "anchorPosition", "_anchorPosition", "m_anchorPosition" }, ref escapePodAnchorPosition);
             ResolveInstanceIfMissing("PlayerCinematicController", new[] { "cinematicModeActive", "_cinematicModeActive", "m_cinematicModeActive" }, ref cinematicModeActive);
             ResolveInstanceIfMissing("IngameMenu", new[] { "<currentScreen>k__BackingField", "currentScreen", "_currentScreen", "m_currentScreen" }, ref ingameMenuCurrentScreen);
             ResolveInstanceIfMissing("IngameMenu", new[] { "isQuitting", "_isQuitting", "m_isQuitting", "<isQuitting>k__BackingField" }, ref ingameMenuIsQuitting);
@@ -693,6 +727,7 @@ namespace LiveSplit.SubnauticaMarco.Memory
             sequenceTarget = null;
             fpsInputModuleLastGroup = null;
             escapePodIntroCinematic = null;
+            escapePodAnchorPosition = null;
             cinematicModeActive = null;
             ingameMenuCurrentScreen = null;
             ingameMenuIsQuitting = null;

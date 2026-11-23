@@ -38,5 +38,10 @@ namespace LiveSplit.SubnauticaMarco.Configuration
         public ExplosionPreset ExplosionPreset { get; set; }
         public int CustomMinimumSeconds { get; set; }
         public int CustomMaximumSeconds { get; set; }
+        public bool SpawnReset { get; set; }
+        public float SpawnMinimumX { get; set; }
+        public float SpawnMinimumZ { get; set; }
+        public float SpawnMaximumX { get; set; }
+        public float SpawnMaximumZ { get; set; }
     }
 }

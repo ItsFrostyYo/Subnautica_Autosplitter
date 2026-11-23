@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
         private bool running;
         private MacroConfiguration latestConfiguration;
         private string activity = string.Empty;
-        private int explosionResets;
+        private int repeatedResets;
         private int scanInProgress;
         private DateTime nextSaveScanUtc;
         private bool autoDeletionPreviouslyEnabled;
@@ -40,6 +41,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
 
         public MacroController(IntPtr liveSplitWindow)
         {
+            InitializeLog();
             hotkeyWindow = new HotkeyWindow(liveSplitWindow, delegate
             {
                 Interlocked.Exchange(ref pendingHotkey, 1);
@@ -121,13 +123,15 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 if (running)
                     return;
                 running = true;
-                explosionResets = 0;
+                repeatedResets = 0;
                 cancellation = new CancellationTokenSource();
             }
 
-            Log("Macro triggered. ExplosionReset=" + configuration.ExplosionReset + ", GameMode=" + configuration.GameMode + ".");
-            Task operation = configuration.ExplosionReset
-                ? RunExplosionResetAsync(configuration, cancellation.Token)
+            Log("Macro triggered. ExplosionReset=" + configuration.ExplosionReset
+                + ", SpawnReset=" + configuration.SpawnReset
+                + ", GameMode=" + configuration.GameMode + ".");
+            Task operation = configuration.ExplosionReset || configuration.SpawnReset
+                ? RunRepeatedResetAsync(configuration, cancellation.Token)
                 : RunSingleResetAsync(configuration.GameMode, cancellation.Token);
             activeTask = CompleteOperationAsync(operation);
         }
@@ -175,7 +179,10 @@ namespace LiveSplit.SubnauticaMarco.Macros
             }
         }
 
-        private async Task RunSingleResetAsync(ResetGameMode mode, CancellationToken token)
+        private async Task RunSingleResetAsync(
+            ResetGameMode mode,
+            CancellationToken token,
+            bool logRoutine = true)
         {
             Process process;
             SubnauticaVersion version;
@@ -186,14 +193,16 @@ namespace LiveSplit.SubnauticaMarco.Macros
             {
                 var profile = MacroProfile.Create(version, mode);
                 GameMemoryState state = memory.GetState();
-                Log("Reset started. Version=" + version + ", Mode=" + mode + ", State=" + state + ".");
+                if (logRoutine)
+                    Log("Reset started. Version=" + version + ", Mode=" + mode + ", State=" + state + ".");
 
                 if (state == GameMemoryState.Loading || state == GameMemoryState.SkipCutscene)
                 {
                     SetActivity(state == GameMemoryState.Loading
                         ? "Loading - No Input"
                         : "Intro - No Input");
-                    Log("Normal reset ignored because the game is already in " + state + ".");
+                    if (logRoutine)
+                        Log("Reset ignored because the game is already in " + state + ".");
                     return;
                 }
 
@@ -205,7 +214,10 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     && IsInGameState(state)
                     ? SaveDeleter.GetSaveRoot(process) : null;
                 string oldSave = saveRoot == null ? null : SaveDeleter.MostRecentMatching(saveRoot, deletionConfig.SaveDeletionGameMode);
-                if (saveRoot != null) Log(oldSave == null ? "No matching previous save found for reset cleanup." : "Previous save marked for post-reset deletion: " + oldSave);
+                if (logRoutine && saveRoot != null)
+                    Log(oldSave == null
+                        ? "No matching previous save found for reset cleanup."
+                        : "Previous save marked for post-reset deletion: " + oldSave);
 
                 if (IsInGameState(state))
                 {
@@ -213,14 +225,11 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     await EnsurePauseMenuOpenAsync(process, state, token).ConfigureAwait(false);
 
                     await NativeInput.ClickAsync(process, profile.Quit, 20, token).ConfigureAwait(false);
-                    Log("Quit button clicked.");
                     bool? unsavedConfirmation = await WaitForQuitConfirmationAsync(500, token)
                         .ConfigureAwait(false);
                     if (!unsavedConfirmation.HasValue)
                         throw new InvalidOperationException("The active quit confirmation screen could not be read from game memory.");
 
-                    Log("Active quit confirmation read from UI memory: "
-                        + (unsavedConfirmation.Value ? "AreYouSureUnsaved." : "AreYouSure."));
                     Point confirmation = unsavedConfirmation.Value
                         ? profile.ConfirmQuitAgain
                         : profile.ConfirmQuit;
@@ -229,7 +238,6 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     if (!await WaitForQuitAcceptedAsync(1000, token).ConfigureAwait(false))
                         throw new InvalidOperationException("The selected quit confirmation was not accepted by the game.");
 
-                    Log("Quit confirmation accepted; waiting for main-menu memory readiness.");
                 }
                 else if (state != GameMemoryState.MainMenu)
                 {
@@ -263,11 +271,14 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     catch (Exception error) { Log("Save deletion failed: " + error.Message); }
                 }
                 SetActivity("Reset Complete");
-                Log("Reset completed.");
+                if (logRoutine)
+                    Log("Reset completed.");
             }
         }
 
-        private async Task RunExplosionResetAsync(MacroConfiguration configuration, CancellationToken token)
+        private async Task RunRepeatedResetAsync(
+            MacroConfiguration configuration,
+            CancellationToken token)
         {
             while (true)
             {
@@ -277,13 +288,9 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 GameMemoryState cycleStart = memory.GetState();
                 bool resumeLoading = cycleStart == GameMemoryState.Loading;
                 bool resumeIntro = cycleStart == GameMemoryState.SkipCutscene;
-                if (resumeLoading || resumeIntro)
+                if (!resumeLoading && !resumeIntro)
                 {
-                    Log("Explosion reset resumed from " + cycleStart + ".");
-                }
-                else
-                {
-                    await RunSingleResetAsync(configuration.GameMode, token).ConfigureAwait(false);
+                    await RunSingleResetAsync(configuration.GameMode, token, false).ConfigureAwait(false);
                 }
 
                 await Task.Delay(50, token).ConfigureAwait(false);
@@ -294,40 +301,74 @@ namespace LiveSplit.SubnauticaMarco.Macros
                     await WaitForIntroReadyAsync(token).ConfigureAwait(false);
                 }
 
-                float explosionTime = await WaitForExplosionTimeAsync(token).ConfigureAwait(false);
                 MacroConfiguration currentConfiguration;
                 lock (sync)
                     currentConfiguration = Copy(latestConfiguration ?? configuration);
 
-                float minimum;
-                float maximum;
-                GetExplosionRange(currentConfiguration, out minimum, out maximum);
+                bool accepted = true;
+                string explosionStatus = null;
+                string spawnStatus = null;
+                var conditionLog = new List<string>();
 
-                SetActivity("Explosion " + FormatTime(explosionTime));
-                Log("Explosion time=" + explosionTime.ToString("F3")
-                    + ", target=" + minimum.ToString("F3") + ".." + maximum.ToString("F3") + ".");
-
-                if (explosionTime >= minimum && explosionTime <= maximum)
+                if (currentConfiguration.ExplosionReset)
                 {
-                    SetActivity("Good Time " + FormatTime(explosionTime));
-                    Log("Good explosion time found after " + explosionResets + " reset(s).");
+                    float explosionTime = await WaitForExplosionTimeAsync(token).ConfigureAwait(false);
+                    float minimum;
+                    float maximum;
+                    GetExplosionRange(currentConfiguration, out minimum, out maximum);
+
+                    explosionStatus = "Explosion " + FormatTime(explosionTime);
+                    bool explosionAccepted = explosionTime >= minimum && explosionTime <= maximum;
+                    conditionLog.Add("Explosion=" + explosionTime.ToString("F3")
+                        + ", target=" + minimum.ToString("F3") + ".." + maximum.ToString("F3")
+                        + " " + (explosionAccepted ? "PASS" : "FAIL"));
+                    accepted = accepted && explosionAccepted;
+                }
+
+                if (currentConfiguration.SpawnReset)
+                {
+                    PointF spawn = await WaitForEscapePodSpawnAsync(token).ConfigureAwait(false);
+                    float minimumX = Math.Min(currentConfiguration.SpawnMinimumX, currentConfiguration.SpawnMaximumX);
+                    float maximumX = Math.Max(currentConfiguration.SpawnMinimumX, currentConfiguration.SpawnMaximumX);
+                    float minimumZ = Math.Min(currentConfiguration.SpawnMinimumZ, currentConfiguration.SpawnMaximumZ);
+                    float maximumZ = Math.Max(currentConfiguration.SpawnMinimumZ, currentConfiguration.SpawnMaximumZ);
+
+                    spawnStatus = "Spawn " + FormatCoordinate(spawn.X, spawn.Y);
+                    bool spawnAccepted = spawn.X >= minimumX && spawn.X <= maximumX
+                        && spawn.Y >= minimumZ && spawn.Y <= maximumZ;
+                    conditionLog.Add("Spawn X=" + spawn.X.ToString("F3")
+                        + ", Z=" + spawn.Y.ToString("F3")
+                        + ", target X=" + minimumX.ToString("F3") + ".." + maximumX.ToString("F3")
+                        + ", Z=" + minimumZ.ToString("F3") + ".." + maximumZ.ToString("F3")
+                        + " " + (spawnAccepted ? "PASS" : "FAIL"));
+                    accepted = accepted && spawnAccepted;
+                }
+
+                SetActivity(FormatRepeatedStatus(explosionStatus, spawnStatus));
+                Log("Attempt " + (repeatedResets + 1) + ": "
+                    + string.Join("; ", conditionLog)
+                    + " => " + (accepted ? "PASS" : "RESET") + ".");
+                if (accepted)
+                {
+                    SetActivity("Good " + FormatRepeatedStatus(explosionStatus, spawnStatus));
+                    Log("All enabled reset conditions passed after " + repeatedResets + " reset(s).");
                     return;
                 }
 
                 Process process;
                 SubnauticaVersion version;
                 if (!memory.TryGetProcess(out process, out version))
-                    throw new InvalidOperationException("The Subnautica process closed during the explosion reset.");
+                    throw new InvalidOperationException("The Subnautica process closed during the repeated reset.");
 
                 using (process)
                 {
-                    SetActivity("Bad Time - Resetting");
+                    SetActivity("Conditions Failed - Resetting");
                     int hold = version == SubnauticaVersion.Build2018
                         || version == SubnauticaVersion.Build2021 ? 1050 : 1550;
                     await NativeInput.HoldEscapeAsync(process, hold, token).ConfigureAwait(false);
                 }
 
-                explosionResets++;
+                repeatedResets++;
             }
         }
 
@@ -340,7 +381,6 @@ namespace LiveSplit.SubnauticaMarco.Macros
             {
                 SetActivity("Closing Open Menu");
                 await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
-                Log("Escape input sent to close the existing in-game menu.");
                 if (!await WaitForStateAsync(GameMemoryState.InGame, 1000, token).ConfigureAwait(false))
                     throw new InvalidOperationException("The existing in-game menu did not close.");
                 await Task.Delay(50, token).ConfigureAwait(false);
@@ -351,7 +391,6 @@ namespace LiveSplit.SubnauticaMarco.Macros
             {
                 SetActivity("Opening Pause Menu");
                 await NativeInput.PressEscapeAsync(process, token).ConfigureAwait(false);
-                Log("Escape input sent to open the pause menu.");
                 if (!await WaitForStateAsync(
                     GameMemoryState.InGamePauseMenuOpen,
                     1000,
@@ -365,7 +404,6 @@ namespace LiveSplit.SubnauticaMarco.Macros
             if (state != GameMemoryState.InGamePauseMenuOpen)
                 throw new InvalidOperationException("Cannot open the pause menu from state " + state + ".");
 
-            Log("Pause menu was already open; the initial Escape input was skipped.");
         }
 
         private async Task<bool> WaitForStateAsync(
@@ -469,15 +507,11 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 bool ready;
                 if (memory.TryReadIntroReady(out ready) && ready)
                 {
-                    Log("Intro continue prompt ready after "
-                        + timeout.ElapsedMilliseconds + "ms. LoadingObserved=" + sawLoading + ".");
                     return;
                 }
 
                 if (memory.GetState() == GameMemoryState.SkipCutscene)
                 {
-                    Log("Intro cinematic is already active; continuing from the skip stage after "
-                        + timeout.ElapsedMilliseconds + "ms.");
                     return;
                 }
                 await Task.Delay(25, token).ConfigureAwait(false);
@@ -501,6 +535,22 @@ namespace LiveSplit.SubnauticaMarco.Macros
             }
 
             throw new TimeoutException("The Aurora explosion timer could not be read from memory.");
+        }
+
+        private async Task<PointF> WaitForEscapePodSpawnAsync(CancellationToken token)
+        {
+            var timeout = Stopwatch.StartNew();
+            while (timeout.ElapsedMilliseconds < 10000)
+            {
+                token.ThrowIfCancellationRequested();
+                float x;
+                float z;
+                if (memory.TryReadEscapePodSpawn(out x, out z))
+                    return new PointF(x, z);
+                await Task.Delay(25, token).ConfigureAwait(false);
+            }
+
+            throw new TimeoutException("The lifepod spawn coordinates could not be read from memory.");
         }
 
         private bool IsRunning()
@@ -530,7 +580,7 @@ namespace LiveSplit.SubnauticaMarco.Macros
         private void SetActivity(string value)
         {
             lock (sync)
-                activity = value + (explosionResets > 0 ? " (" + explosionResets + ")" : string.Empty);
+                activity = value + (repeatedResets > 0 ? " (" + repeatedResets + ")" : string.Empty);
         }
 
         private static MacroConfiguration Copy(MacroConfiguration value)
@@ -546,7 +596,12 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 ExplosionReset = value.ExplosionReset,
                 ExplosionPreset = value.ExplosionPreset,
                 CustomMinimumSeconds = value.CustomMinimumSeconds,
-                CustomMaximumSeconds = value.CustomMaximumSeconds
+                CustomMaximumSeconds = value.CustomMaximumSeconds,
+                SpawnReset = value.SpawnReset,
+                SpawnMinimumX = value.SpawnMinimumX,
+                SpawnMinimumZ = value.SpawnMinimumZ,
+                SpawnMaximumX = value.SpawnMaximumX,
+                SpawnMaximumZ = value.SpawnMaximumZ
             };
         }
 
@@ -665,6 +720,25 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 + "." + time.Milliseconds.ToString("000");
         }
 
+        private static string FormatCoordinate(float x, float z)
+        {
+            return "X " + x.ToString("0.###", CultureInfo.InvariantCulture)
+                + ", Z " + z.ToString("0.###", CultureInfo.InvariantCulture);
+        }
+
+        private static string FormatRepeatedStatus(string explosionStatus, string spawnStatus)
+        {
+            if (!string.IsNullOrEmpty(explosionStatus)
+                && !string.IsNullOrEmpty(spawnStatus))
+            {
+                return explosionStatus + " | " + spawnStatus;
+            }
+
+            return !string.IsNullOrEmpty(explosionStatus)
+                ? explosionStatus
+                : spawnStatus ?? "Reset Conditions";
+        }
+
         private static void Log(string message)
         {
             try
@@ -672,11 +746,34 @@ namespace LiveSplit.SubnauticaMarco.Macros
                 lock (logSync)
                 {
                     File.AppendAllText(
-                        Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "_SubnauticaMarco.log"),
+                        GetLogPath(),
                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " | [Subnautica Macro] " + message + Environment.NewLine);
                 }
             }
             catch { /* Never crash the macro due to file logging. */ }
+        }
+
+        private static void InitializeLog()
+        {
+            try
+            {
+                lock (logSync)
+                {
+                    File.WriteAllText(
+                        GetLogPath(),
+                        DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
+                            + " | [Subnautica Macro] Session started. Component version "
+                            + typeof(MacroController).Assembly.GetName().Version
+                            + "."
+                            + Environment.NewLine);
+                }
+            }
+            catch { /* Never prevent the component from loading due to logging. */ }
+        }
+
+        private static string GetLogPath()
+        {
+            return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "_SubnauticaMarco.log");
         }
 
         [DllImport("user32.dll")]

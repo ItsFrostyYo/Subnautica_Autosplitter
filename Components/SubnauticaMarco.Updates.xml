@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="3.8.0.3">
+    <files>
+      <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>Added Spawn Reset Macro, works the same as Explosion Reset Macro and also works together with it when both are enabled</change>
+    </changelog>
+  </update>
     <update version="3.7.1.3">
     <files>
       <file path="Components/LiveSplit.SubnauticaMarco.dll" status="changed" />

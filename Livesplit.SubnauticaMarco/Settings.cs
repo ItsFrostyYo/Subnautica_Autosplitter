@@ -3,6 +3,7 @@ using LiveSplit.Model.Input;
 using LiveSplit.UI;
 using System;
 using System.Drawing;
+using System.Globalization;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -18,6 +19,13 @@ namespace LiveSplit.SubnauticaMarco
         private readonly TextBox customMinimumTextBox;
         private readonly TextBox customMaximumTextBox;
         private readonly Label customRangeLabel;
+        private readonly CheckBox spawnCheckBox;
+        private readonly TextBox spawnMinimumXTextBox;
+        private readonly TextBox spawnMinimumZTextBox;
+        private readonly TextBox spawnMaximumXTextBox;
+        private readonly TextBox spawnMaximumZTextBox;
+        private readonly FlowLayoutPanel spawnMinimumPanel;
+        private readonly FlowLayoutPanel spawnMaximumPanel;
         private readonly ToolTip toolTip;
         private readonly CheckBox saveDeleterCheckBox;
         private readonly ComboBox saveGameModeComboBox;
@@ -95,6 +103,16 @@ namespace LiveSplit.SubnauticaMarco
             customMinimumTextBox = new TextBox { Text = "46:00", Width = 65 };
             customMaximumTextBox = new TextBox { Text = "46:30", Width = 65 };
 
+            spawnCheckBox = new CheckBox
+            {
+                AutoSize = true,
+                Text = "Spawn Reset Macro"
+            };
+            spawnMinimumXTextBox = new TextBox { Text = "0", Width = 65 };
+            spawnMinimumZTextBox = new TextBox { Text = "0", Width = 65 };
+            spawnMaximumXTextBox = new TextBox { Text = "0", Width = 65 };
+            spawnMaximumZTextBox = new TextBox { Text = "0", Width = 65 };
+
             var customRangePanel = new FlowLayoutPanel
             {
                 AutoSize = true,
@@ -111,6 +129,13 @@ namespace LiveSplit.SubnauticaMarco
                 Text = "to"
             });
             customRangePanel.Controls.Add(customMaximumTextBox);
+
+            spawnMinimumPanel = CreateCoordinatePanel(
+                spawnMinimumXTextBox,
+                spawnMinimumZTextBox);
+            spawnMaximumPanel = CreateCoordinatePanel(
+                spawnMaximumXTextBox,
+                spawnMaximumZTextBox);
 
             var layout = new TableLayoutPanel
             {
@@ -132,13 +157,17 @@ namespace LiveSplit.SubnauticaMarco
             layout.Controls.Add(customRangeLabel, 0, 5);
             layout.Controls.Add(customRangePanel, 1, 5);
 
-            AddRow(layout, 6, string.Empty, saveDeleterCheckBox);
-            AddRow(layout, 7, "Gamemode:", saveGameModeComboBox);
-            AddRow(layout, 8, "When to Delete:", saveTimingComboBox);
+            AddRow(layout, 6, string.Empty, spawnCheckBox);
+            AddRow(layout, 7, "Minimum:", spawnMinimumPanel);
+            AddRow(layout, 8, "Maximum:", spawnMaximumPanel);
+
+            AddRow(layout, 9, string.Empty, saveDeleterCheckBox);
+            AddRow(layout, 10, "Gamemode:", saveGameModeComboBox);
+            AddRow(layout, 11, "When to Delete:", saveTimingComboBox);
 
             AutoScaleDimensions = new SizeF(6f, 13f);
             AutoScaleMode = AutoScaleMode.Font;
-            Size = new Size(476, 292);
+            Size = new Size(476, 379);
             Controls.Add(layout);
 
             enabledCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
@@ -149,6 +178,7 @@ namespace LiveSplit.SubnauticaMarco
             saveDeleterCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
             explosionCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
             explosionPresetComboBox.SelectedIndexChanged += delegate { RefreshEnabledState(); };
+            spawnCheckBox.CheckedChanged += delegate { RefreshEnabledState(); };
 
             toolTip.SetToolTip(enabledCheckBox, "Enable the global reset hotkey while LiveSplit is running.");
             toolTip.SetToolTip(hotkeyTextBox, "Select this box, then press the keyboard hotkey used to run or cancel the reset macro. Press Escape to clear it.");
@@ -157,6 +187,11 @@ namespace LiveSplit.SubnauticaMarco
             toolTip.SetToolTip(explosionPresetComboBox, "Choose the acceptable Aurora explosion time range.");
             toolTip.SetToolTip(customMinimumTextBox, "Custom minimum explosion time in minutes:seconds.");
             toolTip.SetToolTip(customMaximumTextBox, "Custom maximum explosion time in minutes:seconds.");
+            toolTip.SetToolTip(spawnCheckBox, "Repeatedly reset until EscapePod.anchorPosition is inside the configured X/Z rectangle. Press the hotkey again to cancel.");
+            toolTip.SetToolTip(spawnMinimumXTextBox, "First X boundary of the accepted lifepod spawn rectangle.");
+            toolTip.SetToolTip(spawnMinimumZTextBox, "First Z boundary of the accepted lifepod spawn rectangle.");
+            toolTip.SetToolTip(spawnMaximumXTextBox, "Second X boundary of the accepted lifepod spawn rectangle.");
+            toolTip.SetToolTip(spawnMaximumZTextBox, "Second Z boundary of the accepted lifepod spawn rectangle.");
 
             toolTip.SetToolTip(saveDeleterCheckBox, "Permanently deletes matching slot#### save folders from the running game installation. This cannot be undone.");
             toolTip.SetToolTip(saveTimingComboBox, "After Reset Completes deletes the latest existing matching save only after a successful in-game reset. Automatic scans all existing and new matching save folders every 5 seconds while enabled.");
@@ -176,6 +211,19 @@ namespace LiveSplit.SubnauticaMarco
             if (!TryParseTime(customMaximumTextBox.Text, out maximum))
                 maximum = 2790;
 
+            float minimumX;
+            float minimumZ;
+            float maximumX;
+            float maximumZ;
+            if (!TryParseCoordinate(spawnMinimumXTextBox.Text, out minimumX))
+                minimumX = 0f;
+            if (!TryParseCoordinate(spawnMinimumZTextBox.Text, out minimumZ))
+                minimumZ = 0f;
+            if (!TryParseCoordinate(spawnMaximumXTextBox.Text, out maximumX))
+                maximumX = 0f;
+            if (!TryParseCoordinate(spawnMaximumZTextBox.Text, out maximumZ))
+                maximumZ = 0f;
+
             return new MacroConfiguration
             {
                 Enabled = enabledCheckBox.Checked,
@@ -187,7 +235,12 @@ namespace LiveSplit.SubnauticaMarco
                 ExplosionReset = explosionCheckBox.Checked,
                 ExplosionPreset = (ExplosionPreset)Math.Max(0, explosionPresetComboBox.SelectedIndex),
                 CustomMinimumSeconds = minimum,
-                CustomMaximumSeconds = Math.Max(minimum, maximum)
+                CustomMaximumSeconds = Math.Max(minimum, maximum),
+                SpawnReset = spawnCheckBox.Checked,
+                SpawnMinimumX = minimumX,
+                SpawnMinimumZ = minimumZ,
+                SpawnMaximumX = maximumX,
+                SpawnMaximumZ = maximumZ
             };
         }
 
@@ -221,6 +274,11 @@ namespace LiveSplit.SubnauticaMarco
                 explosionPresetComboBox.Items.Count - 1);
             customMinimumTextBox.Text = FormatTime(SettingsHelper.ParseInt(element["CustomMinimumSeconds"], 2760));
             customMaximumTextBox.Text = FormatTime(SettingsHelper.ParseInt(element["CustomMaximumSeconds"], 2790));
+            spawnCheckBox.Checked = SettingsHelper.ParseBool(element["SpawnReset"], false);
+            spawnMinimumXTextBox.Text = FormatCoordinate(SettingsHelper.ParseFloat(element["SpawnMinimumX"], 0f));
+            spawnMinimumZTextBox.Text = FormatCoordinate(SettingsHelper.ParseFloat(element["SpawnMinimumZ"], 0f));
+            spawnMaximumXTextBox.Text = FormatCoordinate(SettingsHelper.ParseFloat(element["SpawnMaximumX"], 0f));
+            spawnMaximumZTextBox.Text = FormatCoordinate(SettingsHelper.ParseFloat(element["SpawnMaximumZ"], 0f));
             UpdateHotkeyText();
             RefreshEnabledState();
         }
@@ -229,7 +287,7 @@ namespace LiveSplit.SubnauticaMarco
         {
             MacroConfiguration configuration = GetConfiguration();
             XmlElement settings = document.CreateElement("Settings");
-            SettingsHelper.CreateSetting(document, settings, "Version", "1.2");
+            SettingsHelper.CreateSetting(document, settings, "Version", "1.3");
             SettingsHelper.CreateSetting(document, settings, "HardcoreSaveDeleter", configuration.HardcoreSaveDeleter);
             SettingsHelper.CreateSetting(document, settings, "SaveDeletionGameMode", configuration.SaveDeletionGameMode);
             SettingsHelper.CreateSetting(document, settings, "SaveDeletionTiming", configuration.SaveDeletionTiming);
@@ -240,6 +298,11 @@ namespace LiveSplit.SubnauticaMarco
             SettingsHelper.CreateSetting(document, settings, "ExplosionPreset", configuration.ExplosionPreset);
             SettingsHelper.CreateSetting(document, settings, "CustomMinimumSeconds", configuration.CustomMinimumSeconds);
             SettingsHelper.CreateSetting(document, settings, "CustomMaximumSeconds", configuration.CustomMaximumSeconds);
+            SettingsHelper.CreateSetting(document, settings, "SpawnReset", configuration.SpawnReset);
+            SettingsHelper.CreateSetting(document, settings, "SpawnMinimumX", configuration.SpawnMinimumX);
+            SettingsHelper.CreateSetting(document, settings, "SpawnMinimumZ", configuration.SpawnMinimumZ);
+            SettingsHelper.CreateSetting(document, settings, "SpawnMaximumX", configuration.SpawnMaximumX);
+            SettingsHelper.CreateSetting(document, settings, "SpawnMaximumZ", configuration.SpawnMaximumZ);
             return settings;
         }
 
@@ -330,6 +393,37 @@ namespace LiveSplit.SubnauticaMarco
             customRangeLabel.Enabled = enabledCheckBox.Checked && explosionCheckBox.Checked && custom;
             customMinimumTextBox.Enabled = customRangeLabel.Enabled;
             customMaximumTextBox.Enabled = customRangeLabel.Enabled;
+            spawnCheckBox.Enabled = enabledCheckBox.Checked;
+            bool spawnEnabled = enabledCheckBox.Checked && spawnCheckBox.Checked;
+            spawnMinimumPanel.Enabled = spawnEnabled;
+            spawnMaximumPanel.Enabled = spawnEnabled;
+        }
+
+        private static FlowLayoutPanel CreateCoordinatePanel(TextBox xTextBox, TextBox zTextBox)
+        {
+            var panel = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                Margin = Padding.Empty,
+                WrapContents = false
+            };
+            panel.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Margin = new Padding(0, 5, 4, 0),
+                Text = "X"
+            });
+            panel.Controls.Add(xTextBox);
+            panel.Controls.Add(new Label
+            {
+                AutoSize = true,
+                Margin = new Padding(10, 5, 4, 0),
+                Text = "Z"
+            });
+            panel.Controls.Add(zTextBox);
+            return panel;
         }
 
         private static ComboBox CreateDropDown()
@@ -386,6 +480,25 @@ namespace LiveSplit.SubnauticaMarco
         {
             seconds = Math.Max(0, seconds);
             return (seconds / 60).ToString("00") + ":" + (seconds % 60).ToString("00");
+        }
+
+        private static bool TryParseCoordinate(string text, out float value)
+        {
+            return float.TryParse(
+                    text,
+                    NumberStyles.Float,
+                    CultureInfo.InvariantCulture,
+                    out value)
+                || float.TryParse(
+                    text,
+                    NumberStyles.Float,
+                    CultureInfo.CurrentCulture,
+                    out value);
+        }
+
+        private static string FormatCoordinate(float value)
+        {
+            return value.ToString("0.###", CultureInfo.InvariantCulture);
         }
 
         private static int Clamp(int value, int minimum, int maximum)
