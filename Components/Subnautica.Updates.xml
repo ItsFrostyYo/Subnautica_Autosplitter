@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <updates>
+    <update version="2.5.2.0">
+		<files>
+			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Update the SRC Loadtimes Speedrun Mod In-Game Timer to the New Mod</change>
+		</changelog>
+	</update>
     <update version="2.5.1.0">
 		<files>
 			<file path="Components/LiveSplit.Subnautica.dll" status="changed"/>

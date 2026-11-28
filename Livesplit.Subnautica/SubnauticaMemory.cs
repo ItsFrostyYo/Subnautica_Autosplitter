@@ -666,18 +666,20 @@ namespace LiveSplit.Subnautica
                 return;
 
             IntPtr modImage = helper.TryFindImageOnce(
-                "SubnauticaSpeedrunningMod.Runtime",
-                "SubnauticaSpeedrunningMod.Runtime.dll");
-            if (modImage == IntPtr.Zero)
+                "SubnauticaSpeedrunningMod",
+                "SubnauticaSpeedrunningMod.dll");
+            const string timerClass = "ItsFrosti.SpeedrunningMod.RunTracking.SingleplayerRunRuntimeHost";
+
+            if (modImage == IntPtr.Zero
+                || helper.TryFindClassOnce(timerClass, modImage) == IntPtr.Zero)
                 return;
 
-            const string timerClass = "SubnauticaSpeedrunningMod.Runtime.RunTracking.SingleplayerRunRuntimeHost";
             ModElapsedSeconds = pointerFactory.Make<double>(modImage, timerClass, "_elapsedSeconds");
             ModTimerArmed = pointerFactory.Make<bool>(modImage, timerClass, "_timerArmed");
             ModTimerRunning = pointerFactory.Make<bool>(modImage, timerClass, "_timerRunning");
             ModTimerCompleted = pointerFactory.Make<bool>(modImage, timerClass, "_timerCompleted");
             ModTimerDetected = true;
-            logger.Log("Subnautica Speedrunning Mod timer detected");
+            logger.Log("Subnautica Speedrunning Mod timer detected (SNSR Mod Loader)");
         }
 
         private void ResetModTimerPointers()
